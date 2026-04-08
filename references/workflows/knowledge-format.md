@@ -1,0 +1,31 @@
+# 知识智能整理
+
+> 对知识库中的零散内容进行智能化整理和结构化重组
+
+**适用场景**：帮我把知识库里的零散笔记整理成结构化文档
+
+**触发词**：知识整理、整理笔记、结构化、知识格式化
+
+- 用户要求对知识库内容进行整理或结构化重组
+
+**工具链**：`kwiki.list_items` → `read_file_content`（批量）→ AI 整理 → `kwiki.create_item` + `otl.insert_content`
+
+## 涉及工具
+
+| 工具 | 服务 | 用途 |
+|------|------|------|
+| `kwiki.list_items` | kwiki | 遍历知识库内容 |
+| `search_files` | drive | 获取系统级 file_id 用于读取 |
+| `read_file_content` | drive | 批量读取文档内容 |
+| `kwiki.create_item` | kwiki | 创建整理后的新文档 |
+| `otl.insert_content` | otl | 写入整理后的内容 |
+
+## 执行流程
+
+**流程**：
+1. `kwiki.list_items` 遍历知识库获取文件列表
+2. `search_files(drive_ids=[知识库drive_id])` 获取系统级 `file_id`
+3. `read_file_content` 批量读取内容
+4. AI 分析内容结构，生成整理/重组方案
+5. `kwiki.create_item(doc_type="o")` 创建新智能文档
+6. `otl.insert_content` 写入整理后的结构化内容
