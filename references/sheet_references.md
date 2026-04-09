@@ -155,7 +155,6 @@
 | `etDashBoard` | 普通表格的仪表盘 |
 | `workbench` | 工作台 |
 
-
 > rowTo/colTo 比 maxRow/maxCol 更有参考价值，表示实际数据区域
 ---
 
@@ -215,7 +214,6 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `sheetId` | integer | 新建的工作表 ID |
-
 
 ---
 
@@ -288,7 +286,6 @@
 | `rangeData[].numFormat` | string | 数字格式 |
 | `rangeData[].isCellPic` | boolean | 是否为图片 |
 | `rangeData[].fmlaText` | string | 公式文本 |
-
 
 ---
 
@@ -497,7 +494,6 @@
 
 - **前置检查**：get_range_data 读取目标区域现有数据，确认覆盖范围
 - **提示**：每项必须包含 rowFrom/rowTo/colFrom/colTo 四个坐标
-
 ---
 
 

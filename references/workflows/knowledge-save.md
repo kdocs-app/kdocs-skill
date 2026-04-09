@@ -26,4 +26,5 @@
    - 本地文件 → `upload_file` 上传（保持子目录结构时递归创建文件夹）
    - 网页 → `scrape_url` + `scrape_progress` → `move_file` 移入目标库
    - 云盘已有文件 → `kwiki.import_cloud_doc(action="copy"/"shortcut")`
+   - **批量归档今日编辑** → `search_files(scope=["latest_edited"], time_type="mtime", start_time=今日0点时间戳, end_time=当前时间戳)` 筛选文件 → `read_file_content` 批量读取 → AI 按内容自动分类 → `kwiki.create_item(doc_type="folder")` 创建分类文件夹 → `kwiki.import_cloud_doc` 逐个归档
 4. **确认结果**：`kwiki.list_items` 返回存放路径与直达链接

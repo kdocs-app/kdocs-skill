@@ -113,7 +113,6 @@
 #### 操作约束
 
 - **后置验证**：新建后调用 `kwiki.get_knowledge_view` 或 `kwiki.list_knowledge_views` 核对返回的 `drive_id`、`group_id`、`kuid`
-
 ---
 
 ### 2. kwiki.list_knowledge_views
@@ -177,7 +176,6 @@
 | `data.list` | array[object] | 知识库摘要列表 |
 | `data.has_more` | boolean | 是否有更多页 |
 | `data.next_page_token` | string | 下一页 token，为空表示无更多页 |
-
 
 > 用户只提供了知识库名称时，先用它来定位知识库
 > 需要列出某人当前有哪些知识库
@@ -254,7 +252,6 @@
 | `data.utime` | number | 最近更新时间（Unix 时间戳，秒） |
 | `data.owner` | object | 知识库所有者信息，含 id / name / avatar |
 
-
 > 如果用户同时给了名称和 ID，优先用 ID
 > 若名称匹配到多个知识库，需结合返回结果进一步确认目标知识库
 ---
@@ -306,7 +303,6 @@
 
 - **前置检查**：`kwiki.get_knowledge_view` 确认目标知识库存在及当前配置
 - **后置验证**：`kwiki.get_knowledge_view` 确认名称或简介已更新
-
 ---
 
 ### 5. kwiki.close_knowledge_view
@@ -346,7 +342,6 @@
 
 - **用户确认**：关闭知识库不可恢复，必须向用户确认目标知识库名称和 ID
 - **前置检查**：`kwiki.get_knowledge_view` 确认目标知识库
-
 ---
 
 ### 6. kwiki.list_items
@@ -440,7 +435,6 @@
 > 使用 `list_files(drive_id=知识库drive_id, parent_id=..., order_by="mtime")`，
 > 再通过 `title` 交叉匹配到 `kuid`。
 
-
 > 浏览知识库根目录或进入某个文件夹后继续查看下一级内容
 > 为后续移动、删除、下载收集 `kuid`
 ---
@@ -498,7 +492,6 @@
 #### 操作约束
 
 - **后置验证**：`kwiki.list_items` 确认文档已导入
-
 > 如果用户提供的是本地文件内容，应改用 `upload_file`
 ---
 
@@ -568,7 +561,6 @@
 #### 操作约束
 
 - **后置验证**：`kwiki.list_items` 确认创建成功
-
 > 传知识库 `kuid` 则创建在根目录，传文件夹 `kuid` 则创建在该文件夹下
 ---
 
@@ -617,7 +609,6 @@
 
 - **前置检查**：`kwiki.list_items` 确认对象名称和位置
 - **用户确认**：删除操作不可逆（非空文件夹会连带删除），必须向用户确认
-
 > 仅支持单个删除，批量清理时需循环调用
 > 删除后进入知识库回收站，7 天内可通过 `restore_deleted_file(file_id=...)` 恢复
 > **也支持删除文件夹**（包括空文件夹和非空文件夹），非空文件夹会连带删除内部所有内容

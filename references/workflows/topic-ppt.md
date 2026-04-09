@@ -14,12 +14,16 @@
 
 ```
 步骤 0: 初始化会话工作目录
-        → 使用 Agent 当前 conversation ID 作为目录标识
-        → 在 OS 临时目录下创建 kdocs_aippt_<conversation_id>/ 子目录
+        → conversation_id 获取方式（按优先级）：
+          1. 从 Agent 运行时上下文获取对话标识（如 VS Code Copilot 从模板变量 VSCODE_TARGET_SESSION_LOG 路径末段提取 UUID）
+          2. 若当前环境无可用对话标识，则调用系统 UUID 生成器（如 PowerShell: [guid]::NewGuid()；bash: uuidgen）
+        → **禁止**使用自定义名称、缩写或硬编码字符串代替 conversation_id
+        → 目录名格式固定为 kdocs_aippt_<conversation_id>
+        → 在 OS 临时目录下创建该子目录
         → 记录路径为 $AIPPT_WORK_DIR
         → 同时清理超过 24 小时的残留 kdocs_aippt_* 目录
 
-步骤 1: aippt.questions(input="用户主题")
+步骤 1: aippt.theme_questions(input="用户主题")
         → 返回 questionnaire
         → 写入 $AIPPT_WORK_DIR/01_questions.json
 
@@ -33,11 +37,11 @@
         → 生成 [{ question, answer }] 数组
         → 写入 $AIPPT_WORK_DIR/selections.json
 
-步骤 3: aippt.deep_research(input, question_and_answers)
+步骤 3: aippt.theme_deep_research(input, question_and_answers)
         → 流式提取完整研究资料 references
         → 写入 $AIPPT_WORK_DIR/02_research.json
 
-步骤 4: aippt.outline(input, question_and_answers, references)
+步骤 4: aippt.theme_outline(input, question_and_answers, references)
         → 返回结构化 outline
         → 写入 $AIPPT_WORK_DIR/03_outline.json
 
@@ -50,10 +54,10 @@
            chapter     -> pt_section_title
            text/content/section -> pt_text
            end/ending  -> pt_end
-        → design_style：优先从 aippt.outline 流式输出提取每页风格；无法获取时根据问卷风格偏好和页面内容独立生成
+        → design_style：优先从 aippt.theme_outline 流式输出提取每页风格；无法获取时根据问卷风格偏好和页面内容独立生成
         → 写入 $AIPPT_WORK_DIR/04_config.json
 
-步骤 6: aippt.generate_html_pptx(topic, outlines)
+步骤 6: aippt.theme_generate_html_pptx(topic, outlines)
         → 返回 merged_url
         → 写入 $AIPPT_WORK_DIR/05_ppt_result.json
 

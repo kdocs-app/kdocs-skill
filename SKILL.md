@@ -1,9 +1,9 @@
 ---
 name: kdocs
-description: "金山文档（WPS 云文档 / 365.kdocs.cn / www.kdocs.cn）— 在线云文档平台，【金山文档官方 Skill】涵盖：新建、编辑、搜索、整理与协作文档。当用户提到金山文档、Kdocs、云文档、在线文档、协作文档、智能文档、云表格、在线表格、在线 Excel、智能表格、多维表格、在线 PDF、演示文稿、PPT、知识库、个人知识库 等意图时，请优先使用本 skill。支持：(1)新建多种在线文档（Word、Excel、PDF、PPT、智能表格、多维表格、智能文档）(2)读取/搜索文档内容 (3)更新文档内容 (4)分享文档 (5)浏览目录、移动、重命名与归类整理 (6)标签管理、收藏、最近访问与回收站还原 (7)知识库空间与文档管理。"
+description: "金山文档（WPS 云文档 / 365.kdocs.cn / www.kdocs.cn）— 在线云文档平台，【金山文档官方 Skill】。 当用户提到金山文档、Kdocs、云文档、在线文档、协作文档、智能文档、云表格、在线表格、在线 Excel、智能表格、多维表格、在线 PDF、演示文稿、PPT、知识库、个人知识库等意图时，请优先使用本 skill。 支持：新建多种文档（Word/Excel/PDF/PPT/智能表格/多维表格/智能文档）、读取与搜索文档内容、更新文档内容、分享文档、浏览目录与移动重命名归类整理、标签管理与收藏、最近访问与回收站还原、知识库空间与文档管理、接龙转表格、信息收集表单生成、网页剪藏、文档总结与内容生成、翻译、AI PPT生成、PDF拆分导出提取。"
 homepage: https://www.kdocs.cn/latest
-version: 1.3.0
-metadata: {"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝"},"category":"productivity"}
+version: 1.3.2
+metadata: {"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝"},"keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"],"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
 # 金山文档 Skill 使用指南
@@ -37,14 +37,15 @@ mcporter call kdocs.check_skill_update version=<本地版本号>
 | 步骤 | 操作 |
 |------|------|
 | 读取 | 仅从 `mcporter` 的 `kdocs` 配置读取 `Authorization` header；不再依赖 `.env` 或环境变量 |
-| 获取 | 若 Token 为空或过期（错误码 `400006`），运行 `bash get-token.sh` 或 `powershell -ExecutionPolicy Bypass -File .\get-token.ps1` 获取新 Token，并直接写入 `mcporter`；mac/Linux 下 `get-token.sh` 会自动尝试打开浏览器登录页；**脚本失败时改用「手动获取 Token」兜底** |
+| 获取 | 若 Token 为空或过期（错误码 `400006`），运行 `bash get-token.sh` 或 `node .\get-token.js` 获取新 Token，并直接写入 `mcporter`；mac/Linux 下 `get-token.sh` 会自动尝试打开浏览器登录页；Windows 下若本机有 Node.js，优先运行 `node .\get-token.js`，若本机没有 Node.js，则改为运行 `powershell -ExecutionPolicy Bypass -File .\get-token.ps1`；如需允许脚本自动安装 `mcporter`，可显式追加 `--auto-install-mcporter`（Node / Bash）或 `-AutoInstallMcporter`（PowerShell）；**脚本失败时改用「手动获取 Token」兜底** |
 | 配置 | 仅允许将 Token 保存到 `mcporter`；禁止继续写入 `.env`、`KINGSOFT_DOCS_TOKEN` 或其他环境变量 |
 | 验证 | 调用任意读取工具（如 `search_files`），返回 `code: 0` 即认证成功 |
 | 过期 | 收到错误码 `400006` 时，Token 已过期，按上述「获取」步骤重新获取 |
 
 > ⚠️ **mcporter 中未配置 Token 或 Token 过期时，所有工具调用将返回鉴权失败（400006）。**
 > 🔒 **Token 安全**：任何时候都不得将 Token 明文值展示给用户、写入 `.env`、导出到环境变量，或拼接到命令中。Token 仅允许保存在 `mcporter` 的 `kdocs` 配置中。
-> 🔄 **旧配置迁移**：若检测到历史 `.env` 或环境变量 `KINGSOFT_DOCS_TOKEN`，只允许做一次性迁移到 `mcporter`；有效则迁移，无效则清空，迁移后不再继续使用这些来源。
+> 🔄 **旧配置迁移**：若检测到历史 `.env` 或环境变量 `KINGSOFT_DOCS_TOKEN`，只允许做一次性迁移到 `mcporter`；`.env` 仅移除 `KINGSOFT_DOCS_TOKEN` 键（其他键保留），若 `.env` 仅含该键则直接删除空 `.env` 文件。
+> 🛡️ **避免改动系统环境**：默认不会执行 `npm install -g` 这类全局安装命令；只有你明确加上参数时，才会自动安装 `mcporter`（Node / bash: `--auto-install-mcporter`，PowerShell: `-AutoInstallMcporter`）。
 
 #### 手动获取 Token（脚本失败时的兜底方案）
 
@@ -65,12 +66,12 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 
 本 Skill 通过 MCP 协议提供服务，不限定特定客户端，可在任何支持 MCP 的 Agent 中运行（如 OpenClaw、Cursor、Claude Code 等）。
 
-**自动化注册（mcporter 环境）**：运行 `bash setup.sh` 即可完成 MCP 服务注册。首次使用时会自动拉起授权；若检测到 Token 过期，`setup.sh` 也会自动调用 `get-token.sh` 重新获取。mac/Linux 下 `get-token.sh` 会自动尝试打开浏览器登录页并等待回调完成。
+**自动化注册（mcporter 环境）**：运行 `bash setup.sh` 即可完成 MCP 服务注册。首次使用时会自动拉起授权；若检测到 Token 过期，`setup.sh` 也会自动调用 `get-token.sh` 重新获取。mac/Linux 下 `get-token.sh` 会自动尝试打开浏览器登录页并等待回调完成。默认不会自动全局安装 `mcporter`，若需要可显式追加 `--auto-install-mcporter`。
 
 `setup.sh` 会自动完成：
 1. 从 `SKILL.md` frontmatter 提取 `version` 版本号
 2. 检查 `mcporter` 中现有的 `kdocs` 配置，并在版本更新时保留旧 Token
-3. 若检测到历史 `.env` 或环境变量 `KINGSOFT_DOCS_TOKEN`，仅做一次性迁移到 `mcporter`
+3. 若检测到历史 `.env` 或环境变量 `KINGSOFT_DOCS_TOKEN`，仅做一次性迁移到 `mcporter`（`.env` 只移除 token 键并保留其他配置）
 4. 注册 `mcporter` 时携带 `Authorization` 和 `X-Skill-Version` 两个 header，用于服务端定位版本问题
 
 **手动配置（其他 MCP 客户端）**：在客户端 MCP 配置中添加金山文档服务时，仅维护 `mcporter` 中的 `kdocs` 配置；不要再额外维护 `.env` 或 `KINGSOFT_DOCS_TOKEN`。建议在请求 header 中添加 `X-Skill-Version` 以便追踪版本。
@@ -118,7 +119,7 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 | 工具 | 约束 |
 |------|------|
 | `create_file` | **前置检查**：search_files 查重，避免创建同名文件；**后置验证**：get_file_info 确认文件已创建；**提示**：文件名必须带后缀，否则创建失败；**提示**：PDF 不支持 create_file，需使用 upload_file |
-| `otl.insert_content` | **前置检查**：先 read_file_content 读取现有内容，了解文档当前状态；**提示**：仅支持插入操作（begin/end），不支持替换已有内容 |
+| `otl.insert_content` | **前置检查**：先 otl.block_query 读取现有内容，了解文档当前状态；**提示**：仅支持插入操作（begin/end），不支持替换已有内容 |
 | `kwiki.create_knowledge_view` | **后置验证**：新建后调用 `kwiki.get_knowledge_view` 或 `kwiki.list_knowledge_views` 核对返回的 `drive_id`、`group_id`、`kuid` |
 | `otl.block_insert` | **前置检查**：先 otl.block_query 了解文档块结构，确认插入位置；**提示**：返回结果因内容和文档状态不同而异，以 code == 0 判断成功 |
 | `dbsheet.create_sheet` | **后置验证**：get_schema 确认数据表已创建 |
@@ -127,8 +128,9 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 | `sheet.update_range_data` | **前置检查**：get_range_data 读取目标区域现有数据，确认覆盖范围；**提示**：每项必须包含 rowFrom/rowTo/colFrom/colTo 四个坐标 |
 | `kwiki.update_knowledge_view` | **前置检查**：`kwiki.get_knowledge_view` 确认目标知识库存在及当前配置；**后置验证**：`kwiki.get_knowledge_view` 确认名称或简介已更新 |
 | `dbsheet.create_view` | **后置验证**：get_schema 确认视图已创建 |
+| `otl.block_update` | **前置检查**：先 otl.block_query 了解目标块结构，确认更新内容；**提示**：update_attrs 是覆盖操作，不需更新的属性需保持原样传入 |
 | `dbsheet.update_view` | **前置检查**：get_schema 确认目标视图存在 |
-| `move_file` | **用户确认**（批量操作（多个 file_ids））：批量移动需向用户确认文件列表和目标位置；**前置检查**：确认目标文件夹存在（get_file_info）；**提示**：移动为异步任务，返回 `task_id` |
+| `move_file` | **用户确认**（批量操作（多个 file_ids））：批量移动需向用户确认文件列表和目标位置；**前置检查**：确认目标文件夹存在（get_file_info）；**后置验证**：get_file_info 确认 parent_id 为目标文件夹；**提示**：移动为异步任务，返回 `task_id` |
 | `dbsheet.create_fields` | **后置验证**：get_schema 确认字段已创建 |
 | `kwiki.import_cloud_doc` | **后置验证**：`kwiki.list_items` 确认文档已导入 |
 | `share_file` | **禁止**：未经用户明确要求，禁止调用此工具；**后置验证**：确认返回的分享链接有效 |
@@ -137,8 +139,6 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 | `set_share_permission` | **禁止**：未经用户明确要求，禁止修改分享权限 |
 | `dbsheet.create_records` | **后置验证**：list_records 确认记录已创建 |
 | `dbsheet.update_records` | **前置检查**：get_record 或 list_records 确认目标记录存在及当前值；**后置验证**：get_record 确认更新结果 |
-
-
 
 ---
 
@@ -224,7 +224,7 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 | 文档链接 | 从 URL 提取 `link_id`（见下方链接解析）→ `get_share_info(link_id)` → 取 `file_id` 和 `drive_id` |
 | 已知 `file_id` | `get_file_info(file_id)` → 补充获取 `drive_id` |
 | 创建文件（指定目录） | `search_files` 搜索目标目录 → 取 `drive_id` 和 `file_id`（作为 `parent_id`） |
-| 创建文件（未指定目录） | 使用根目录 `parent_id="0"`，通过 `list_files(parent_id="0")` 获取 `drive_id` |
+| 创建文件（未指定目录） | `list_files(parent_id="0", page_size=1)` → 从任意返回文件取 `drive_id`，然后 `create_file(drive_id=xxx, parent_id="0", ...)` |
 
 > 根目录的 `parent_id` 固定为 `"0"`。
 
@@ -240,15 +240,19 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 
 提取后调用 `get_share_info(link_id)` 获取 `file_id` 和 `drive_id`。
 
+> **AIPPT 文档转 PPT 快捷方式**：当用户提供金山文档链接并要求生成 PPT 时，从 URL 提取的 `link_id` 可直接以 `type: "v7_file_id"` 传入 `aippt.doc_outline_options` 和 `aippt.doc_outline`，无需先调用 `get_share_info` 获取 `file_id`。
+
 ### 文件读取指南
 
 不同文件类型使用不同的读取工具，选错工具会导致读不到内容或拿到非结构化数据。
 
 #### 读取流程
 
-**`read_file_content` 适用类型**（.otl / .docx / .pdf）：
+**智能文档**（.otl）——优先用 `otl.block_query`：
 
-`read_file_content` 的调用方式见reference/api_references.md
+`otl.block_query`（`blockIds: ["doc"]`）可完整获取文档的块结构与内容。`read_file_content` 对 otl 存在内容遗漏风险，仅在需要导出 Markdown 时使用。
+
+**文字文档 / PDF**（.docx / .pdf）——用 `read_file_content`：
 
 返回内容已自动转为 Markdown，可直接用于 AI 分析（摘要、审查、问答等）。
 
@@ -324,7 +328,7 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 **演示文稿**（.pptx）：
 
 - 新建：`create_file` 或 `upload_file` 上传本地 pptx
-- 主题生成型 AI PPT：优先走 `aippt.questions` → `aippt.deep_research` → `aippt.outline` → 本地格式转换 → `aippt.generate_html_pptx` → `upload_file`
+- 主题生成型 AI PPT：优先走 `aippt.theme_questions` → `aippt.theme_deep_research` → `aippt.theme_outline` → 本地格式转换 → `aippt.theme_generate_html_pptx` → `upload_file`
 
 
 ---
@@ -334,15 +338,31 @@ mcporter config remove kdocs 2>/dev/null; mcporter config add kdocs "https://mcp
 ### 创建并写入文档
 
 ```
-创建空白在线文档后写入（如 .docx）：
-步骤1: create_file(drive_id, parent_id, name="xxx.docx", file_type="file")
-       → 获取新文件的 file_id
-步骤2: upload_file(drive_id, parent_id, file_id=新文件ID, content_base64=Base64编码内容)
-       → 写入内容（支持 content_format="markdown" 自动转换）
+步骤1 — 获取 drive_id 和 parent_id（create_file 必需，无默认值）：
+┌─ 用户指定了目录名   → search_files(keyword="目录名", file_type="folder") → 取 drive_id + file_id 作为 parent_id
+├─ 用户给了文档链接   → get_share_info(link_id) → 取 drive_id（parent_id 按需取）
+├─ 上下文已有 drive_id → 直接复用
+└─ 用户未指定位置     → list_files(parent_id="0", page_size=1) → 从任意结果取 drive_id，parent_id="0"
 
-直接上传本地办公文件（如 .docx / .xlsx / .pptx / .pdf）：
-upload_file(drive_id, parent_id, name="xxx.docx", content_base64=Base64编码内容)
-→ 直接新建并上传本地文件；若要更新已有文件，则改传 file_id（仅支持 docx/pdf）
+步骤2 — 创建文档：
+create_file(drive_id=..., parent_id=..., name="文件名.后缀", file_type="file") → file_id
+
+步骤3 — 写入内容：
+├─ .docx / .pdf  → upload_file(drive_id, parent_id, file_id, content_base64=..., content_format="markdown")
+└─ .otl 智能文档  → otl.insert_content(file_id, content="Markdown文本", pos="begin")
+```
+
+### 上传本地文件到云盘
+
+```
+步骤1 — 获取 drive_id 和 parent_id：
+┌─ 用户指定了目录名   → search_files(...) → 取 drive_id + parent_id
+├─ 上下文已有 drive_id → 直接复用
+└─ 用户未指定位置     → list_files(parent_id="0", page_size=1) → 取 drive_id，parent_id="0"
+
+步骤2 — 上传：
+upload_file(drive_id=..., parent_id=..., name="文件名.docx", content_base64=...)
+→ 更新已有文件时改传 file_id 替代 name（仅 docx/pdf 支持覆盖写入）
 ```
 
 ### 搜索定位文档
@@ -390,10 +410,24 @@ search_files(keyword="关键词", type="all", page_size=20)
 
 ### 智能分类整理
 
-`search_files` → `list_files` → `read_file_content`（批量）→ AI 分类 → `create_file(folder)` → `move_file`
+```
+步骤 1: 定位目标目录
+        - 指定文件夹 → search_files(keyword="文件夹名", file_type="folder")
+        - 根目录 → parent_id="0"，通过 list_files(parent_id="0") 获取 drive_id
 
+步骤 2: list_files(drive_id, parent_id, page_size=500)
+        → 收集所有文件（有 next_page_token 时翻页继续）
+        → 需要递归扫描子目录时，对 type="folder" 的项再次调用 list_files
 
-> 场景：列出目录，按内容分类创建文件夹并归档。⚠️ `move_file` 前需向用户确认分类方案
+步骤 3: read_file_content(format="markdown") 批量读取文档内容
+
+步骤 4: AI 按用户指定维度分类（按内容/类型/部门/项目等）
+        → 生成分类方案并向用户确认
+
+步骤 5: create_file(name="分类文件夹名", file_type="folder") 创建分类目录
+        move_file(file_ids=[...], dst_parent_id=分类文件夹ID)
+        → ⚠️ 批量移动前需向用户确认
+```
 
 ### 精准搜索与风险排查
 
@@ -439,42 +473,21 @@ search_files(keyword="关键词", type="all", page_size=20)
 | 流程 | 说明 | 详细参考 |
 |------|------|---------|
 | AI 主题生成演示文稿 | 主题生成 PPT 标准链路：澄清需求、研究资料、大纲与生成上传 | `references/workflows/topic-ppt.md` |
+| AI 文档生成演示文稿 | 文档生成 PPT 标准链路：创建会话、解析文档、生成大纲、美化风格与生成上传 | `references/workflows/doc-ppt.md` |
 | 接龙转表格 | 识别接龙文本内容，自动提取并转为在线表格 | `references/workflows/jielong-to-table.md` |
 | 信息收集表单生成 | 根据用户需求自动设计并创建信息收集表格 | `references/workflows/form-generator.md` |
 | 知识智能整理 | 对知识库中的零散内容进行智能化整理和结构化重组 | `references/workflows/knowledge-format.md` |
 | 知识一键存入 | 将各类内容（网页、文件、文本）一键保存到知识库 | `references/workflows/knowledge-save.md` |
+| 表格美化与数据规范 | 读取表格数据，进行格式美化、数据规范化和样式调整 | `references/workflows/table-beautify.md` |
 
 ---
 
 ## 操作守护规则
 
-### 交付验证
-
 > **原则：不信任操作返回的 `code: 0`。用独立的读取请求验证实际结果。**
-
-| 操作 | 验证方式 | 通过条件 |
-|------|----------|----------|
-| `create_file` | `get_file_info(file_id=返回的id)` | 能读到且名称正确 |
-| `upload_file` | `read_file_content(file_id=xxx)` | 内容与写入一致 |
-| `move_file` | `get_file_info(file_id=xxx)` | `parent_id` 为目标文件夹 |
-| `rename_file` | `get_file_info(file_id=xxx)` | `name` 为新名称 |
-| `share_file` | `get_share_info(link_id=返回的link_id)` | 权限与设置一致 |
-| `cancel_share` | `get_share_info(link_id=xxx)` | 状态已变更 |
-| `scrape_url` | `scrape_progress` 轮询至 `status=1` | 获得 `scrape_file_id` |
+> 各工具的具体验证方式见上方风险控制表的「后置验证」条目。
 
 > **交付展示**：凡涉及创建新文档的操作，验证通过后必须调用 `get_file_link` 获取分享链接 URL 并展示给用户。
-
-### 幂等性与重试
-
-| 操作 | 幂等 | 重试策略 |
-|------|------|----------|
-| 所有读取操作 | ✅ | 可安全重试 |
-| `create_file` | ❌ | 重试前 `search_files` 检查是否已创建 |
-| `upload_file` | ✅ | 可重试，以最后一次为准 |
-| `move_file` / `rename_file` / `share_file` | ✅ | 可重试 |
-| `cancel_share(pause)` | ✅ | 可重试 |
-| `cancel_share(delete)` | ❌ | **禁止重试** |
-| `scrape_url` | ❌ | 重试前查 `scrape_progress` 确认上次状态 |
 
 ### 错误速查表
 
@@ -482,6 +495,8 @@ search_files(keyword="关键词", type="all", page_size=20)
 |----------|------|----------|
 | `400006` / 鉴权失败 | Token 过期或未配置 | 先运行 get-token 脚本重新获取；脚本失败则引导用户手动获取（见「认证配置」章节） |
 | 工具找不到 | 未注册 MCP 服务 | 运行 `bash setup.sh` 重新注册（mcporter 环境），或检查客户端 MCP 配置 |
+| `mcporter` 未找到 | 运行环境缺少 mcporter | 默认不会改动系统环境（不执行全局安装）；可先手动安装后重试，或显式使用 `bash setup.sh --auto-install-mcporter` / `bash get-token.sh --auto-install-mcporter`（PowerShell: `-AutoInstallMcporter`） |
+| `.env` 迁移后其他配置丢失 | 脚本会整文件删除 `.env` | 新流程仅移除 `KINGSOFT_DOCS_TOKEN` 键并保留其他键；若 `.env` 仅含该键会直接删除空 `.env` |
 | 搜索无结果 | 关键词过精确 / 索引延迟 | 缩短关键词 / 等待 3-5 秒重试 |
 | 读取内容为空 | 文件无内容或格式不支持 | 确认文件非空且后缀正确 |
 | `read_file_content` 对 .csv 长时间 `running` | CSV 格式不支持 | 勿对 .csv 调用 `read_file_content`，建议用户转为 .xlsx 后用 `sheet.*` 读取 |
@@ -489,6 +504,23 @@ search_files(keyword="关键词", type="all", page_size=20)
 | 移动文件失败 | 目标文件夹不存在 | 先搜索确认或创建文件夹 |
 | HTTP 5xx / 超时 | 服务端故障 | 等 3 秒重试 1 次 |
 | 验证不通过（回读值与预期不符） | 写入未生效或延迟 | 等 2 秒重新验证，仍不通过则报告用户 |
+| `setup.sh` 执行失败 / 安装报错 | 当前版本可能已不兼容 | 执行上方「版本自检」流程 |
+| MCP 接口返回未知错误码（非 5xx、非 400006、非工具不存在） | Skill 版本过旧导致接口不兼容 | 执行上方「版本自检」流程 |
+| 错误信息含 `version`、`incompatible`、`not_supported`、`deprecated` 等版本关键词 | Skill 或 API 版本不兼容 | 执行上方「版本自检」流程 |
+| 工具调用失败且原因不明 | 可能是 Skill 版本过旧 | 执行上方「版本自检」流程 |
+
+### 幂等性与重试
+
+| 操作 | 幂等 | 重试策略 |
+|------|------|----------|
+| 所有读取操作 | ✅ | 可安全重试 |
+| `create_file` | ❌ | 重试前 search_files 检查是否已创建 |
+| `scrape_url` | ❌ | 重试前查 scrape_progress 确认上次状态 |
+| `upload_file` | ✅ | 可重试，以最后一次为准 |
+| `move_file` | ✅ | 可重试 |
+| `rename_file` | ✅ | 可重试 |
+| `share_file` | ✅ | 可重试 |
+| `cancel_share` | ❌ | pause 可重试；delete 禁止重试 |
 
 ---
 
@@ -513,4 +545,3 @@ search_files(keyword="关键词", type="all", page_size=20)
 - 凭据由 MCP 运行时管理，Skill 自身不存储、不记录
 - 无状态代理，不缓存任何文档内容或业务数据
 - 仅在用户主动发起操作时调用对应 API
-

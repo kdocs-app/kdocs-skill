@@ -101,7 +101,7 @@
 - **后置验证**：get_file_info 确认文件已创建
 - **提示**：文件名必须带后缀，否则创建失败
 - **提示**：PDF 不支持 create_file，需使用 upload_file
-
+- **幂等**：否 — 重试前 search_files 检查是否已创建
 ---
 
 ### 2. scrape_url
@@ -148,7 +148,7 @@
 | `parent_id` | number | 父目录ID |
 | `group_id` | number | 组ID |
 
-
+- **幂等**：否 — 重试前查 scrape_progress 确认上次状态
 > 返回 job_id 后需立即调用 scrape_progress 轮询
 > 每隔2秒轮询一次，status=1 时完成
 ---
@@ -203,7 +203,6 @@
 | `data.group_id` | number | 组ID |
 | `data.cache` | number | 缓存标识 |
 | `data.core_err` | string | 内核错误信息 |
-
 
 > status=1 时停止轮询，获取 scrape_file_id
 > status=-1 时停止轮询，任务失败
@@ -308,7 +307,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 - **后置验证**：read_file_content 确认写入结果
 - **提示**：更新模式支持 docx/pdf；新建模式支持 doc/docx/xls/xlsx/ppt/pptx/pdf
 - **提示**：Markdown 源内容务必传 content_format=markdown
-
+- **幂等**：是 — 可重试，以最后一次为准
 ---
 
 ## 二、读文档
@@ -399,7 +398,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items` | array[FileInfo] | 文件列表，结构见附录 A |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 6. download_file
@@ -454,7 +452,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.hashes` | array | 文件散列值（仅 `with_hash=true` 时返回），公网可能返回 md5/sha1/sha256 中的一个或多个 |
 | `data.hashes[].sum` | string | 哈希结果 |
 | `data.hashes[].type` | string | 哈希类型：`sha256` / `md5` / `sha1` / `s2s` |
-
 
 ---
 
@@ -511,8 +508,9 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 - **用户确认**（批量操作（多个 file_ids））：批量移动需向用户确认文件列表和目标位置
 - **前置检查**：确认目标文件夹存在（get_file_info）
+- **后置验证**：get_file_info 确认 parent_id 为目标文件夹
 - **提示**：移动为异步任务，返回 `task_id`
-
+- **幂等**：是
 ---
 
 ### 8. rename_file
@@ -544,7 +542,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 #### 返回值说明
 
 返回通用文件信息结构，详见附录 A。
-
+- **幂等**：是
 ---
 
 ### 9. share_file
@@ -639,7 +637,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 - **禁止**：未经用户明确要求，禁止调用此工具
 - **后置验证**：确认返回的分享链接有效
-
+- **幂等**：是
 ---
 
 ### 10. set_share_permission
@@ -692,7 +690,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 #### 操作约束
 
 - **禁止**：未经用户明确要求，禁止修改分享权限
-
 ---
 
 ### 11. cancel_share
@@ -738,7 +735,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 - **禁止**（mode=delete）：禁止自动重试，失败后报告用户
 - **提示**：建议优先使用 mode=pause（可恢复）
 - **后置验证**：get_share_info 确认分享状态已变更
-
+- **幂等**：否 — pause 可重试；delete 禁止重试
 ---
 
 ### 12. get_share_info
@@ -810,7 +807,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.mtime` | integer | 修改时间 |
 | `data.opts` | object | 链接设置 |
 | `data.created_by` | object | 创建者信息 |
-
 
 ---
 
@@ -932,7 +928,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 返回通用文件信息结构，详见附录 A。当 `with_drive=true` 时额外返回 `drive` 对象（含盘的 id、name、quota 等信息）。
 
-
 ---
 
 ### 14. list_labels
@@ -1011,7 +1006,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items[].rank` | integer | 排序权重 |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 15. create_label
@@ -1074,7 +1068,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.label.ctime` | integer | 创建时间（时间戳，秒） |
 | `data.label.rank` | integer | 排序权重 |
 
-
 ---
 
 ### 16. get_label_meta
@@ -1131,7 +1124,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.mtime` | integer | 修改时间（时间戳，秒），系统标签为 0 |
 | `data.hash` | integer | 标签内容哈希值 |
 | `data.rank` | integer | 排序权重，系统标签为 0 |
-
 
 ---
 
@@ -1202,7 +1194,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items[].ctime` | integer | 打标时间（时间戳，秒） |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 18. batch_add_label_objects
@@ -1250,7 +1241,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 ```
 
-
 ---
 
 ### 19. batch_remove_label_objects
@@ -1293,7 +1283,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 
 ```
-
 
 ---
 
@@ -1339,7 +1328,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 
 ```
-
 
 ---
 
@@ -1387,7 +1375,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 
 ```
-
 
 ---
 
@@ -1449,7 +1436,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items` | array[FileInfo] | 收藏文件列表，结构见附录 A |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 23. batch_create_star_items
@@ -1494,7 +1480,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 ```
 
-
 ---
 
 ### 24. batch_delete_star_items
@@ -1535,7 +1520,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 
 ```
-
 
 ---
 
@@ -1594,7 +1578,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items` | array[FileInfo] | 最近访问文件列表，结构见附录 A |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 26. copy_file
@@ -1649,7 +1632,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.drive_id` | string | 目标驱动盘 ID |
 | `data.parent_id` | string | 目标父目录 ID |
 
-
 ---
 
 ### 27. check_file_name
@@ -1695,7 +1677,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 |------|------|------|
 | `data.exists` | boolean | 文件名是否已存在 |
 | `data.file_id` | string | 若已存在，返回已有文件 ID |
-
 
 ---
 
@@ -1754,7 +1735,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.items` | array[FileInfo] | 回收站文件列表，结构见附录 A |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
-
 ---
 
 ### 29. restore_deleted_file
@@ -1788,7 +1768,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 ```
 
-
 ---
 
 ## 四、用文档
@@ -1806,7 +1785,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 > - **Excel（.xlsx）与智能表格（.ksheet）**：使用 **`sheet.*`**。**获取内容**：`sheet.get_sheets_info` → `sheet.get_range_data`（矩形区域）。完整工具列表与参数见 `sheet_references.md`。
 > - **多维表格（.dbt）**：使用 **`dbsheet.*`**。**获取结构**：`dbsheet.get_schema`；**获取内容**：`dbsheet.list_records`、`dbsheet.get_record`；完整工具列表与参数见 `dbsheet_reference.md`。
 
-> ⚠️ 文档为**otl**类型时，**务必**按照reference/otl_references.md的参数要求进行调用！！！
+> ⚠️ **智能文档（.otl）**：`read_file_content` 对 otl 存在内容遗漏风险（部分组件类型可能丢失），日常读取应优先使用 `otl.block_query`。仅在需要导出 Markdown 格式时使用本工具，并**务必**按照 reference/otl_references.md 的参数要求调用。
 
 
 #### 调用示例
@@ -1867,7 +1846,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.doc` | object | 文字类的结构化数据，源格式为 otl/pdf/docx 且目标格式为 `kdc` 时适用 |
 | `data.src_format` | string | 源格式（otl, docx, pdf, xlsx 等） |
 | `data.version` | string | 版本号 |
-
 
 > 首次调用返回 `task_id`，需轮询 `task_status` 直至 `success`
 > 不支持 .csv 格式，禁止对 CSV 文件调用本工具
@@ -2002,7 +1980,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `data.next_page_token` | string | 下一页 token |
 | `data.total` | integer | 资源集合总数（仅 `with_total=true` 时返回） |
 
-
 > 新建文件后搜索可能无法立即命中，需等待索引更新
 ---
 
@@ -2043,7 +2020,6 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 | `file_id` | string | 文件 ID |
 | `file_url` | string | 在线访问链接 |
 | `name` | string | 文件名 |
-
 
 ---
 

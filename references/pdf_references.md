@@ -144,7 +144,6 @@
 |------|------|------|
 | `data.page_count` | integer | PDF 总页数 |
 
-
 ---
 
 ### 2. pdf.extract_pdf_pages
@@ -212,7 +211,6 @@
 |------|------|------|
 | `data.download_uri` | string | 提取后 PDF 的临时下载链接（有时效性） |
 
-
 ---
 
 
@@ -222,6 +220,31 @@
 |---|--------|------|----------|
 | 1 | `pdf.get_pdf_page_count` | 查询 PDF 总页数 | `file_id` |
 | 2 | `pdf.extract_pdf_pages` | 提取指定页并生成新 PDF | `file_id`, `ranges` |
+
+## 常用工作流
+
+### PDF 文档操作
+
+按用户需求选择对应操作：
+
+**读取 PDF 内容**：
+1. `search_files` 或 `get_share_info` 定位文档 → 获取 `file_id`、`drive_id`
+2. `read_file_content(file_id=..., format="markdown")` → 返回 Markdown 文本
+> 适合摘要、信息提取等场景；复杂排版可能有精度损失
+
+**查询 PDF 页数**：
+1. `search_files` 定位 PDF → 获取 `file_id`
+2. `pdf.get_pdf_page_count(file_id=...)` → 返回总页数
+
+**提取指定页面**：
+1. `search_files` 定位 PDF → 获取 `file_id`
+2. `pdf.get_pdf_page_count` 确认总页数，校验用户请求的页码是否越界
+3. `pdf.extract_pdf_pages(file_id=..., ranges=[{from:1,to:1},{from:5,to:8}])` → 生成新 PDF
+> 页码 1-based；`ranges` 为 `{from, to}` 对象数组，多段按顺序合并；提取结果为临时下载链接
+
+**创建/上传 PDF**：
+- `upload_file(drive_id=..., parent_id=..., name="xxx.pdf", content_base64=...)` 直接上传
+- 更新已有 PDF：`upload_file(file_id=..., content_base64=...)` 全量覆盖
 
 ## 常见决策示例
 

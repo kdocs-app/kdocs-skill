@@ -82,7 +82,6 @@
 | `detail.res[].errName` | string | 如 `S_OK` |
 | `detail.res[].token` | string | 可选，会话/追踪用 |
 
-
 ---
 
 ## 二、主题（字体与配色）
@@ -131,7 +130,6 @@
 }
 
 ```
-
 
 ---
 
@@ -182,7 +180,6 @@
 
 ```
 
-
 ---
 
 ### 4. wpp.set_color_presentation
@@ -229,7 +226,6 @@
 }
 
 ```
-
 
 ---
 
@@ -281,7 +277,6 @@
 }
 
 ```
-
 
 ---
 
@@ -386,7 +381,6 @@
 
 失败时可能返回 `result` 为 `error` 且带 `data.code` / `data.message`，以实际响应为准。
 
-
 ---
 
 ### 7. wpp.export_pdf
@@ -490,7 +484,6 @@
 | `task_type` | string | 固定为 `normal_export`（导出 PDF 场景） |
 | `status` | string | `running` / `finished` |
 | `data.url` | string | PDF 下载地址（`finished` 时，有时效） |
-
 
 ---
 

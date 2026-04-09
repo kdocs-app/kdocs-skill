@@ -1,5 +1,9 @@
 # get-token.ps1 - WPS Authorization Tool (Windows PowerShell)
-# Usage: powershell -ExecutionPolicy Bypass -File get-token.ps1
+# Usage: powershell -ExecutionPolicy Bypass -File get-token.ps1 [-AutoInstallMcporter]
+
+param(
+    [switch]$AutoInstallMcporter
+)
 
 # $PSScriptRoot is always the directory of the running script, regardless of how it was invoked
 $ScriptDir = $PSScriptRoot
@@ -39,12 +43,16 @@ function Extract-RespCode([object]$resp) {
 function Ensure-Mcporter {
     if (Get-Command mcporter -ErrorAction SilentlyContinue) { return }
 
-    if (Get-Command npm -ErrorAction SilentlyContinue) {
-        try { & npm install -g mcporter 2>&1 | Out-Null } catch {}
+    if ($AutoInstallMcporter) {
+        if (Get-Command npm -ErrorAction SilentlyContinue) {
+            try { & npm install -g mcporter 2>&1 | Out-Null } catch {}
+        } else {
+            throw "mcporter is missing and npm is unavailable. Install mcporter manually or rerun with -AutoInstallMcporter in an npm-enabled environment."
+        }
     }
 
     if (-not (Get-Command mcporter -ErrorAction SilentlyContinue)) {
-        throw "mcporter is required to save the kdocs config. Please install mcporter first or run setup.sh on a supported shell."
+        throw "mcporter is required to save the kdocs config. Default behavior will not auto-install globally. Install mcporter manually, or rerun with -AutoInstallMcporter."
     }
 }
 
@@ -62,9 +70,28 @@ function Set-McporterConfig([string]$token, [string]$version) {
     & mcporter @mcArgs 2>&1 | Out-Null
 }
 
-function Remove-LegacyEnvFile {
-    if (Test-Path $LegacyEnvFile) {
-        Remove-Item $LegacyEnvFile -Force -ErrorAction SilentlyContinue
+function Remove-LegacyEnvTokenKey {
+    if (-not (Test-Path $LegacyEnvFile)) { return }
+
+    $lines = Get-Content $LegacyEnvFile -Encoding UTF8
+    $kept = @()
+    $hasToken = $false
+    foreach ($line in $lines) {
+        if ($line -match "^KINGSOFT_DOCS_TOKEN=") {
+            $hasToken = $true
+        } else {
+            $kept += $line
+        }
+    }
+
+    if (-not $hasToken) { return }
+
+    if ($kept.Count -eq 0) {
+        Remove-Item -Path $LegacyEnvFile -Force -ErrorAction SilentlyContinue
+        Write-Host "[OK] Removed KINGSOFT_DOCS_TOKEN from .env and deleted empty .env file."
+    } else {
+        Set-Content -Path $LegacyEnvFile -Value $kept -Encoding UTF8
+        Write-Host "[OK] Removed KINGSOFT_DOCS_TOKEN from .env while preserving other keys."
     }
 }
 
@@ -132,7 +159,7 @@ Write-Host "[OK] Login successful. kdocs Skill is ready."
 
 try {
     Set-McporterConfig $token (Get-SkillVersion)
-    Remove-LegacyEnvFile
+    Remove-LegacyEnvTokenKey
     Write-Host "[OK] Updated kdocs config in mcporter."
 } catch {
     Write-Host "[!] Failed to update mcporter config."

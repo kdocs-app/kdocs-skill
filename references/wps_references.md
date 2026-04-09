@@ -109,7 +109,6 @@
 - `export_modify_password` (string, 可选): `format=pdf` 时可传
 - `name` (string, 可选): `format=ap` 时必填，AP 文稿名称，不含后缀
 
-
 ---
 
 ### 2. wps.export_image
@@ -148,7 +147,6 @@
 - `client_id` (string, 可选): 导出时可传的客户端标识
 - `password` (string, 可选): 源文档密码
 - `store_type` (string, 可选): 如 `ks3`、`cloud`
-
 
 ---
 
@@ -192,7 +190,6 @@
 - `task_type` (string, 可选): `format=pdf` 时可传，通常为 `normal_export`
 - `file_id` (string, 可选): `format=ap` 时必填，传 `wps.export` 返回的新 AP 文件 ID
 - `extra_query` (object, 可选): `format=ap` 时可传，补充查询参数
-
 
 ---
 

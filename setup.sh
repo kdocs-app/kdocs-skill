@@ -7,6 +7,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_FILE="$SCRIPT_DIR/SKILL.md"
 LEGACY_ENV_FILE="$SCRIPT_DIR/.env"
 MCP_URL="https://mcp-center.wps.cn/skill_hub/mcp"
+AUTO_INSTALL_MCPORTER=0
+
+for arg in "$@"; do
+    if [ "$arg" = "--auto-install-mcporter" ]; then
+        AUTO_INSTALL_MCPORTER=1
+    fi
+done
 
 echo "🚀 设置金山文档 Skill..."
 echo ""
@@ -83,13 +90,22 @@ ensure_mcporter() {
     if command -v mcporter >/dev/null 2>&1; then
         return
     fi
-    if ! command -v npm >/dev/null 2>&1; then
-        echo "❌ 未找到 mcporter，且当前环境没有 npm，无法自动安装"
+    if [ "$AUTO_INSTALL_MCPORTER" -eq 1 ]; then
+        if ! command -v npm >/dev/null 2>&1; then
+            echo "❌ 未找到 mcporter，且当前环境没有 npm，无法自动安装"
+            exit 1
+        fi
+        echo "⚠️  未找到 mcporter，已按参数要求自动安装..."
+        npm install -g mcporter
+        echo "✅ mcporter 安装完成"
+    fi
+    if ! command -v mcporter >/dev/null 2>&1; then
+        echo "❌ 未找到 mcporter"
+        echo "💡 默认不会自动修改系统环境。"
+        echo "   - 手动安装后重试；或"
+        echo "   - 追加参数 --auto-install-mcporter 允许脚本自动安装"
         exit 1
     fi
-    echo "⚠️  未找到 mcporter，正在安装..."
-    npm install -g mcporter
-    echo "✅ mcporter 安装完成"
 }
 
 get_mcporter_config() {
@@ -139,10 +155,31 @@ write_mcporter_config() {
 }
 
 cleanup_legacy_env_file() {
-    if [ -f "$LEGACY_ENV_FILE" ]; then
-        rm -f "$LEGACY_ENV_FILE"
-        echo "🧹 已移除旧版 .env，Token 现仅保存在 mcporter 中"
+    if [ ! -f "$LEGACY_ENV_FILE" ]; then
+        return
     fi
+    if ! grep -q '^KINGSOFT_DOCS_TOKEN=' "$LEGACY_ENV_FILE"; then
+        return
+    fi
+
+    local tmp_file="${LEGACY_ENV_FILE}.tmp.$$"
+    awk '!/^KINGSOFT_DOCS_TOKEN=/' "$LEGACY_ENV_FILE" > "$tmp_file"
+
+    if [ ! -s "$tmp_file" ]; then
+        rm -f "$LEGACY_ENV_FILE" "$tmp_file"
+        echo "🧹 已移除 .env 中的 KINGSOFT_DOCS_TOKEN，清理后为空，已删除空 .env 文件"
+    else
+        mv "$tmp_file" "$LEGACY_ENV_FILE"
+        echo "🧹 已移除 .env 中的 KINGSOFT_DOCS_TOKEN，保留其他配置"
+    fi
+}
+
+run_get_token_script() {
+    local args=()
+    if [ "$AUTO_INSTALL_MCPORTER" -eq 1 ]; then
+        args+=(--auto-install-mcporter)
+    fi
+    bash "$SCRIPT_DIR/get-token.sh" "${args[@]}"
 }
 
 refresh_token_via_login() {
@@ -153,7 +190,7 @@ refresh_token_via_login() {
 
     echo "⚠️  ${reason}，正在通过 get-token.sh 重新获取..." >&2
     echo "" >&2
-    bash "$SCRIPT_DIR/get-token.sh" >&2
+    run_get_token_script >&2
 
     refreshed_config="$(get_mcporter_config)"
     refreshed_auth="$(extract_header_value "$refreshed_config" "Authorization")"
@@ -217,7 +254,7 @@ elif [ -n "$EXISTING_TOKEN" ]; then
 else
     echo "⚠️  未检测到可用 Token，正在通过 get-token.sh 获取..."
     echo ""
-    bash "$SCRIPT_DIR/get-token.sh"
+    run_get_token_script
     EXISTING_CONFIG="$(get_mcporter_config)"
     EXISTING_AUTH="$(extract_header_value "$EXISTING_CONFIG" "Authorization")"
     TOKEN_TO_SET="$(normalize_token "$EXISTING_AUTH")"

@@ -9,7 +9,7 @@
 #   4. 本脚本轮询 exchange 接口获取 token
 #   5. 将 token 仅写入 mcporter，不再写入 .env 或环境变量
 #
-# 用法：bash get-token.sh [--json] [--notify]
+# 用法：bash get-token.sh [--json] [--notify] [--auto-install-mcporter]
 
 set -euo pipefail
 
@@ -19,12 +19,15 @@ LEGACY_ENV_FILE="$SCRIPT_DIR/.env"
 MCP_URL="https://mcp-center.wps.cn/skill_hub/mcp"
 OUTPUT_JSON=0
 SHOULD_NOTIFY=0
+AUTO_INSTALL_MCPORTER=0
 
 for arg in "$@"; do
   if [ "$arg" = "--json" ]; then
     OUTPUT_JSON=1
   elif [ "$arg" = "--notify" ]; then
     SHOULD_NOTIFY=1
+  elif [ "$arg" = "--auto-install-mcporter" ]; then
+    AUTO_INSTALL_MCPORTER=1
   fi
 done
 
@@ -122,13 +125,22 @@ ensure_mcporter() {
   if command -v mcporter >/dev/null 2>&1; then
     return
   fi
-  if command -v npm >/dev/null 2>&1; then
-    echo "⚠️  未找到 mcporter，正在安装..."
-    npm install -g mcporter >/dev/null
-    echo "✅ mcporter 安装完成"
+  if [ "$AUTO_INSTALL_MCPORTER" -eq 1 ]; then
+    if command -v npm >/dev/null 2>&1; then
+      echo "⚠️  未找到 mcporter，已按参数要求自动安装..."
+      npm install -g mcporter >/dev/null
+      echo "✅ mcporter 安装完成"
+    else
+      echo "❌ 未找到 mcporter，且当前环境没有 npm，无法自动安装"
+      echo "💡 请先手动安装 mcporter，或在可用 npm 环境下重试"
+      exit 1
+    fi
   fi
   if ! command -v mcporter >/dev/null 2>&1; then
-    echo "❌ 未找到 mcporter，请先安装后重试"
+    echo "❌ 未找到 mcporter"
+    echo "💡 默认不会自动修改系统环境。"
+    echo "   - 手动安装后重试；或"
+    echo "   - 追加参数 --auto-install-mcporter 允许脚本自动安装"
     exit 1
   fi
 }
@@ -152,8 +164,22 @@ set_mcporter_config() {
 }
 
 cleanup_legacy_env_file() {
-  if [ -f "$LEGACY_ENV_FILE" ]; then
-    rm -f "$LEGACY_ENV_FILE"
+  if [ ! -f "$LEGACY_ENV_FILE" ]; then
+    return
+  fi
+  if ! grep -q '^KINGSOFT_DOCS_TOKEN=' "$LEGACY_ENV_FILE"; then
+    return
+  fi
+
+  local tmp_file="${LEGACY_ENV_FILE}.tmp.$$"
+  awk '!/^KINGSOFT_DOCS_TOKEN=/' "$LEGACY_ENV_FILE" > "$tmp_file"
+
+  if [ ! -s "$tmp_file" ]; then
+    rm -f "$LEGACY_ENV_FILE" "$tmp_file"
+    echo "🧹 已移除 .env 中的 KINGSOFT_DOCS_TOKEN，清理后为空，已删除空 .env 文件"
+  else
+    mv "$tmp_file" "$LEGACY_ENV_FILE"
+    echo "🧹 已移除 .env 中的 KINGSOFT_DOCS_TOKEN，保留其他配置"
   fi
 }
 
