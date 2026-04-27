@@ -1,0 +1,120 @@
+# otl.block_delete
+
+## 1. otl.block_delete
+
+#### 功能说明
+
+删除一个或多个块区间，适合按父块和索引范围删除内容。
+
+
+
+#### 操作约束
+
+- **用户确认**：删除操作不可逆，执行前必须向用户确认删除范围
+- **前置检查**：先 otl.block_query 确认待删除块的内容，避免误删
+
+#### 调用示例
+
+删除指定块区间：
+
+```json
+{
+  "file_id": "string",
+  "params": {
+    "blockId": "父blockId",
+    "startIndex": 0,
+    "endIndex": 1
+  }
+}
+```
+
+
+#### 参数说明
+
+- `file_id` (string, 必填): 智能文档文件 ID
+- `params` (object, 必填): 删除操作
+  - `blockId` (string, 常用): 目标父块 ID；`doc` 表示删除文档根节点的子节点
+  - `startIndex` (integer, 常用): 删除开始位置（包含该位置），且 `startIndex < endIndex`
+  - `endIndex` (integer, 常用): 删除结束位置（不包含该位置）。例如 `startIndex=2, endIndex=5` 时，会删除索引 2、3、4
+  - **重要**：当 `blockId='doc'` 时，`index=0` 指向 title 节点，正文从 `index=1` 开始；删除正文应从 `startIndex=1` 起。使用前**必须**先 `otl.block_query` 获取父块真实结构与长度，避免误删
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "msg": "ok",
+  "data": {
+    "...": "..."
+  }
+}
+
+```
+
+
+---
+
+
+# 在智能文档指定位置删除内容
+
+调用`otl.block_delete`工具，传入智能文档的 `file_id` 和相关参数，可在指定位置插入内容，适合局部删除
+
+---
+
+## 参数说明
+
+- `file_id` (string, 必填): 智能文档文件 ID
+- `params` (object, 必填): 删除操作
+  - `blockId` (string, 必填): 目标父块 ID，为"doc"表示删除文档块的子节点，其他块ID可通过查询块获得
+  - `startIndex` (integer, 必填): 删除的起始索引（操作区间左闭右开），startIndex 需要小于 endIndex
+  - `endIndex` (integer, 必填): 删除的末尾索引（操作区间左闭右开），startIndex 需要小于 endIndex
+
+---
+
+## 调用示例
+
+清空文档标题
+
+```json
+{
+  "params": {
+    "blockId": "doc",
+    "startIndex": 0,
+    "endIndex": 1
+  }
+}
+```
+
+删除文档正文首个块
+
+```json
+{
+  "params": {
+    "blockId": "doc",
+    "startIndex": 1,
+    "endIndex": 2
+  }
+}
+```
+
+删除段落的首个子节点
+
+```json
+{
+  "params": {
+    "blockId": "PARA_ID",
+    "startIndex": 0,
+    "endIndex": 1
+  }
+}
+```
+
+## 典型用法
+
+1. **清空文档标题**： blockId设置为"doc",startIndex设置为0，endIndex设置为1，可清空文档标题。
+2. **删除某个块的子节点**: blockId设置为通过查询得到的块id，确定好startIndex和endIndex，调用工具即可。
+
+## 注意事项
+
+1. 删除操作不可逆，请确保删除的内容确实不需要再进行该操作！！！
+2. 若查询到的块的content里包含rangeMarkBegin或rangeMarkEnd，计算startIndex和endIndex时应忽略它们，它们是虚拟节点。

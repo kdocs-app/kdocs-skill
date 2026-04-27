@@ -8,9 +8,9 @@
 
 > 该流程对应「主题生成 PPT」标准链路：先澄清需求，再研究资料，再出大纲，最后生成并上传云端演示文稿。
 >
-> 若通过 `mcporter` 调用本流程中的步骤，请为**每一步**单独设置超时时间为 **300 秒**。
+> 调用本流程中的步骤时，请为**每一步**单独设置超时时间为 **1800000 毫秒**。20 页以上的 PPT 生成可能需要 20-30 分钟。
 >
-> 所有中间文件必须写入会话专属临时目录 `$AIPPT_WORK_DIR/`，详见 `references/aippt_references.md` 中「临时文件管理」章节。
+> 所有中间文件必须写入会话专属临时目录 `$AIPPT_WORK_DIR/`，详见 `references/aippt.md` 中「临时文件管理」章节。
 
 ```
 步骤 0: 初始化会话工作目录
@@ -61,17 +61,26 @@
         → 返回 merged_url
         → 写入 $AIPPT_WORK_DIR/05_ppt_result.json
 
-步骤 7: 下载 merged_url 的 PPTX 二进制
-        → Base64 编码
+步骤 7: 获取 drive_id（**建议**执行：`upload_file` 的 `drive_id`、`parent_id` 接口上非必填，本流程仍**建议**步骤 9 显式带入步骤 7 的 `drive_id` 与 `parent_id="0"`）
+        → 调用 search_files(type="all", page_size=1, scope=["personal_drive"])
+        → 不传 keyword，仅靠 scope=["personal_drive"] 限定范围，确保能返回个人云文档盘中的任意文件
+        → 从返回结果中提取 data.data.items[0].file.drive_id
+        → 若返回结果 items 为空（个人盘内无任何文件），改用 create_file 在根目录创建目标文件夹（parent_id="0"），从创建结果中获取 drive_id
 
-步骤 8: upload_file(drive_id, parent_id, name="<主题>.pptx", content_base64=...)
-        → 新建云端演示文稿
+步骤 8: 下载 PPTX 并转 Base64
+        → 从步骤 6 的 05_ppt_result.json 中读取 merged_url
+        → 下载 PPTX 二进制文件并转为 Base64 编码
 
-步骤 9: get_file_link(file_id)
+步骤 9: upload_file(drive_id=步骤7所得, parent_id="0", parent_path=["应用", "AI生成PPT"], name="<主题>.pptx", content_base64=...)
+        → 新建云端演示文稿（**建议**始终带齐 `drive_id`、`parent_id`）
+        → 上传目标目录固定为 **我的云文档/应用/AI生成PPT**：`parent_id="0"` + `parent_path=["应用", "AI生成PPT"]`
+        → 若该路径不存在，系统会自动创建
+
+步骤 10: get_file_link(file_id)
         → 返回最终云文档链接
         → 写入 $AIPPT_WORK_DIR/06_cloud_result.json
 
-步骤 10: 清理会话工作目录
+步骤 11: 清理会话工作目录
         → 递归删除 $AIPPT_WORK_DIR
-        → 若步骤 1-9 中任一步失败且无法恢复，也应在报告错误后执行清理
+        → 若步骤 1-10 中任一步失败且无法恢复，也应在报告错误后执行清理
 ```

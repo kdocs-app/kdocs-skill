@@ -28,9 +28,9 @@
 >
 > 文档链路与主题链路的**最终生成步骤完全一致**：都需要先做本地格式转换得到 `{topic, outlines[]}`，再调用 `aippt.doc_generate_ppt`（底层与 `aippt.theme_generate_html_pptx` 相同）。
 >
-> 若通过 `mcporter` 调用本流程中的步骤，请为**每一步**单独设置超时时间为 **3000 秒**。11 页以上的 PPT 生成可能需要 8-10 分钟。
+> 调用本流程中的步骤时，请为**每一步**单独设置超时时间为 **1800000 毫秒**。20 页以上的 PPT 生成可能需要 20-30 分钟。
 >
-> 所有中间文件必须写入会话专属临时目录 `$AIPPT_WORK_DIR/`，详见 `references/aippt_references.md` 中「临时文件管理」章节。
+> 所有中间文件必须写入会话专属临时目录 `$AIPPT_WORK_DIR/`，详见 `references/aippt.md` 中「临时文件管理」章节。
 
 ```
 步骤 0: 初始化会话工作目录
@@ -98,19 +98,30 @@
         → 返回 merged_url（合并后的 PPTX 下载链接）+ pages[]
         → 写入 $AIPPT_WORK_DIR/06_ppt_result.json
 
-步骤 7: 下载 merged_url 的 PPTX 二进制
-        → Base64 编码
+步骤 7: 获取 drive_id
+        → upload_file 需要 drive_id 和 parent_id 两个必填参数，drive_id 必须先通过查询获取
+        → 调用 search_files(type="all", page_size=1, scope=["personal_drive"])
+        → 不传 keyword，仅靠 scope=["personal_drive"] 限定范围，确保能返回个人云文档盘中的任意文件
+        → 从返回结果中提取 data.data.items[0].file.drive_id
+        → 若返回结果 items 为空（个人盘内无任何文件），改用 create_file 在根目录创建目标文件夹（parent_id="0"），从创建结果中获取 drive_id
 
-步骤 8: upload_file(drive_id, parent_id, name="<文档名>.pptx", content_base64=...)
+步骤 8: 下载 PPTX 并转 Base64
+        → 从步骤 6 的 06_ppt_result.json 中读取 merged_url
+        → 下载 PPTX 二进制文件并转为 Base64 编码
+
+步骤 9: upload_file(drive_id, parent_id="0", parent_path=["应用", "AI生成PPT"], name="<文档名>.pptx", content_base64=...)
         → 新建云端演示文稿
+        → 上传目标目录固定为 **我的云文档/应用/AI生成PPT**
+        → parent_id 设为 "0"（根目录），parent_path 设为 ["应用", "AI生成PPT"]
+        → 若该路径不存在，系统会自动创建
 
-步骤 9: get_file_link(file_id)
+步骤 10: get_file_link(file_id)
         → 返回最终云文档链接
         → 写入 $AIPPT_WORK_DIR/07_cloud_result.json
 
-步骤 10: 清理会话工作目录
+步骤 11: 清理会话工作目录
          → 递归删除 $AIPPT_WORK_DIR
-         → 若步骤 1-9 中任一步失败且无法恢复，也应在报告错误后执行清理
+         → 若步骤 1-10 中任一步失败且无法恢复，也应在报告错误后执行清理
 ```
 
 ## 本地格式转换详解（步骤 5）
@@ -162,28 +173,15 @@
 5. **page_type**：将 `beautify.slides[i].page_type` 按映射表转换
 6. **页对齐**：beautify.slides 按 `index` 排序后，与大纲 sections 按顺序一一对应
 
-## 与主题生成链路的差异
-
-| 环节 | 主题生成 PPT | 文档生成 PPT |
-|------|-------------|-------------|
-| 输入 | 用户一句话主题 | 文档 `file_id`（服务端自动解析） |
-| 需求澄清 | `aippt.theme_questions` 返回问卷 | `aippt.doc_outline_options` 返回 questions（choice + text） |
-| 联网研究 | `aippt.theme_deep_research` | 无（基于文档内容） |
-| 大纲生成 | `aippt.theme_outline` | `aippt.doc_outline`（带 `resume_info` + `checkpoint_id`） |
-| 风格美化 | 从 `theme_outline` 流式输出提取 | `aippt.doc_beautify` 独立调用 |
-| 本地格式转换 | 需要（大纲 → `{topic, outlines[]}`) | **同样需要**（`03_outline.md` + `04_beautify.json` → `{topic, outlines[]}`） |
-| 生成 PPTX | `aippt.theme_generate_html_pptx` | `aippt.doc_generate_ppt`（**底层接口一致**，都接收 `{topic, outlines[]}`) |
-| 上传云端 | 相同流程 | 相同流程 |
-
 ## 注意事项
 
 - **无需预先读取文档内容**：文档通过 `file_id` 或 `v7_file_id` 直接传入 `aippt.doc_outline_options`，服务端会自动解析
 - **链接直传优化**：当用户提供金山文档链接（`kdocs.cn`）时，从 URL 提取 `link_id` 后直接以 `type: "v7_file_id"` 传入，无需先调用 `get_share_info` 获取 `file_id`
-- `doc_outline_options` 和 `doc_outline` 通过 MCP 调用后返回结构化 JSON（不需要自行解析 SSE 流）
+- `doc_outline_options` 和 `doc_outline` 返回结构化 JSON（不需要自行解析 SSE 流）
 - `doc_outline` 返回的 `markdown_outline` 可能包含重复内容（大纲出现两次），需要去重处理；建议从 `assistant_messages` 中提取完整且干净的大纲
 - `doc_outline` 的 `resume_info` 必须是**数组**，格式为 `[{type:"follow_up", id:<interrupt_id>, data:{items:[...]}}]`
 - **本地格式转换是必要步骤**：文档链路和主题链路最终生成接口一致，都需要 `{topic, outlines[]}` 格式
-- 生成速度约每页 20-30 秒，11 页 PPT 约需 4-8 分钟，请确保超时设置足够
+- 生成速度约每页 60 秒，20 页以上的 PPT 生成可能耗时 20-30 分钟
 - 所有中间文件使用 UTF-8 编码，JSON 文件必须通过 `JSON.stringify()` 序列化（禁止手动拼接）
-- 上传 PPTX 到云端时必须使用编程 API（`callOnce()`），不可通过 `mcporter call` 命令行（Base64 内容超出 OS 命令行长度限制）
-- 详细的 MCP 调用规则、脚本模板和中间文件约定见 `references/aippt_references.md`
+- 上传 PPTX 到云端时必须使用 `@file` 方式传入（Base64 内容超出命令行长度限制）：`kdocs-cli drive upload-file @06_upload_args.json`
+- 详细的调用规则、脚本模板和中间文件约定见 `references/aippt.md`
