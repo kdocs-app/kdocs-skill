@@ -6,6 +6,12 @@
 
 开启文件分享，可设置权限范围、访问密码、过期时间等。
 
+**`drive_id`**（非必填）：
+
+- **有明确的 drive_id** 必传。
+- **没有**：不传。
+
+
 
 #### 操作约束
 
@@ -21,6 +27,15 @@
 {
   "drive_id": "string",
   "file_id": "string",
+  "scope": "anyone"
+}
+```
+
+file_id：
+
+```json
+{
+  "file_id": "string",
   "scope": "anyone",
   "opts": {
     "allow_perm_apply": true,
@@ -35,7 +50,7 @@
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 可选): 目标云盘 ID。
 - `file_id` (string, 必填): 文件 ID
 - `scope` (string, 必填): 链接权限范围。可选值：`anyone`（所有人，仅公网支持）/ `company`（仅企业）/ `users`（指定用户）
 - `opts` (object, 可选): 链接选项
@@ -159,6 +174,11 @@
 
 取消文件分享。
 
+**`drive_id`**（非必填）：
+
+- **有明确的 drive_id** 必传。
+- **没有**：不传。
+
 
 
 #### 操作约束
@@ -181,10 +201,19 @@
 }
 ```
 
+file_id：
+
+```json
+{
+  "file_id": "string",
+  "mode": "pause"
+}
+```
+
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 可选): 目标云盘 ID。
 - `file_id` (string, 必填): 文件 ID
 - `mode` (string, 可选): 取消分享模式，默认 `pause`。可选值：`pause`（暂停分享）/ `delete`（删除分享）
 

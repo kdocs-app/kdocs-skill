@@ -31,7 +31,7 @@
 
 #### 参数说明
 
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 500
+- `page_size` (integer, 必填): 每页条数；建议 50；范围 0–500（含 0）
 - `page_token` (string, 可选): 分页 token，首次不传，后续传上次返回的 `next_page_token`
 - `allotee_type` (string, 可选): 被分配者类型。可选值：`user` / `company`
 - `allotee_id` (string, 可选): 被分配者 ID，与 `allotee_type` 配合使用
@@ -238,7 +238,7 @@
 
 - `label_id` (string, 必填): 标签 ID。公网系统标签固定 ID：`1`（星标）/ `2`（待办）/ `3`（未确认协作）/ `4`（同步文件夹）/ `5`（常用）/ `6`（快速访问）；自定义标签 ID 由 `list_labels` 或 `create_label` 返回
 - `object_type` (string, 必填): 标签对象类型。可选值：`file` / `drive` / `history` / `app` / `url`
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 500
+- `page_size` (integer, 必填): 每页条数；建议 50；范围 0–500（含 0）
 - `page_token` (string, 可选): 分页 token，首次不传，后续传上次返回的 `next_page_token`
 
 #### 返回值说明

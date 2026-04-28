@@ -25,7 +25,7 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`list_files`](drive/read_and_download.md) | 获取指定文件夹下的子文件列表 | `drive_id`, `parent_id`, `page_size` |
-| [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `drive_id`, `file_id` |
+| [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `file_id` |
 | [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `file_id` |
 | [`read_file_content`](drive/read_and_download.md) | 文档内容抽取为 Markdown/纯文本 | `drive_id` |
 
@@ -36,8 +36,8 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`move_file`](drive/organize.md) | 批量移动文件(夹) | `drive_id`, `file_ids`, `dst_drive_id`, `dst_parent_id` |
-| [`rename_file`](drive/organize.md) | 重命名文件（夹） | `drive_id`, `file_id`, `dst_name` |
-| [`copy_file`](drive/organize.md) | 复制文件到指定目录（可跨盘） | `drive_id`, `file_id`, `dst_drive_id`, `dst_parent_id` |
+| [`rename_file`](drive/organize.md) | 重命名文件（夹） | `file_id`, `dst_name` |
+| [`copy_file`](drive/organize.md) | 复制文件到指定目录（可跨盘） | `file_id`, `dst_drive_id`, `dst_parent_id` |
 | [`check_file_name`](drive/organize.md) | 检查目录下文件名是否已存在 | `drive_id`, `parent_id`, `name` |
 
 ## 四、分享
@@ -46,9 +46,9 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`share_file`](drive/share.md) | 开启文件分享 | `drive_id`, `file_id`, `scope` |
+| [`share_file`](drive/share.md) | 开启文件分享 | `file_id`, `scope` |
 | [`set_share_permission`](drive/share.md) | 修改分享链接属性 | `link_id` |
-| [`cancel_share`](drive/share.md) | 取消文件分享 | `drive_id`, `file_id` |
+| [`cancel_share`](drive/share.md) | 取消文件分享 | `file_id` |
 | [`get_share_info`](drive/share.md) | 获取分享链接信息 | `link_id` |
 | [`get_file_link`](drive/share.md) | 获取文件的云文档在线访问链接 | `file_id` |
 

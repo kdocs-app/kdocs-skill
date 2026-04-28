@@ -32,7 +32,7 @@
 
 - `keyword` (string, 可选): 搜索关键字
 - `type` (string, 必填): 搜索类型。可选值：`file_name`表示搜索文件名，`content`表示搜索文件内容，`all`表示全局搜索。
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 500
+- `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0）
 - `page_token` (string, 可选): 翻页 token
 - `file_type` (string, 可选): 文件类型筛选。可选值：`folder` / `file`
 - `file_exts` (array, 可选): 文件后缀过滤

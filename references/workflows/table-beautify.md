@@ -149,4 +149,4 @@ sheet.create_protection_ranges(file_id, sheets_protection_infos=[{
 }])
 ```
 
-> 该能力同时支持智能表格（.ksheet）和普通表格（.et）；智能表格的 `other_user_permission` 仅支持 `user_access_permission_editable`。执行前询问用户是否需要锁定、锁定哪些区域。
+> 该能力同时支持智能表格（.ksheet）和普通表格（.xlsx）；智能表格的 `other_user_permission` 仅支持 `user_access_permission_editable`。执行前询问用户是否需要锁定、锁定哪些区域。

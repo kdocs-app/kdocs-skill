@@ -2,15 +2,19 @@
 
 大多数工具需要 `file_id` 和 `drive_id` 参数。按用户提供的信息选择定位方式：
 
-`create_file` 与 `upload_file`（新建）中，`drive_id`、`parent_id` 在接口上**可为非必填**，但**凡能先定位到的，均应显式传入**，以减少落点与用户意图不符的情况。
+`create_file` / `upload_file`（新建）中 `drive_id`、`parent_id` 的传参规则：
+- 可省略：用户未说明目标文件夹。
+- 必须传入：用户已说明目标文件夹且已定位到对应 `drive_id`、`parent_id`；能传却省略视为错误。
+
+`download_file` / `rename_file` / `share_file` / `cancel_share` / `copy_file` 的 **`drive_id` 非必填**：**已有明确的 drive_id 则传**，**没有则省略**。
 
 | 用户提供 | 定位方式 |
 |---------|---------|
 | 文件名/关键词 | `search_files` → 返回结果中包含 `file_id` 和 `drive_id` |
 | 文档链接 | 从 URL 提取 `link_id`（见下方链接解析）→ `get_share_info(link_id)` → 取 `file_id` 和 `drive_id` |
 | 已知 `file_id` | `get_file_info(file_id)` → 补充获取 `drive_id` |
-| 创建文件（指定目录） | `search_files` 搜索目标目录 → 取 `drive_id` 和 `file_id`（作为 `parent_id`） |
-| 创建文件（未指定目录） | `search_files(file_type="folder", type="all", scope="personal_drive", page_size=1)` → 取命中目录的 `drive_id`，`parent_id` 常用 `"0"`，再调用 `create_file` / `upload_file`（新建） |
+| 创建文件（指定文件夹） | `search_files` 等查到目标文件夹 → 传 `drive_id` + 该文件夹 `file_id` 作为 `parent_id` |
+| 创建文件（用户未指定文件夹） | `drive_id`、`parent_id` 可不填，直接 `create_file` / `upload_file`（新建） |
 
 > 根目录的 `parent_id` 固定为 `"0"`。
 

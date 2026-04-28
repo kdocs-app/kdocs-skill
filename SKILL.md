@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云端文档的官方 Skill。 用此 Skill 帮用户在云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。 当用户的任务涉及云端文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。 也适用于用户提到金山文档、WPS、Kdocs、云文档、在线文档、协作文档、智能文档、云表格、在线表格、在线 Excel、多维表格、在线 PDF、幻灯片、知识库，或表达"帮我写"、"帮我总结"、"帮我整理"、"帮我翻译"、"帮我做PPT"等意图时。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.3
+version: 2.4.4
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -11,59 +11,23 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 金山文档 CLI Skill 提供了一套完整的在线文档操作工具，通过 `kdocs-cli` 命令行工具与金山文档 API 交互。支持创建、查询、读取、编辑、分享、移动多种类型的在线文档。
 
 
+## 严格规则
+
+### 禁止（NEVER）
+
+- 禁止将 Token 明文出现在对话、日志、命令输出、代码注释或任何文件中；Token 仅允许通过 `kdocs-cli auth set-token` 或 `kdocs-cli auth login` 保存到系统密钥链
+- 上传写入等接口需传入的 `content_base64` 可能非常大（编码后 >1 MB），禁止在对话中逐 token 生成 Base64 字符串，用脚本完成文件读取、编码和传参
+
+### 必须（MUST）
+
+- 不可逆操作（delete/close 类）执行前必须向用户确认
+- 写操作完成后必须用独立读取请求验证实际结果（不信任 `code: 0`）
+- 创建文档并验证通过后，必须调用 `get_file_link` 获取链接并展示给用户
+
+---
+
 ## 版本自检
-
-首次使用或间隔超过 24 小时后，按以下流程确认版本状态。
-
-### 前置检查：确认 CLI 已安装且版本满足要求
-
-运行 `kdocs-cli version`：
-
-- 若命令不存在 → 先按「工具安装」章节运行安装脚本
-- 若输出的版本号 **低于** 本文件头部 frontmatter 的 `version` → 运行 `kdocs-cli upgrade -y` 升级 CLI
-- 若版本 **满足** 要求 → 继续后续步骤
-
-### 第一步：检查远端最新版本
-
-```bash
-kdocs-cli upgrade --check
-```
-
-返回当前 CLI 版本和远端最新版本。若 CLI 有新版本可用：
-
-```bash
-kdocs-cli upgrade              # 交互式升级
-kdocs-cli upgrade -y           # 跳过确认直接升级
-```
-
-升级过程自动备份旧版本到 `~/.kdocs-cli/backup/`，支持 `kdocs-cli upgrade --rollback` 回滚。
-
-### 第二步：检查 Skill 版本是否匹配
-
-从本文件头部 frontmatter 的 `version` 字段读取 Skill 版本，与 `kdocs-cli version` 输出的 CLI 版本对比：
-
-- **相等** → 版本同步，自检完成
-- **不相等** → Skill 需要更新，继续第三步
-
-### 第三步：获取最新 Skill 包
-
-```bash
-kdocs-cli call check_skill_update version=<当前Skill版本号>
-```
-
-返回 JSON，关键字段：
-
-| 字段 | 含义 |
-|------|------|
-| `latest` | 远端最新版本号 |
-| `release_note` | 该版本变更摘要 |
-| `instruction` | 下载安装指引，包含 Skill 包的 CDN 下载链接 |
-
-按 `instruction` 中的指引下载并解压替换当前 Skill 目录即可完成 Skill 更新。
-
-### 兜底说明
-
-若因权限或环境限制无法同步版本，以 `kdocs-cli` 实际支持的工具集为准。运行 `kdocs-cli --help` 查看当前可用工具。SKILL.md 中描述但 CLI 不支持的工具调用将返回 "unknown command"，可安全忽略。
+何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown command` 或不兼容错误**。其他时刻无需重复执行。版本自检流程见 `references/version-check.md`。
 
 ---
 
@@ -149,80 +113,27 @@ kdocs-cli auth set-token <TOKEN>
 
 ---
 
-## 操作限制
-
-1. **禁止泄露凭据**：不得将 Token 的值以明文形式出现在对话、日志、命令输出、代码注释或任何文件中；Token 仅允许通过 `kdocs-cli auth set-token` 或 `kdocs-cli auth login` 保存到系统密钥链
-2. **工具调用**：`kdocs-cli <service> <action>` 分开传递服务名与动作名（kebab-case），无点号拆分问题：
-   ```
-   kdocs-cli otl insert-content file_id=xxx content="hello"
-   kdocs-cli drive search-files keyword=测试 type=all page_size=5
-   ```
-3. **参数传递**：支持四种方式，按场景选用。
-   - **key=value**（推荐，所有 shell 通用）：简单参数直接写，值含空格需引号包裹
-     ```
-     kdocs-cli drive search-files keyword="项目 周报" type=all
-     ```
-   - **JSON**（数组/对象参数必用）：
-     - **bash**：单引号包裹即可：`'{"include_elements":["all"]}'`
-     - **PowerShell**：单引号内双引号会被吞掉，但 CLI 内置 JSON 自动修复引擎可处理；也可用反斜杠转义确保安全：`'{\"include_elements\":[\"all\"]}'`
-   - **stdin 管道**（脚本集成、复杂嵌套参数）：
-     ```
-     echo '{"keyword":"test","type":"all"}' | kdocs-cli drive search-files -
-     ```
-   - **@文件**（超长参数、可复用配置）：
-     ```
-     kdocs-cli drive read-file-content @params.json
-     ```
-4. **大体积 Base64 禁止内联**：`upload_file` 的 `content_base64` 可能非常大（编码后 >1 MB），禁止在对话中逐 token 生成 Base64 字符串。应编写 Python 等脚本完成文件读取、Base64 编码后通过 stdin 或 @file 传入
-5. **中文/多行内容必须用 @file 方式传入**：当 `content`、`title` 等文本参数包含中文、换行或长度超过 200 字符时，**禁止**用 key=value 直接传递（Windows/PowerShell 进程间参数传递会破坏 UTF-8 编码导致乱码）。正确做法：
-   - 用 Node.js/Python **生成 JSON 文件**（包含该工具的全部参数），再用 `@file.json` 传入
-   - **禁止**用 PowerShell 的 `ConvertTo-Json` 生成 JSON 文件（输出可能带 BOM 导致解析失败）
-   - 示例：
-     ```javascript
-     // Node.js 生成 JSON payload
-     const fs = require('fs');
-     const payload = JSON.stringify({ file_id: "xxx", content: markdownText, pos: "end" });
-     fs.writeFileSync('payload.json', payload, 'utf8');
-     ```
-     ```
-     kdocs-cli otl insert-content @payload.json --silent
-     ```
-
----
-
 ## 调用格式
 
-kdocs-cli <service> <action> [key=value ... | @params.json | '<json_params>' | -]
+kdocs-cli <service> <action> [参数]
 
-**Service 列表**：`drive`（文件管理）、`sheet`（表格操作）、`otl`（智能文档）、`dbsheet`（多维表格）
+### 参数传递
 
-**参数输入方式**：
+| 参数特征 | 推荐方式 | 示例 |
+|----------|----------|------|
+| 简单值（无中文） | key=value | `kdocs-cli drive search-files keyword=test type=all` |
+| 数组/对象，短 JSON | JSON 字符串 | `kdocs-cli sheet query-records '{"file_id":"xxx","filter":{}}'` |
+| 数组/对象，或含中文/换行/>200 字符 | @file | `kdocs-cli otl insert-content @payload.json` |
+| 脚本流水线集成 | stdin | `node gen.js \| kdocs-cli otl insert-content -` |
 
-```bash
-# key=value（推荐，所有 shell 通用）
-kdocs-cli drive search-files keyword=报告 type=all
+- @file / stdin 输入必须是该工具的**完整 JSON 参数对象**
+- 中文/多行参数**禁止** key=value（Windows/PowerShell 破坏 UTF-8 编码）
+- 生成 JSON 文件用 Node.js/Python；**禁止** ConvertTo-Json（输出带 BOM）
+- PowerShell 传 JSON 字符串须反斜杠转义：`'{\"key\":[\"val\"]}'`
 
-# @file
-kdocs-cli drive search-files @params.json
-
-# JSON 字符串
-kdocs-cli drive search-files '{"keyword":"报告","type":"all"}'
-
-# stdin 管道
-echo '{"keyword":"报告"}' | kdocs-cli drive search-files -
-```
-
-**参数类型适用边界**：
-
-- `key=value`：仅适合简单参数（string/number/boolean）；不适合数组/对象、中文多行长文本
-- `@file`：数组/对象、中文多行、长文本与大体积参数首选；文件内容必须是该工具的完整 JSON 参数对象
-- JSON 字符串：仅在参数较短时使用，但需处理 shell/PowerShell 引号转义
-- stdin：适合脚本流水线集成；输入必须是完整 JSON 参数对象
-
-> **`@file` 注意事项**：`@` 后的文件必须是合法 JSON，且内容为该工具的**完整参数对象**（如 `{"file_id":"xxx","content":"...","pos":"end"}`）。写入大段内容（如向智能文档写入 Markdown）时，用脚本生成 JSON 文件再 `@file.json` 传入：
+> **@file 示例**：写入大段内容时，用脚本生成 JSON 文件再 `@file.json` 传入：
 >
 > ```javascript
-> // 示例：生成 otl.insert_content 的 JSON payload
 > const fs = require('fs');
 > fs.writeFileSync('payload.json', JSON.stringify({
 >   file_id: "<file_id>",
@@ -286,7 +197,7 @@ echo '{"keyword":"报告"}' | kdocs-cli drive search-files -
 | 文字文档 | wps / Word | .docx | 传统格式 | `references/wps.md` — Word 文档创建与内容操作 |
 | 演示文稿 | wpp | .pptx | PPT 文档专用 | `references/wpp.md` — 幻灯片主题字体和配色设置、下载和导出 |
 | 智能表格 | as | .ksheet | 结构化表格，支持多视图、字段管理 | `references/sheet.md` — 工作表管理、范围数据获取、批量更新 |
-| 多维表格 | db / dbsheet | .dbt | 多数据表、丰富字段类型与视图（表格/看板/甘特等） | `references/dbsheet_references.md` — 支持数据表/视图/字段/记录的完整增删改查，含表单视图、父子记录、分享协作、高级权限与 Webhook |
+| 多维表格 | db / dbsheet | .dbt | 多数据表、丰富字段类型与视图（表格/看板/甘特等） | `references/dbsheet.md` — 支持数据表/视图/字段/记录的完整增删改查，含表单视图、父子记录、分享协作、高级权限与 Webhook |
 
 ### 通用工具总览
 
@@ -330,14 +241,16 @@ echo '{"keyword":"报告"}' | kdocs-cli drive search-files -
 ### 不支持的操作
 
 - 无批量删除文件工具（仅支持移动）
-- 云盘 drive 侧暂无逐文件 ACL 成员矩阵（以分享链接为主）；多维表格（.dbt）见 dbsheet.permission_* 与 dbsheet.share_*（详阅 references/dbsheet_reference.md）
-- 在线 Excel / 智能表格工作表区域保护见 sheet.*_protection_ranges 相关工具（详阅 references/sheet_references.md）
+- 云盘 drive 侧暂无逐文件 ACL 成员矩阵（以分享链接为主）；多维表格（.dbt）见 dbsheet.permission_* 与 dbsheet.share_*（详阅 references/dbsheet.md）
+- 在线 Excel / 智能表格工作表区域保护见 sheet.*_protection_ranges 相关工具（详阅 references/sheet.md）
 - 无文件版本回滚
 - 无实时协同编辑控制
 
 ---
 
 ## 操作指南
+
+### 执行指南
 
 > 执行以下操作前，**必须**先阅读对应指南文件：
 
@@ -349,50 +262,26 @@ echo '{"keyword":"报告"}' | kdocs-cli drive search-files -
 
 ⚠️ 不阅读指南直接操作可能导致：参数错误、内容丢失、格式异常。
 
----
+### 高频流程指引
 
-## 核心操作摘要
+#### 创建并写入文档
 
-### 创建并写入文档
+执行顺序：
+1) 先按 `references/file-locating-guide.md` 获取目标目录 `drive_id`(可选)、`parent_id`(可选)。
+2) 再按 `references/file-writing-guide.md` 选择文档类型与写入路径。
+字段传递：步骤 1 获取 `drive_id`(可选)、`parent_id`(可选)，作为步骤 2 的输入，执行“新建写入”流程。
 
-```
-步骤1 — 获取 drive_id 和 parent_id（**建议**每次尽量完成；接口上非必填，显式传入可控制落点）：
-┌─ 用户指定了目录名   → search_files(keyword="目录名", file_type="folder", type="file_name") → 取 drive_id + file_id 作为 parent_id
-├─ 用户给了文档链接   → get_share_info(link_id) → 取 drive_id（parent_id 按需取）
-├─ 上下文已有 drive_id → 直接复用（仍建议取得 parent_id）
-└─ 用户未指定位置     → search_files(file_type="folder", type="all", scope="personal_drive", page_size=1) → 取 drive_id, parent_id 常用 "0"
+#### 上传本地文件到云盘
 
-步骤2 — 创建文档：
-create_file(drive_id=..., parent_id=..., name="文件名.后缀", file_type="file") → file_id
-（**建议**始终带 drive_id、parent_id；仅在用户明确接受默认落点且无目录诉求时再考虑省略）
+执行顺序：
+1) 先按 `references/file-locating-guide.md` 获取目标目录 `drive_id`(可选)、`parent_id`(可选)、`file_id`(可选)。
+2) 再按 `references/file-writing-guide.md` 的“本地文件上传（upload_file）”路径调用上传能力（新建上传或覆盖更新）。
+字段传递：新建上传使用步骤 1 的 `drive_id`(可选)、`parent_id`(可选) + `name`；覆盖更新使用步骤 1 的 `file_id` 。
 
-步骤3 — 写入内容：
-├─ .docx / .pdf  → upload_file(drive_id, parent_id, file_id, content_base64=..., content_format="markdown")  # 更新：**建议**与目标文件盘、目录一致
-│   新建：**建议** upload_file(drive_id, parent_id, name="...", content_base64=...)
-└─ .otl 智能文档  → otl.insert_content(file_id, content="Markdown文本", pos="begin")
-```
+#### 搜索定位文档
 
-### 上传本地文件到云盘
-
-```
-步骤1 — 获取 drive_id 和 parent_id（**建议**每次尽量完成；接口上非必填）：
-┌─ 用户指定了目录名   → search_files(keyword=..., file_type="folder", type="file_name") → 取 drive_id + parent_id
-├─ 上下文已有 drive_id → 直接复用（仍建议取得 parent_id）
-└─ 用户未指定位置     → search_files(file_type="folder", type="all", scope="personal_drive", page_size=1) → 取 drive_id, parent_id 常用 "0"
-
-步骤2 — 上传：
-upload_file(drive_id=..., parent_id=..., name="文件名.docx", content_base64=...)
-→ 更新已有文件时改传 file_id；**建议**仍传入与目标一致的 drive_id、parent_id（仅 docx/pdf 支持覆盖写入）
-```
-
-### 搜索定位文档
-
-```
-search_files(keyword="关键词", type="all", page_size=20)
-→ 返回匹配文件列表，每项含 file_id、drive_id、name
-```
-
-`type` 可选值：`all`（全部）、`file_name`（仅文件名）、`content`（全文）
+工具说明：`search_files(keyword="关键词", type="all", page_size=20)`，获取 `file_id`、`drive_id` 供后续链路使用。
+详细参数与返回结构见 `references/drive/search.md`。
 
 ### 更多操作流程
 
@@ -413,14 +302,7 @@ search_files(keyword="关键词", type="all", page_size=20)
 
 ---
 
-## 操作守护规则
-
-> **原则：不信任操作返回的 `code: 0`。用独立的读取请求验证实际结果。**
-> 各工具的具体验证方式见上方风险控制表的「后置验证」条目。
-
-> **交付展示**：凡涉及创建新文档的操作，验证通过后必须调用 `get_file_link` 获取分享链接 URL 并展示给用户。
-
-### 错误速查表
+## 错误速查
 
 | 错误特征 | 原因 | 处理方式 |
 |----------|------|----------|
@@ -462,10 +344,6 @@ search_files(keyword="关键词", type="all", page_size=20)
 | `dbsheet.permission_delete_roles_async` | ❌ | 先 query_task 确认状态 |
 
 ---
-
-## 工具组合速查
-
-> 常见场景的推荐工具组合见 `references/tool-combos.md`。
 
 ## 安全约束
 

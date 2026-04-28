@@ -20,7 +20,7 @@
 
 #### 参数说明
 
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 500
+- `page_size` (integer, 必填): 每页条数；建议 20；范围 1–500
 - `page_token` (string, 可选): 分页 token
 - `include_exts` (string, 可选): 只返回指定后缀的文件，逗号分隔
 - `exclude_exts` (string, 可选): 排除指定后缀的文件，逗号分隔
@@ -80,7 +80,7 @@
 
 #### 参数说明
 
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 100
+- `page_size` (integer, 必填): 每页条数；建议 20；范围 1–100
 - `page_token` (string, 可选): 分页 token
 - `drive_id` (string, 可选): 按驱动盘过滤
 - `with_ext_attrs` (boolean, 可选): 是否返回扩展属性

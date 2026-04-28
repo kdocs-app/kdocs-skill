@@ -13,10 +13,10 @@
 
 | 文件类型 | 首选读取路径 | `read_file_content` 使用策略 |
 |---|---|---|
-| `.docx` / `.pdf` | `read_file_content` | 默认可用 |
-| `.otl` | `otl.block_query`（优先分块） | 仅在导出 Markdown 时使用 |
-| `.xlsx` / `.ksheet` | `sheet.get_sheets_info` + `sheet.get_range_data` | 禁止 |
-| `.dbt` | `dbsheet.get_schema` + `dbsheet.list_records` / `dbsheet.get_record` | 禁止 |
+| `.docx`（wps）/ `.pdf` | `read_file_content` | 默认可用 |
+| `.otl`（ap） | `otl.block_query`（优先分块） | 仅在导出 Markdown 时使用 |
+| `.xlsx`（et）/ `.ksheet`（as） | `sheet.get_sheets_info` + `sheet.get_range_data` | 禁止 |
+| `.dbt`（db） | `dbsheet.get_schema` + `dbsheet.list_records` / `dbsheet.get_record` | 禁止 |
 | `.csv` | 先转 `.xlsx` 再走 `sheet.*` | 禁止 |
 
 #### `read_file_content` 轮询策略（仅 `.docx/.pdf` 场景）
@@ -38,20 +38,20 @@
 
 #### 特殊类型说明
 
-**智能文档**（.otl）——优先用 `otl.block_query`：
+**智能文档**（.otl / ap）——优先用 `otl.block_query`：
 
 `otl.block_query`（`blockIds: ["doc"]`）可完整获取文档的块结构与内容。`read_file_content` 对 otl 存在内容遗漏风险，仅在需要导出 Markdown 时使用。
 
-**文字文档 / PDF**（.docx / .pdf）——用 `read_file_content`：
+**文字文档 / PDF**（.docx / wps、.pdf）——用 `read_file_content`：
 
 返回内容已自动转为 Markdown，可直接用于 AI 分析（摘要、审查、问答等）。
 
-**表格类**（.xlsx / .ksheet）——**勿用 `read_file_content`**：
+**表格类**（.xlsx / et、.ksheet / as）——**勿用 `read_file_content`**：
 
 1. `sheet.get_sheets_info` 获取工作表列表和结构
 2. `sheet.get_range_data` 按范围读取单元格数据
 
-**多维表格**（.dbt）——**勿用 `read_file_content`**：
+**多维表格**（.dbt / db）——**勿用 `read_file_content`**：
 
 1. `dbsheet.get_schema` 获取数据表、字段、视图结构
 2. `dbsheet.list_records` / `dbsheet.get_record` 读取记录

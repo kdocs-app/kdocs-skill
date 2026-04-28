@@ -70,7 +70,7 @@
 
 ## 常用工作流
 
-### 上传本地文件到知识库
+#### 上传本地文件到知识库
 
 **触发示例**：「把本地 XX 文件归档/上传/同步/放到 XX 库的 XX 文件夹」「把这些资料归档/上传/同步/放到 XX 库」「定时归档/上传/同步/放 XX 到 XX 库」
 
@@ -93,7 +93,7 @@
   - 如果内容过长（>3000 字符），分段写入：首段用 `pos="begin"`，后续段用 `pos="end"` 追加
 - 从 `kwiki.list_items` 返回中获取 `link_id`，拼接在线链接
 
-### 重命名知识库内的文件或文件夹
+#### 重命名知识库内的文件或文件夹
 
 使用通用接口 `rename_file` 重命名知识库内的文件或文件夹：
 
@@ -103,7 +103,7 @@
    - 文件须带后缀（如 `"新报告.docx"`）
    - 文件夹不带后缀（如 `"项目资料"`）
 
-### 下载知识库文件到本地
+#### 下载知识库文件到本地
 
 **流程**：
 
@@ -111,17 +111,17 @@
 2. 根据文件类型选择下载方式：
 
 **普通文件（docx/pptx/pdf/图片等）**：
-1. 使用 `wps_export` 等导出工具获取带签名的下载 URL（`link_id` 来自 `kwiki.list_items`）
+1. 使用 `wps.export` 等导出工具获取带签名的下载 URL（`link_id` 来自 `kwiki.list_items`）
 2. `curl.exe -L -o "文件名" "签名URL"` 下载
 
-**智能文档（doc_type="o"）**：`wps_export` 不支持直接导出，无特殊情况，默认转换成Markdown格式：
+**智能文档（doc_type="o"）**：`wps.export` 不支持直接导出，无特殊情况，默认转换成Markdown格式：
 - **Markdown** → `read_file_content(drive_id, file_id, format="markdown")`（异步，需轮询 task_id），将返回的 markdown 内容保存为 `.md` 文件
 
 **快捷方式文件（type="shortcut"）**：通过 `search_files` 搜索原始文件名找到源文件，再用源文件的 `link_id` 走上述通用流程。
 
-> 注意：`download_file` 返回的 URL 需登录态，无法直接 curl。始终优先使用 `wps_export` 获取带签名的下载 URL。受保护文件（SecureDocumentError / forbidProtectedFile）所有导出接口均无法操作，需提示用户。
+> 注意：`download_file` 返回的 URL 需登录态，无法直接 curl。始终优先使用 `wps.export` 获取带签名的下载 URL。受保护文件（SecureDocumentError / forbidProtectedFile）所有导出接口均无法操作，需提示用户。
 
-### 把文件放到知识库
+#### 把文件放到知识库
 
 **触发示例**：「帮我把 XX 放到 XX 知识库」「把这些文件归档到 XX 库的 XX 文件夹」「帮我把本地 XX 文件夹的文件放到 XX 库里面」「帮我把 XX 网页的文章放到知识库」
 
@@ -135,7 +135,7 @@
    - 云盘已有文件 → `kwiki.import_cloud_doc(action="copy"/"shortcut")`
 4. **确认结果**：`kwiki.list_items` 返回存放路径与直达链接；批量时展示成功/失败明细
 
-### 查找知识库内的文件
+#### 查找知识库内的文件
 
 **触发示例**：「帮我找一下 XX 文件」「在 XX 库里找 XX 相关的资料」「我要找关于 XX 的文档」
 
@@ -152,7 +152,7 @@
 - `search_files` 返回的 `file_id` 可直接用于 `read_file_content` 等通用接口
 - 根据文件类型选择下载方式，详见「下载知识库文件到本地」流程
 
-### 整理分类知识库
+#### 整理分类知识库
 
 **触发示例**：「帮我整理一下 XX 知识库」「把 XX 库里的文件按类型分类」
 
@@ -165,7 +165,7 @@
 3. 列出需新建的分类文件夹、文件移动目标、建议删除的内容，明确标注操作影响范围，**提交用户确认后再执行**
 4. 批量创建文件夹（`kwiki.create_item`）→ 批量移动文件（`move_file`）→ 删除确认的冗余内容（`kwiki.delete_item`），提示回收站恢复路径（7 天内可恢复）
 
-### 清理知识库无用文件
+#### 清理知识库无用文件
 
 **触发示例**：「清理 XX 库里 1 个月未修改的文件」「删掉 XX 库里的空文件夹」「把 XX 库里过期的资料清理一下」
 
@@ -177,7 +177,7 @@
 4. `kwiki.delete_item(kuid=xxx)` 逐个删除（进入回收站，7 天内可 `restore_deleted_file` 恢复）
 5. 空文件夹可同样通过 `kwiki.delete_item` 删除
 
-### 网页内容存入知识库
+#### 网页内容存入知识库
 
 > **触发示例**：「把公众号文章存入XX知识库」「把这个链接存到知识库里」
 

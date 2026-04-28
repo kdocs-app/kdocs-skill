@@ -52,6 +52,26 @@
 }
 ```
 
+更新段落的文本内容：
+
+```json
+{
+  "file_id": "string",
+  "params": [
+    {
+      "operation": "update_content",
+      "blockId": "PARA_ID",
+      "content": [
+        {
+          "type": "text",
+          "content": "更新的文本内容"
+        }
+      ]
+    }
+  ]
+}
+```
+
 更新块属性（设置段落背景色）：
 
 ```json
@@ -243,4 +263,13 @@
 ---
 
 
-> 详细操作指南见 [otl.block_update 操作指南](block_update_guide.md)
+# 更新智能文档
+
+调用 `otl.block_update` 工具，更新指定块的内容或属性。支持 8 种操作：update_content、update_attrs、insert_table_rows、insert_table_columns、delete_table_rows、delete_table_columns、merge_table_cells、split_table_cell。
+
+## 典型用法
+
+1. **局部更新文字**：先 `otl.block_query` 获取目标块 id，再 `otl.block_update`（operation=update_content）替换子节点
+2. **设置块样式**：operation=update_attrs 修改背景色、对齐等属性（覆盖式，未传的属性需保持原值）
+3. **表格行列操作**：insert_table_rows / insert_table_columns / delete_table_rows / delete_table_columns 按索引增删
+4. **合并/拆分单元格**：merge_table_cells / split_table_cell，需先查询表格结构确认范围

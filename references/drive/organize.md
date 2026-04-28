@@ -64,6 +64,11 @@
 
 重命名文件（夹）。
 
+**`drive_id`**（非必填）：
+
+- **有明确的云盘ID** 必传。
+- **没有**：不传。
+
 
 - **幂等**：是
 
@@ -79,10 +84,19 @@
 }
 ```
 
+file_id：
+
+```json
+{
+  "file_id": "string",
+  "dst_name": "2024年Q1销售总结.otl"
+}
+```
+
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 可选): 目标云盘 ID。
 - `file_id` (string, 必填): 文件（夹）ID
 - `dst_name` (string, 必填): 新文件名，须带上后缀。例: `abc.txt`。支持格式：otl, doc, xls, ppt, pptx, wdoc, wxls, wppt, h5, pom, pof, docx, xlsx, ksheet, dbt, pdf
 
@@ -96,7 +110,13 @@
 
 #### 功能说明
 
-复制文件到指定目录（可跨盘）
+复制文件到指定目录（可跨盘）。
+
+**`drive_id`**（非必填）：
+
+- **有明确的 drive_id** 必传。
+- **没有**：不传。
+
 
 
 #### 调用示例
@@ -112,10 +132,20 @@
 }
 ```
 
+仅 file_id（不传 drive_id）：
+
+```json
+{
+  "file_id": "file_id_1",
+  "dst_drive_id": "dst_drive_id",
+  "dst_parent_id": "dst_folder_id"
+}
+```
+
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 源文件所在驱动盘 ID
+- `drive_id` (string, 可选): 源文件所在云盘 ID。规则见上文「`drive_id`」。
 - `file_id` (string, 必填): 源文件 ID
 - `dst_drive_id` (string, 必填): 目标驱动盘 ID
 - `dst_parent_id` (string, 必填): 目标父目录 ID，根目录为 "0"

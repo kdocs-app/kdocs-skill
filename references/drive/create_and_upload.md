@@ -6,7 +6,10 @@
 
 在云盘下新建文件或文件夹。通过 `file_type` 区分：`file` 创建文件，`folder` 创建文件夹，`shortcut` 创建快捷方式。支持格式：doc, docx, form, xls, otl, ppt, dbt, xlsx, ksheet, pptx。**PDF 不使用本工具创建，请改用 `upload_file` 直接创建并写入。**
 
-**`drive_id` / `parent_id`**：接口上**非必填**；**凡能先定位到目标盘与父目录的，均应显式传入**（见 `file-locating-guide` 与「创建并写入」工作流），以降低落点与用户意图不一致的风险。
+**`drive_id` / `parent_id`**（非必填）：
+- **用户未说明保存到哪个文件夹**：两参数可省略。
+- **用户已说明目标文件夹且已查到**对应的 `drive_id` 与 `parent_id`：必须传入这两项。查不到时先 `search_files` 或请用户说明，勿编造 ID。
+- 如何查询 ID 见 `file-locating-guide`。
 
 
 
@@ -14,7 +17,6 @@
 
 - **前置检查**：search_files 查重，避免创建同名文件
 - **后置验证**：get_file_info 确认文件已创建
-- **提示**：虽为非必填，**建议**尽量传入定位得到的 drive_id 与 parent_id；涉及指定目录、共享空间或需可复现路径时不要省略
 - **提示**：文件名必须带后缀，否则创建失败
 - **提示**：PDF 不支持 create_file，需使用 upload_file
 - **幂等**：否 — 重试前 search_files 检查是否已创建
@@ -45,7 +47,7 @@
 }
 ```
 
-仅必填字段（仍建议补全 drive_id、parent_id）：
+仅必填字段（未指定目录时可不传 drive_id、parent_id）：
 
 ```json
 {
@@ -58,12 +60,12 @@
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 驱动盘 ID。非必填；**建议**创建前通过 `search_files` / `get_share_info` / 上下文取得并传入。
-- `parent_id` (string, 可选): 父文件夹 ID，根目录时为 `"0"`。非必填；**建议**与 `drive_id` 一并显式传入。
+- `drive_id` (string, 可选): 目标云盘 ID。与 `parent_id` 一起指定保存位置；规则见上文「`drive_id` / `parent_id`」。
+- `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。与 `drive_id` 成对；规则见上文「`drive_id` / `parent_id`」。
 - `file_type` (string, 必填): 文件类型。可选值：`file` / `folder` / `shortcut`
 - `name` (string, 必填): 文件名。创建文件时须带上后缀，例: `doc.docx`(普通文件), `abc.docx.link`(快捷方式)；创建文件夹时不需要后缀。支持格式：doc, docx, form, xls, otl, ppt, dbt, xlsx, ksheet, pptx。若为 `.pdf`，请改用 `upload_file`
 - `on_name_conflict` (string, 可选): 文件名冲突处理方式，该接口只识别 rename 和 fail。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
-- `parent_path` (array[string], 可选): 相对于当前文件目录的相对路径。每个元素为路径名（非路径 ID）。若路径不存在，系统将自动创建
+- `parent_path` (array[string], 可选): 父文件夹路径分段（每段为文件夹名，非 ID）；缺级时系统可自动创建。与 `drive_id`/`parent_id` 的用法见上文。
 - `file_id` (string, 可选): 条件必填：file_type=shortcut 时必填。快捷方式的源文件 ID
 
 #### 返回值说明
@@ -237,7 +239,11 @@
 - **支持类型**：更新模式仅支持目标文件为 **docx**、**pdf**；新建模式支持文件名为 **doc**、**docx**、**xls**、**xlsx**、**ppt**、**pptx**、**pdf**
 - **源为 Markdown 时**：务必传 `content_format=markdown`；仅支持转为 **docx**、**pdf** 后上传
 
-**`drive_id` / `parent_id`**：接口上**非必填**；**凡能确定的，均应显式传入**。新建前尽量先定位；更新已有文件时建议用 `get_file_info(file_id)` 等与目标盘、目录对齐后再传。
+**`drive_id` / `parent_id`**（非必填）：
+
+- **新建、未指定位置**：两参数可省略。
+- **新建、用户已说明目标文件夹且已查到** `drive_id` 与 `parent_id`：必须传入。已能查到 ID 却省略属错误。
+- **更新已有文件**：须与目标文件所在云盘、父文件夹一致；建议先 `get_file_info(file_id)` 再传参。
 
 
 
@@ -247,7 +253,6 @@
 - **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file_content 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
 - **提示**：更新模式支持 docx/pdf；新建模式支持 doc/docx/xls/xlsx/ppt/pptx/pdf
 - **提示**：Markdown 源内容务必传 content_format=markdown
-- **提示**：虽为非必填，**建议**每次尽量传入定位得到的 drive_id 与 parent_id；新建与更新涉及明确目录或共享空间时不要省略
 - **幂等**：是 — 可重试，以最后一次为准
 
 #### 调用示例
@@ -298,7 +303,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 ```
 
-新建文件（仅 name + 内容；仍建议补全 drive_id、parent_id）：
+新建文件（仅 name + 内容；未指定目录时可不传 drive_id、parent_id）：
 
 ```json
 {
@@ -311,15 +316,15 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 驱动盘 ID。非必填；**建议**新建前定位取得并传入，更新模式与目标文件所在盘一致。
-- `parent_id` (string, 可选): 父文件夹 ID（根目录为 `"0"`）。非必填；**建议**与 `drive_id` 一并显式传入，更新模式与目标一致。
+- `drive_id` (string, 可选): 目标云盘 ID。新建：规则见上文「`drive_id` / `parent_id`」。更新：与目标文件所在盘一致。
+- `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。新建：规则见上文。更新：与目标文件父目录一致。
 - `file_id` (string, 可选): 条件必填：更新模式必填。要覆盖的文件 ID（仅支持 docx/pdf 文件）
 - `name` (string, 可选): 条件必填：新建模式必填。本地文件名，必须带后缀，如 `.docx` / `.xlsx` / `.pptx` / `.pdf`；仅在不传 `file_id` 时使用
 - `content_base64` (string, 必填): 源文件内容，Base64 编码。若为 Markdown 文本需同时传 content_format=markdown，确保 UTF-8 格式、base64 编码
 - `content_format` (string, 可选): 源内容格式。与目标文件同类型，或 `markdown`（会先转为目标格式再上传；仅支持目标为 docx / pdf）。可选值：`doc` / `docx` / `xls` / `xlsx` / `pdf` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
 - `file_type` (string, 可选): 哈希类型。可选值：`sha256` / `md5` / `sha1`
-- `parent_path` (array[string], 可选): 相对路径
+- `parent_path` (array[string], 可选): 父文件夹路径分段（文件夹名，非 ID）。新建时按文件夹名指定父路径；与 `drive_id`/`parent_id` 的用法见上文。
 
 #### 返回值说明
 

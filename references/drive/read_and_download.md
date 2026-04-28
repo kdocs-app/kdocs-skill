@@ -27,7 +27,7 @@
 
 - `drive_id` (string, 必填): 驱动盘 ID
 - `parent_id` (string, 必填): 文件夹 ID，根目录时为 "0"
-- `page_size` (integer, 必填): 分页大小，公网限制最大为 500
+- `page_size` (integer, 必填): 每页条数；建议 50；范围 1–500
 - `page_token` (string, 可选): 分页 token，首次请求不传
 - `order` (string, 可选): 排序方式。可选值：`desc` / `asc`
 - `order_by` (string, 可选): 排序字段。可选值：`ctime` / `mtime` / `dtime` / `fname` / `fsize`
@@ -96,6 +96,12 @@
 
 获取文件下载信息。
 
+**`drive_id`**（非必填）：
+
+- **有明确的 drive_id** 必传。
+- **没有**：不传。
+
+
 > 不支持在线文档类型的下载，仅支持上传的二进制文件（.docx / .xlsx / .pdf / .pptx 等）。获取在线文档内容的替代方案：.otl → `read_file_content` 或 `otl.block_query`；.ksheet/.xlsx → `sheet.*`；.dbt → `dbsheet.*`
 
 #### 调用示例
@@ -110,10 +116,19 @@
 }
 ```
 
+file_id：
+
+```json
+{
+  "file_id": "string",
+  "with_hash": true
+}
+```
+
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 可选): 目标云盘 ID。
 - `file_id` (string, 必填): 文件 ID
 - `with_hash` (boolean, 可选): 是否返回校验值，对应响应里的 hashes
 - `internal` (boolean, 可选): 是否返回内网下载地址，默认 false
