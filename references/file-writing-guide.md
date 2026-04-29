@@ -36,7 +36,7 @@
 **智能文档**（.otl / ap）——**勿用 `upload_file`**：
 
 - 新建写入：`create_file` → `otl.insert_content` 写入内容
-- 更新：`otl.insert_content` 插入内容（`pos=begin` 从开头插入，`pos=end` 在末尾追加）
+- 更新：`otl.insert_content` 插入内容（`format=markdown, mode=prepend` 从开头插入，`mode=append` 在末尾追加，`mode=replace` 替换全部内容）
 
 **文字文档**（.docx / wps）：
 

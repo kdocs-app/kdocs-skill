@@ -10,6 +10,7 @@
 **前置条件**：文档已开通**高级权限 / 内容权限**能力；否则可能返回业务错误。
 
 
+
 > 返回中的系统预置角色与自定义角色区分方式以接口约定为准。
 
 #### 调用示例
@@ -116,7 +117,8 @@
 #### 操作约束
 
 - **后置验证**：轮询 dbsheet.permission_query_task 直至结束
-- **幂等**：否 — 先 permission_query_task 再决定是否重试
+
+**幂等性**：否 — 先 permission_query_task 再决定是否重试
 
 #### 调用示例
 
@@ -251,7 +253,8 @@
 #### 操作约束
 
 - **后置验证**：轮询 permission_query_task
-- **幂等**：否
+
+**幂等性**：否 — 先 permission_query_task 确认状态再决定是否重试
 
 #### 调用示例
 
@@ -374,8 +377,10 @@
 
 #### 操作约束
 
+- **前置检查**：permission_list_roles 确认目标角色
 - **用户确认**：删除角色将影响已绑定成员的能力
-- **幂等**：否 — 先 query_task 确认状态
+
+**幂等性**：否 — 先 permission_query_task 确认状态再决定是否重试
 
 #### 调用示例
 
@@ -433,8 +438,8 @@
 **请求方式**：GET，请通过 query 传递 `cloud_permission_id`、`permission_type` 等参数。
 
 
+
 > 若业务未开通高级权限，接口可能失败，与参数是否完整无关。
-> 经 SkillHub 调用时可用本 Skill 的 snake_case；直连网关 JSON 请使用 camelCase 顶层键。
 
 #### 调用示例
 

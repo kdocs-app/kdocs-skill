@@ -66,6 +66,7 @@
 | 想知道 PDF 一共有多少页 | `pdf.get_pdf_page_count` |
 | 想从 PDF 中抽取部分页面生成新 PDF | `pdf.extract_pdf_pages` |
 | 想把 PDF 转成可编辑文档（docx/xlsx/pptx） | `pdf.convert`（默认付费额度，VIP 不足时降级 `is_free_convert=true` 重试） + `pdf.convert_query` |
+| 想做 PDF 全文翻译并导出（单语/双语） | `pdf.translate_full_file`（必要时 `pdf.get_translate_progress` / `pdf.cancel_translate`） |
 
 ---
 
@@ -106,16 +107,7 @@
 |------|------|----------|
 | [`pdf.get_pdf_page_count`](pdf/inspect.md) | 查询 PDF 总页数 | `file_id` |
 
-## 二、格式转换
-
-> PDF 与其他格式之间的异步转换与状态轮询
-
-| 工具 | 功能 | 必填参数 |
-|------|------|----------|
-| [`pdf.convert`](pdf/convert.md) | 发起 PDF 转 Office 转换任务 | `file_id`, `to_format` |
-| [`pdf.convert_query`](pdf/convert.md) | 查询 PDF 转换任务进度与结果 | `jobid`, `file_id` |
-
-## 三、拆分与合并
+## 二、拆分与合并
 
 > 抽取、拆分、合并 PDF 页面
 
@@ -126,6 +118,25 @@
 | [`pdf.split_query`](pdf/split_and_merge.md) | 查询 PDF 拆分任务进度 | `jobid` |
 | [`pdf.merge`](pdf/split_and_merge.md) | 将多个 PDF 文件合并为一个 | `files` |
 | [`pdf.merge_query`](pdf/split_and_merge.md) | 查询 PDF 合并任务进度 | `jobid` |
+
+## 三、格式转换
+
+> PDF 与其他格式之间的异步转换与状态轮询
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`pdf.convert`](pdf/convert.md) | 发起 PDF 转 Office 转换任务 | `file_id`, `to_format` |
+| [`pdf.convert_query`](pdf/convert.md) | 查询 PDF 转换任务进度与结果 | `jobid`, `file_id` |
+
+## 四、全文翻译
+
+> PDF 全文翻译导出与状态轮询
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`pdf.translate_full_file`](pdf/translate.md) | 提交 PDF 全文翻译导出任务 | `file_id`, `file_source`, `header`, `body`, `from_lang`, `to_lang`, `engine_type`, `pages`, `output_file_mode`, `output_file_two_lang` |
+| [`pdf.get_translate_progress`](pdf/translate.md) | 查询全文翻译任务进度 | `file_id`, `task_id` |
+| [`pdf.cancel_translate`](pdf/translate.md) | 取消全文翻译任务 | `file_id` |
 
 ## 常用工作流
 
@@ -170,6 +181,12 @@
 4. `pdf.convert_query(jobid=..., file_id=..., fname=...)` 轮询进度，直到 `progress=100`
 5. 从 `result_files` 读取转换结果（类型、大小、下载 URL）
 
+**全文翻译导出（双语/指定语言）**：
+1. `search_files` 定位 PDF → 获取 `file_id`
+2. `pdf.translate_full_file(file_id=..., from_lang=..., to_lang=..., output_file_mode=..., output_file_two_lang=...)`
+3. 若 `pdf.translate_full_file` 返回任务态，再用 `pdf.get_translate_progress(file_id=..., task_id=...)` 轮询
+4. 任务需中止时调用 `pdf.cancel_translate(file_id=...)`
+
 **创建/上传 PDF**：
 - `upload_file(drive_id=..., parent_id=..., name="xxx.pdf", content_base64=...)` 直接上传
 - 更新已有 PDF：`upload_file(file_id=..., content_base64=...)` 全量覆盖
@@ -180,3 +197,4 @@
 - 用户说"这个 PDF 有多少页"：用 `pdf.get_pdf_page_count`
 - 用户说"把第 2 到 6 页单独导出来"：用 `pdf.extract_pdf_pages`
 - 用户说"把这个 PDF 转成 Word/Excel/PPT"：先用 `pdf.convert`（默认 `is_free_convert=false`），若返回会员不足错误（`code=400100` / `VipLevelNotEnough`）则将 `is_free_convert` 改为 `true` 重试，再用 `pdf.convert_query` 轮询结果
+- 用户说"把这个 PDF 全文翻译成英文并导出双语版"：先用 `pdf.translate_full_file`，如返回任务态再用 `pdf.get_translate_progress` 轮询

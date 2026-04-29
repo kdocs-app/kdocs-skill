@@ -11,10 +11,14 @@
 #### 操作约束
 
 - **前置检查**：先 otl.block_query 了解目标块结构，确认更新内容
+- **用户确认**：当文档已有内容时，对 blockId=`doc` 执行 `update_content` 会覆盖全部标题和正文，执行前必须向用户确认
+- **提示**：节点类型和属性定义可参考 `references/otl/node.md`
 - **提示**：update_attrs 是覆盖操作，不需更新的属性需保持原样传入
-> 当 blockId 为 "doc" 且 operation 为 "update_content" 时，第一个子节点必须是 title
-> update_attrs 不支持 doc、appComponent、lockBlock 三种块
-> 表格操作中行/列数量需与表格结构对齐
+- **提示**：当 blockId 为 `doc` 且 operation 为 `update_content` 时，content 的第一个子节点必须是 title；如仅需更新局部内容，应将 blockId 设为具体子块 ID
+- **提示**：update_attrs 不支持 doc、appComponent、lockBlock 三种块
+- **提示**：表格操作中行/列数量需与表格结构对齐
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -64,7 +68,32 @@
       "content": [
         {
           "type": "text",
-          "content": "更新的文本内容"
+          "content": "更新后的文本内容"
+        }
+      ]
+    }
+  ]
+}
+```
+
+更新高亮块的内容：
+
+```json
+{
+  "file_id": "string",
+  "params": [
+    {
+      "operation": "update_content",
+      "blockId": "HIGHLIGHT_BLOCK_ID",
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "content": "高亮块内更新后的文字"
+            }
+          ]
         }
       ]
     }
@@ -262,14 +291,3 @@
 
 ---
 
-
-# 更新智能文档
-
-调用 `otl.block_update` 工具，更新指定块的内容或属性。支持 8 种操作：update_content、update_attrs、insert_table_rows、insert_table_columns、delete_table_rows、delete_table_columns、merge_table_cells、split_table_cell。
-
-## 典型用法
-
-1. **局部更新文字**：先 `otl.block_query` 获取目标块 id，再 `otl.block_update`（operation=update_content）替换子节点
-2. **设置块样式**：operation=update_attrs 修改背景色、对齐等属性（覆盖式，未传的属性需保持原值）
-3. **表格行列操作**：insert_table_rows / insert_table_columns / delete_table_rows / delete_table_columns 按索引增删
-4. **合并/拆分单元格**：merge_table_cells / split_table_cell，需先查询表格结构确认范围

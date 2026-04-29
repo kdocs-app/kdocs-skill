@@ -8,9 +8,10 @@
 范围参数通过 Query 传入（非请求体）。
 
 
-> 行列索引均为 0-based；读取整张表时先用 sheet.get_sheets_info 获取 row_to / col_to 上限
-> is_cell_pic=true 时，单元格为图片；pic_data（在线文件）和 sha1（本地图片）二选一返回
-> original_cell_value 返回公式栏原始值，cell_text 返回显示值；需要原始公式时读 original_cell_value
+
+> 行列索引均为 0-based；读取整张表时先用 sheet.get_sheets_info 获取 range.rowTo / range.colTo 上限
+> isCellPic=true 时，单元格为图片；picData（在线文件）和 sha1（本地图片）二选一返回
+> originalCellValue 返回公式栏原始值，cellText 返回显示值；fmlaText 仅在含公式时返回
 
 #### 调用示例
 
@@ -20,10 +21,12 @@
 {
   "file_id": "VsdfG0001234567",
   "worksheet_id": 3,
-  "row_from": 0,
-  "row_to": 10,
-  "col_from": 0,
-  "col_to": 5
+  "range": {
+    "rowFrom": 0,
+    "rowTo": 10,
+    "colFrom": 0,
+    "colTo": 5
+  }
 }
 ```
 
@@ -32,32 +35,48 @@
 
 - `file_id` (string, 必填): 文件 ID（路径参数）
 - `worksheet_id` (integer, 必填): 工作表 ID（路径参数）
-- `row_from` (integer, 必填): 行起始索引（0-based，Query 参数）
-- `row_to` (integer, 必填): 行最后索引（0-based，Query 参数）
-- `col_from` (integer, 必填): 列起始索引（0-based，Query 参数）
-- `col_to` (integer, 必填): 列最后索引（0-based，Query 参数）
+- `range` (object, 必填): 选区范围，行列索引均为 0-based
 
 #### 返回值说明
 
 ```json
 {
-  "code": 0,
-  "msg": "",
-  "data": {
-    "range_data": [
+  "result": "ok",
+  "detail": {
+    "rangeData": [
       {
-        "row_from": 0,
-        "row_to": 0,
-        "col_from": 0,
-        "col_to": 0,
-        "cell_text": "广州",
-        "original_cell_value": "广州",
-        "num_format": "G/通用格式",
-        "tag": "",
-        "is_cell_pic": false,
-        "pic_content": "",
-        "pic_data": "",
-        "sha1": ""
+        "cellText": "test",
+        "colFrom": 0,
+        "colTo": 0,
+        "isCellPic": false,
+        "numFormat": "G/通用格式",
+        "originalCellValue": "test",
+        "rowFrom": 0,
+        "rowTo": 0,
+        "fmlaText": "=A1"
+      },
+      {
+        "cellText": "111",
+        "colFrom": 1,
+        "colTo": 1,
+        "isCellPic": false,
+        "numFormat": "G/通用格式",
+        "originalCellValue": "111",
+        "rowFrom": 0,
+        "rowTo": 0
+      },
+      {
+        "cellText": "=DISPIMG(\"ID_018590616CC643F796F3CB58682DEA85\",1)",
+        "colFrom": 1,
+        "colTo": 1,
+        "isCellPic": true,
+        "numFormat": "G/通用格式",
+        "originalCellValue": "=DISPIMG(\"ID_018590616CC643F796F3CB58682DEA85\",1)",
+        "picData": "MSM5KAQABI",
+        "sha1": "6CC643F796F3CB58682DEA85",
+        "rowFrom": 1,
+        "rowTo": 1,
+        "tag": "attachment"
       }
     ]
   }
@@ -67,9 +86,8 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `code` | integer | 0 表示成功，非 0 表示失败 |
-| `msg` | string | 人可阅读的响应信息 |
-| `data.range_data` | array[object] | 单元格数据数组，每项对应一个有数据的单元格 |
+| `result` | string | 'ok' 表示成功 |
+| `detail.rangeData` | array[object] | 单元格数据数组，每项对应选区内一个有数据的单元格 |
 
 
 ---
@@ -87,8 +105,10 @@
 
 - **前置检查**：调用 sheet.get_range_data 读取目标区域现有数据，确认覆盖范围
 - **提示**：每项必须包含 row_from/row_to/col_from/col_to 四个坐标；op_type 须使用完整枚举值
+
+**幂等性**：是
+
 > 参数名全部为 snake_case（如 `op_type`、`row_from`、`alc_h`），勿使用旧版 camelCase 写法
-> op_type 必须使用完整枚举值（如 `cell_operation_type_formula`），不可简写为 `formula`
 > merge_type 必须使用完整枚举值（如 `merge_type_center`），不可简写为 `MergeCenter`
 
 #### 调用示例
@@ -355,7 +375,9 @@
 
 - **前置检查**：`sheet.get_range_data` 核对拟删行/列范围内现有数据
 - **用户确认**：删除行或列会移位其余内容且难以恢复，必须向用户确认范围与影响
-- **禁止**：未经用户在对话中明确同意，禁止调用
+
+**幂等性**：是
+
 > 行列索引均为 0-based
 
 #### 调用示例
@@ -432,6 +454,9 @@
 适用于 Excel（.xlsx）和智能表格（.ksheet）。
 
 
+
+**幂等性**：否 — 重复调用会插入多行，先确认是否已成功
+
 > 行列索引均为 0-based
 
 #### 调用示例
@@ -500,6 +525,7 @@
 遍历并筛选工作表中的记录，支持分页、条件筛选、文本搜索和去重。
 
 **适用于**：Excel（.xlsx）和智能表格（.ksheet）
+
 
 
 > 分页说明：通过 `page.page` 递增翻页，`total` 为结果总数。
@@ -650,6 +676,7 @@
 获取文档内图片的下载地址，返回可用于引用的 `uploadId`（响应中的 `object_id`）。
 用于在单元格图片或附件字段中引用。
 接口：`POST /api/v3/office/file/{fileId}/attachment`（`multipart/form-data`）；`{fileId}` 为目标文件 ID，与表单字段一并提交。
+
 
 
 > 请求需使用 `multipart/form-data` 提交上述字段

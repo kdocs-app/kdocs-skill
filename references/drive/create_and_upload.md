@@ -19,7 +19,8 @@
 - **后置验证**：get_file_info 确认文件已创建
 - **提示**：文件名必须带后缀，否则创建失败
 - **提示**：PDF 不支持 create_file，需使用 upload_file
-- **幂等**：否 — 重试前 search_files 检查是否已创建
+
+**幂等性**：否 — 重试前 search_files 检查是否已创建
 
 #### 调用示例
 
@@ -126,7 +127,9 @@
 3. 当 `status=1` 时任务完成，服务端已自动创建智能文档
 
 
-- **幂等**：否 — 重试前查 scrape_progress 确认上次状态
+
+**幂等性**：否 — 重试前查 scrape_progress 确认上次状态
+
 > 返回 job_id 后需立即调用 scrape_progress 轮询
 > 每隔2秒轮询一次，status=1 时完成
 
@@ -176,6 +179,9 @@
 #### 操作约束
 
 - **前置检查**：先调用 `scrape_url` 获取 `job_id`，本接口才可用
+
+**幂等性**：是
+
 > status=1 时停止轮询，获取 scrape_file_id
 > status=-1 时停止轮询，任务失败
 > 其他状态继续轮询（建议间隔 2-3 秒，最多轮询 30 次）
@@ -253,7 +259,8 @@
 - **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file_content 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
 - **提示**：更新模式支持 docx/pdf；新建模式支持 doc/docx/xls/xlsx/ppt/pptx/pdf
 - **提示**：Markdown 源内容务必传 content_format=markdown
-- **幂等**：是 — 可重试，以最后一次为准
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -318,8 +325,8 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 - `drive_id` (string, 可选): 目标云盘 ID。新建：规则见上文「`drive_id` / `parent_id`」。更新：与目标文件所在盘一致。
 - `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。新建：规则见上文。更新：与目标文件父目录一致。
-- `file_id` (string, 可选): 条件必填：更新模式必填。要覆盖的文件 ID（仅支持 docx/pdf 文件）
-- `name` (string, 可选): 条件必填：新建模式必填。本地文件名，必须带后缀，如 `.docx` / `.xlsx` / `.pptx` / `.pdf`；仅在不传 `file_id` 时使用
+- `file_id` (string, 二选一必填: `file_id` / `name`): 条件必填：更新模式必填。要覆盖的文件 ID（仅支持 docx/pdf 文件）
+- `name` (string, 二选一必填: `file_id` / `name`): 条件必填：新建模式必填。本地文件名，必须带后缀，如 `.docx` / `.xlsx` / `.pptx` / `.pdf`；仅在不传 `file_id` 时使用
 - `content_base64` (string, 必填): 源文件内容，Base64 编码。若为 Markdown 文本需同时传 content_format=markdown，确保 UTF-8 格式、base64 编码
 - `content_format` (string, 可选): 源内容格式。与目标文件同类型，或 `markdown`（会先转为目标格式再上传；仅支持目标为 docx / pdf）。可选值：`doc` / `docx` / `xls` / `xlsx` / `pdf` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
@@ -370,6 +377,9 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 - 本地二进制：传 `content_base64`
 
 
+
+**幂等性**：否 — 重复调用会上传多个副本，先确认是否已成功
+
 > url 与 content_base64 必须二选一
 
 #### 调用示例
@@ -402,8 +412,8 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 - `file_id` (string, 必填): 已有文档文件 ID
 - `filename` (string, 必填): 附件名
-- `url` (string, 可选): 条件必填。远程附件 URL，与 content_base64 二选一
-- `content_base64` (string, 可选): 条件必填。本地附件内容的 Base64 编码，与 url 二选一
+- `url` (string, 二选一必填: `url` / `content_base64`): 条件必填。远程附件 URL，与 content_base64 二选一
+- `content_base64` (string, 二选一必填: `url` / `content_base64`): 条件必填。本地附件内容的 Base64 编码，与 url 二选一
 - `content_type` (string, 可选): 可选。附件 MIME 类型；content_base64 模式下不传则默认 application/octet-stream
 - `source_type` (string, 可选): 可选。上传内容类型
 - `source` (string, 可选): 可选。来源标记，如 processon

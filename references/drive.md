@@ -15,8 +15,8 @@
 | [`create_file`](drive/create_and_upload.md) | 在云盘下新建文件或文件夹 | `file_type`, `name` |
 | [`scrape_url`](drive/create_and_upload.md) | 网页剪藏，抓取网页内容并自动保存为智能文档 | `url` |
 | [`scrape_progress`](drive/create_and_upload.md) | 查询网页剪藏任务进度 | `job_id` |
-| [`upload_file`](drive/create_and_upload.md) | 全量上传写入文件（更新已有 docx/pdf 或新建并上传本地文件） | `content_base64` |
-| [`upload_attachment`](drive/create_and_upload.md) | 向已有文档上传附件，支持 URL 或 Base64 | `file_id`, `filename` |
+| [`upload_file`](drive/create_and_upload.md) | 全量上传写入文件（更新已有 docx/pdf 或新建并上传本地文件） | `file_id`\|`name`, `content_base64` |
+| [`upload_attachment`](drive/create_and_upload.md) | 向已有文档上传附件，支持 URL 或 Base64 | `file_id`, `filename`, `url`\|`content_base64` |
 
 ## 二、文档读取与下载
 
@@ -27,7 +27,7 @@
 | [`list_files`](drive/read_and_download.md) | 获取指定文件夹下的子文件列表 | `drive_id`, `parent_id`, `page_size` |
 | [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `file_id` |
 | [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `file_id` |
-| [`read_file_content`](drive/read_and_download.md) | 文档内容抽取为 Markdown/纯文本 | `drive_id` |
+| [`read_file_content`](drive/read_and_download.md) | 文档内容抽取为 Markdown/纯文本 | `drive_id`, `file_id`\|`link_id` |
 
 ## 三、文件组织
 

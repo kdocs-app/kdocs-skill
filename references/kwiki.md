@@ -53,7 +53,7 @@
 |------|------|----------|
 | [`kwiki.create_knowledge_view`](kwiki/create_knowledge_view.md) | 创建个人知识库 | `space_name`, `status` |
 | [`kwiki.list_knowledge_views`](kwiki/list_knowledge_views.md) | 查询知识库列表 |  |
-| [`kwiki.get_knowledge_view`](kwiki/get_knowledge_view.md) | 获取单个知识库详情 |  |
+| [`kwiki.get_knowledge_view`](kwiki/get_knowledge_view.md) | 获取单个知识库详情 | `drive_id`\|`name` |
 | [`kwiki.update_knowledge_view`](kwiki/update_knowledge_view.md) | 修改知识库基础配置 | `drive_id`, `cover_img`, `status` |
 | [`kwiki.close_knowledge_view`](kwiki/close_knowledge_view.md) | 关闭（删除）知识库 | `drive_id` |
 
@@ -89,8 +89,8 @@
 
 - `kwiki.create_item(doc_type="o", kuid=目标文件夹kuid, title="文件名（不含后缀）")` 创建智能文档
 - 读取本地 `.md` 文件内容
-- `otl.insert_content(file_id=新文档的file_id, content=markdown原文, pos="begin")` 将 markdown 写入智能文档
-  - 如果内容过长（>3000 字符），分段写入：首段用 `pos="begin"`，后续段用 `pos="end"` 追加
+- `otl.insert_content(file_id=新文档的file_id, content=markdown原文, format="markdown", mode="prepend")` 将 markdown 写入智能文档
+  - 如果内容过长（>3000 字符），分段写入：首段用 `mode="prepend"`，后续段用 `mode="append"` 追加
 - 从 `kwiki.list_items` 返回中获取 `link_id`，拼接在线链接
 
 #### 重命名知识库内的文件或文件夹

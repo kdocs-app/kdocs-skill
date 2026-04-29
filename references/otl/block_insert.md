@@ -12,11 +12,15 @@
 
 - **前置检查**：先 otl.block_query 了解文档块结构，确认插入位置
 - **提示**：返回结果因内容和文档状态不同而异，以 code == 0 判断成功
-> 若查询到的块的 content 里包含 rangeMarkBegin 或 rangeMarkEnd，计算 index 时应忽略它们，它们是虚拟节点
+- **提示**：待插入的节点类型和属性可参考 `references/otl/node.md`
+- **提示**：当 blockId 为 `doc` 时，index 必须 >= 1，因为 doc 的首个子节点必须是 title（全局唯一）；正文开头插入应设 index 为 1
+- **提示**：若查询到的块的 content 里包含 rangeMarkBegin 或 rangeMarkEnd，计算 index 时应忽略它们，它们是虚拟节点
+
+**幂等性**：否 — 重复调用会插入重复内容，先确认是否已成功
 
 #### 调用示例
 
-在文档开头插入段落：
+在文档开头插入段落节点：
 
 ```json
 {
@@ -39,7 +43,7 @@
 }
 ```
 
-在段落内插入文本节点：
+将段落的首个子节点后插入文本节点：
 
 ```json
 {
@@ -63,7 +67,7 @@
 - `file_id` (string, 必填): 智能文档文件 ID
 - `params` (object, 必填): 插入操作
   - `blockId` (string, 常用): 目标父块 ID，例如 `doc`
-  - `index` (integer, 常用): 插入位置索引。**当 `blockId='doc'` 时，`index=0` 指向 title 节点（传 0 会报 `insert position is invalid`）；正文插入起点为 `index>=1`**；精确值需先用 `otl.block_query` 获取目标父块真实结构
+  - `index` (integer, 常用): 插入位置索引（从 0 开始）
   - `content` (array, 常用): 待插入的块内容数组
 
 #### 返回值说明
@@ -82,12 +86,3 @@
 
 ---
 
-
-# 在智能文档指定位置插入内容
-
-调用 `otl.block_insert` 工具，在指定位置插入内容，适合局部新增。
-
-## 典型用法
-
-1. **文档内插入新内容**：blockId 设置为 "doc"，确定好插入 index 和插入的子节点。插入子节点的类型和属性可参考 `references/otl/node.md`
-2. **段落内插入新文本**：blockId 设置为通过查询得到的段落 id，确定好插入 index 和插入的子节点

@@ -91,6 +91,12 @@
 
 - **后置验证**：get_schema 确认数据表已创建
 
+**幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
+
+> 字段的 `data` 配置（如选项列表、日期格式等）与 `dbsheet.create_fields` 完全一致，详见其 `param_detail`
+> `Url` 字段传字符串时地址和显示文本相同；传对象时可分别设置 `address` 和 `displayText`
+> `Link` 字段的关联目标数据表需在字段 `data.link_sheet` 中指定；创建数据表时若暂不配置可留空，后续通过 `dbsheet.update_fields` 补充
+
 #### 调用示例
 
 创建带初始字段的数据表：
@@ -129,13 +135,96 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `file_id` (string, 必填): 多维表格文件 ID（路径参数）
 - `name` (string, 必填): 数据表名称
 - `sync_type` (string, 可选): 同步类型；默认值：`None`
 - `after_sheet_id` (integer, 可选): 插入到指定数据表之后
 - `before_sheet_id` (integer, 可选): 插入到指定数据表之前
-- `views` (array, 可选): 初始视图列表，每项包含 `name` 和 `type`
-- `fields` (array, 可选): 初始字段列表，每项包含 `name` 和 `type`
+- `views` (array, 可选): 初始视图列表（见 param_detail 视图类型枚举）
+  - `name` (string, 必填): 视图名称
+  - `type` (string, 必填): 视图类型枚举，如 `Grid`、`Kanban`、`Gallery` 等（见 param_detail）
+- `fields` (array, 可选): 初始字段列表（见 param_detail 字段类型枚举及值传入格式）
+  - `name` (string, 必填): 字段显示名称
+  - `type` (string, 必填): 字段类型枚举（见 param_detail）
+  - `data` (object, 视类型可选): 类型专属配置，与 `dbsheet.create_fields` 的 `data` 结构相同
+
+**字段类型枚举（`fields[].type`）**
+
+| 类型值 | 说明 | 是否自动字段 |
+|--------|------|------------|
+| `MultiLineText` | 多行文本 | 否 |
+| `Date` | 日期 | 否 |
+| `Time` | 时间 | 否 |
+| `Number` | 数值 | 否 |
+| `Currency` | 货币 | 否 |
+| `Percentage` | 百分比 | 否 |
+| `ID` | 身份证 | 否 |
+| `Phone` | 电话 | 否 |
+| `Email` | 电子邮箱 | 否 |
+| `Url` | 超链接 | 否 |
+| `Checkbox` | 复选框 | 否 |
+| `SingleSelect` | 单选项 | 否 |
+| `MultipleSelect` | 多选项 | 否 |
+| `Rating` | 等级 | 否 |
+| `Complete` | 进度条 | 否 |
+| `Contact` | 联系人 | 否 |
+| `Attachment` | 附件 | 否 |
+| `Link` | 关联 | 否 |
+| `Note` | 富文本 | 否 |
+| `Address` | 地址 | 否 |
+| `Cascade` | 级联 | 否 |
+| `Department` | 部门 | 否 |
+| `AutoNumber` | 编号 | **是** |
+| `CreatedBy` | 创建者 | **是** |
+| `CreatedTime` | 创建时间 | **是** |
+| `LastModifiedBy` | 最后修改者 | **是** |
+| `LastModifiedTime` | 最后修改时间 | **是** |
+| `Formula` | 公式 | **是** |
+| `Lookup` | 引用 | **是** |
+| `BarCode` | 条码字段 | **是** |
+| `SearchLookup` | 查找引用 | **是** |
+| `Button` | 按钮 | **是** |
+| `OneWayLink` | 单向关联 | **是** |
+
+---
+
+**视图类型枚举（`views[].type`）**
+
+| 类型值 | 说明 |
+|--------|------|
+| `Grid` | 表格视图 |
+| `Kanban` | 看板视图 |
+| `Gallery` | 画册视图 |
+| `Form` | 表单视图 |
+| `Gantt` | 甘特视图 |
+| `Query` | 查询视图 |
+| `Calendar` | 日历视图 |
+
+---
+
+**各字段类型的记录值传入格式（写记录时参考）**
+
+| 字段类型 | 值格式 | 示例 |
+|---------|--------|------|
+| `MultiLineText` | string | `"文本内容"` |
+| `Date` | string（yyyy/mm/dd） | `"2025/11/15"` |
+| `Time` | string（hh:mm:ss） | `"11:12:15"` |
+| `Number` / `Currency` / `Percentage` | int \| float | `123` |
+| `ID` / `Phone` / `Email` | string | `"18800000000"` |
+| `Url` | object 或 string | `{"address":"https://…","displayText":"百度"}` 或 `"https://…"`（同时设置地址和文本） |
+| `Checkbox` | boolean | `true` |
+| `SingleSelect` | string（选项 value） | `"选项1"` |
+| `MultipleSelect` | string[]（选项 value 数组） | `["选项1","选项2"]` |
+| `Rating` / `Complete` | int | `3` / `80` |
+| `Contact` | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` |
+| `Attachment` | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]`；`linkUrl`、`imgSize` 选填 |
+| `Link` | string[] | `["record_id_1","record_id_2"]` |
+| `Address` | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` |
+| `Cascade` | object | `{"districts":["一级","二级"]}` |
+| `Department` | object[] | `[{"districts":["总部","研发部"],"detail":"dept_id"}]` |
+| `Note` | object | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 10:00:00"}` |
+| `AutoNumber`、`CreatedBy`、`CreatedTime`、`LastModifiedBy`、`LastModifiedTime`、`Formula`、`Lookup` | — | **自动字段，无需填写** |
+
 
 #### 返回值说明
 
@@ -181,6 +270,8 @@
 #### 操作约束
 
 - **前置检查**：get_schema 确认目标数据表存在
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -241,7 +332,8 @@
 
 - **前置检查**：get_schema 核对拟删数据表的名称和内容
 - **用户确认**：删除数据表不可恢复，必须向用户确认数据表名称和 ID
-- **禁止**：未经用户在对话中明确同意，禁止调用
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -292,6 +384,8 @@
 #### 操作约束
 
 - **后置验证**：建议 dbsheet.get_schema 核对
+
+**幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
 
 #### 调用示例
 
@@ -348,8 +442,10 @@
 
 #### 操作约束
 
+- **前置检查**：get_schema 确认待删数据表名称和内容
 - **用户确认**：删除后表及记录不可恢复
-- **幂等**：否
+
+**幂等性**：否 — 不可恢复操作，禁止自动重试
 
 #### 调用示例
 

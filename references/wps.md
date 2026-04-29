@@ -80,6 +80,8 @@
 
 - **前置检查**：先通过 `get_file_info` / `search_files` / `list_files` 获取 `link_id`，或从文档 URL 路径末尾提取
 
+**幂等性**：否 — 导出为异步任务，用 task_id 轮询结果而非重复提交
+
 #### 调用示例
 
 `format=docx` 导出 DOCX：
@@ -144,6 +146,8 @@
 #### 操作约束
 
 - **前置检查**：先通过 `get_file_info` / `search_files` / `list_files` 获取 `link_id`，或从文档 URL 路径末尾提取
+
+**幂等性**：否 — 导出为异步任务，用 task_id 轮询结果而非重复提交
 
 #### 调用示例
 
@@ -263,6 +267,7 @@
 - 高亮色: modifyParagraphHighlight / modifyRangeHighlight
 
 各命令完整参数与枚举表见 wps 经验文档。
+
 
 
 > param 结构随 command 变化，不传则为 {}

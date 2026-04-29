@@ -7,27 +7,17 @@
 
 **前置条件**：对目标视图有管理分享权限；`view_id` 来自 `dbsheet.get_schema` 或 `dbsheet.views_list`。
 
-**必填项多且缺一不可**。调用本工具前，Agent **必须先自检**下列参数是否均已具备（用户明确提供或已由 `get_schema` / `views_list` 解析得到）；**任一项缺失则禁止调用**，并**仅向用户说明缺少的参数名**（使用下方清单中的键名，顶层用 `file_id` 等，`body` 内用 `body.permission` 形式），不得猜测或缺省调用。
-
-**调用前自检清单（须全部打勾）**
-
-| 键名 | 说明 |
-|------|------|
-| `file_id` | 多维表格文件 ID |
-| `sheet_id` | 数据表 ID |
-| `view_id` | 视图 ID |
-| `body.permission` | 分享权限：`edit` / `read` |
-| `body.share_to` | 分享范围：`anyone` / `company` / `assigned` |
-| `body.view_type` | 视图类型：`G0`（表格）/ `F0`（表单）/ `D0`（仪表盘） |
-
 
 
 #### 操作约束
 
-- **前置检查**：调用前逐项核对 多维表格文件 ID、数据表 ID、视图 ID、分享权限（可编辑/可查看）、分享范围（所有人/企业内成员/指定人）、视图类型（表格/表单/仪表盘） 均已齐备；缺任一须停止调用并向用户列出缺少的参数名（使用上述键名），不得用默认值凑数
+- **前置检查**：逐项核对 file_id、sheet_id、view_id、body.permission、body.share_to、body.view_type 均已齐备；缺任一须停止并向用户列出缺少的参数名
+- **禁止**：参数不齐时禁止调用，不得用默认值凑数或猜测缺失参数
 - **后置验证**：可用 dbsheet.share_view_status 或 share_get_link_info 核对
-> 参数不齐时禁止调用；向用户明确列出缺失键名，例如：缺少 `body.view_type`（须为 G0/F0/D0 之一，需与当前视图类型一致）。
-> `view_type` 须与 `get_schema` 中该视图类型一致，避免传错导致失败；不确定时先用 get_schema 确认后再填 `body`。
+
+**幂等性**：是
+
+> `view_type` 须与 `get_schema` 中该视图类型一致，避免传错导致失败；不确定时先用 get_schema 确认
 
 #### 调用示例
 
@@ -56,18 +46,6 @@
   - `permission` (string, **必填**): `edit` 或 `read`；缺失时提示缺少 `分享权限（可编辑/可查看）`
   - `share_to` (string, **必填**): `anyone`、`company` 或 `assigned`；缺失时提示缺少 `分享范围（所有人/企业内成员/指定人）`
   - `view_type` (string, **必填**): `G0`、`F0` 或 `D0`；缺失时提示缺少 `视图类型（表格/表单/仪表盘）`
-
-**Agent 参数齐全性检查**
-
-在发起 `dbsheet.share_open_view` 前，按顺序核对；**缺哪项就只报哪项**（示例话术：「缺少参数：`分享范围（所有人/企业内成员/指定人）`，请提供分享范围。」）：
-
-1. `file_id`（string）
-2. `sheet_id`（integer）
-3. `view_id`（string）
-4. `body` 为对象且非空
-5. `body.permission` 存在且为 `edit` 或 `read`
-6. `body.share_to` 存在且为 `anyone`、`company` 或 `assigned`
-7. `body.view_type` 存在且为 `G0`、`F0` 或 `D0`
 
 **请求体（`body`）字段表**
 
@@ -205,7 +183,10 @@
 
 #### 操作约束
 
+- **前置检查**：share_view_status 确认当前分享状态
 - **用户确认**：关闭后外部访问方将无法通过该链接访问
+
+**幂等性**：否 — 关闭后再次调用无效，先确认当前分享状态
 
 #### 调用示例
 
@@ -311,6 +292,8 @@
 
 - **提示**：与官方 set-repeatable 文档保持一致
 
+**幂等性**：是
+
 #### 调用示例
 
 禁止重复提交：
@@ -373,6 +356,8 @@
 #### 操作约束
 
 - **后置验证**：可用 dbsheet.share_get_link_info 核对
+
+**幂等性**：是
 
 #### 调用示例
 

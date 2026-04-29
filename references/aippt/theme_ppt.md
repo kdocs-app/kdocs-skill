@@ -12,6 +12,9 @@
 - 建议将返回的问卷继续转成 `question_and_answers`，供 `aippt.theme_deep_research` 与 `aippt.theme_outline` 使用
 
 
+
+**幂等性**：否 — 可安全重试，返回当前输入对应的问题列表
+
 > 如果主题已经足够明确、无需继续澄清，可跳过本工具，直接组织 `question_and_answers`
 
 #### 调用示例
@@ -92,6 +95,9 @@
 - 服务端还会兼容透传 `notifications/aippt/deep_research` 结构化事件
 
 
+
+**幂等性**：否 — 可安全重试，会基于相同主题重新进行深度研究
+
 > 若后续要调用 `aippt.theme_outline`，应从流式通知中消费研究资料文本，并将其作为 `references` 传入
 > 最终 tool result 不包含完整 `references`，不要仅依赖最终返回体获取研究内容
 
@@ -164,6 +170,9 @@
 - `references` 建议直接传入 `aippt.theme_deep_research` 流式阶段产出的研究资料文本
 - `question_and_answers` 不能为空，否则服务端会直接报参数错误
 
+
+
+**幂等性**：否 — 可安全重试，会基于相同输入重新生成大纲
 
 > outline 的具体内部结构由上游模型决定，后续若要生成 HTML PPTX，建议优先从其中提取正式的 outlines 数组再传给 aippt.theme_generate_html_pptx
 
@@ -248,6 +257,9 @@
 - `outlines` 每项须包含 `title`、`content_description`、`design_style`、`page_type` 四个必填字段；推荐传入本地格式转换后的标准 outlines
 - 返回值同时包含逐页结果和合并后的完整 PPTX 链接
 
+
+
+**幂等性**：否 — 可安全重试，会基于相同 outlines 重新生成
 
 > 返回的 `merged_url` 和 `pages[].file_url` 一般为临时链接，调用后应尽快消费
 > `outlines` 各字段值不得为空字符串，否则服务端返回 badRequest

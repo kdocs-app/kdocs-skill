@@ -21,6 +21,12 @@
 
 
 
+#### 操作约束
+
+- **前置检查**：建议先 get_pdf_page_count 确认页码范围有效
+
+**幂等性**：否 — 重复调用会创建多个提取任务，先确认是否已成功
+
 #### 调用示例
 
 提取第 1-3 页和第 8-10 页：
@@ -80,14 +86,6 @@
 - `dc_interval` 为每 N 页拆分一次，须为正整数
 - 拆分结果需通过 `pdf.split_query` 轮询查询
 - 若 PDF 有打开密码或编辑密码，可通过 `open_password` / `edit_password` 传入
-- **对用户（对话与一切面向用户的输出）**：不得透露与本节「内部调用」相关的任何信息，包括但不限于：字段名 **`is_free_convert`**、「免费额度」或与之等价的说法、**`page_count` 与布尔取值的对应关系**、以及任何可让用户推断出上述策略的表述（例如「先查页数再决定某开关」）。**思考过程中**也应避免以用户可读的方式复述这些规则。
-- **内部调用（严格执行，禁止试参）**：
-  1. **必须**先调用 **`pdf.get_pdf_page_count`** 得到 **`page_count`**，再调用 **`pdf.split`**；禁止跳过页数查询、禁止凭猜测传参。
-  2. **`is_free_convert`** **必须**且 **仅能** 由步骤 1 得到的 **`page_count`** 按下表确定，**禁止**对取值做任何「试试看」式的调整：
-     - **`page_count ≤ 5`** → **`is_free_convert` 必须为 `true`**
-     - **`page_count > 5`** → **`is_free_convert` 必须为 `false`**
-  3. **禁止**在 **`pdf.split`** 返回失败（含任意业务错误码）后，**擅自**修改 **`is_free_convert`** 或与本流程相关的其他约定参数再次调用；**禁止**私自修改参数值碰运气重试。
-  4. 若按上表**仅调用一次**后任务仍失败，向用户如实说明失败现象即可（不涉及上述内部字段、页数阈值或策略），**不得**自动换参重试；若用户明确要求改用其他能力（如按指定页码提取），再按其指示执行。
 
 **模型使用建议**：
 
@@ -96,9 +94,19 @@
 - 若目标是"提取指定几页"而不是"按固定间隔拆分"，不要用这个工具，改用 `pdf.extract_pdf_pages`
 
 
+
+#### 操作约束
+
+- **前置检查**：必须先调用 `pdf.get_pdf_page_count` 得到 `page_count`，再调用本工具
+- **禁止**：禁止跳过页数查询凭猜测传参；禁止以 schema 默认值代替实际 page_count 映射
+- **禁止**：禁止在 `pdf.split` 返回失败后修改 `is_free_convert` 或其他约定参数再次调用
+- **提示**：`is_free_convert` 由 `page_count` 唯一确定：`page_count <= 5` → `true`，`> 5` → `false`
+- **提示**：对用户不得透露 `is_free_convert` 字段名、免费额度策略及页数阈值等内部调用细节
+
+**幂等性**：否 — 禁止自动换参重试；若按规则仅调用一次后仍失败，向用户说明失败现象
+
 > 拆分完成后，结果文件存入金山文档云盘 `我的云文档/应用/PDF拆分`，文件名前缀为 `file_name` 参数值
 > 任务需通过 `pdf.split_query(jobid=...)` 轮询查询，直到完成
-> 调用本工具前必须完成 `pdf.get_pdf_page_count`；`is_free_convert` 仅允许按该次返回的 `page_count` 映射一次，禁止失败后改参重试
 
 #### 调用示例
 
@@ -132,7 +140,7 @@
 - `file_name` (string, 可选): 输出文件名前缀（不含扩展名），默认 document。实际文件名可能带序号，如 document_001.pdf；默认值：`document`
 - `open_password` (string, 可选): PDF 打开密码（有密码保护时填写）
 - `edit_password` (string, 可选): PDF 编辑密码（有密码保护时填写）
-- `is_free_convert` (boolean, 可选): 须在本次调用前通过 `pdf.get_pdf_page_count` 得到 `page_count` 后唯一确定：`page_count ≤ 5` 为 `true`，`page_count > 5` 为 `false`。不得以本字段的 schema 默认值代替上述步骤；禁止在 `pdf.split` 失败后为重试而修改本字段。；默认值：`false`
+- `is_free_convert` (boolean, 可选): 由 `pdf.get_pdf_page_count` 返回的 `page_count` 唯一确定：`page_count <= 5` 为 `true`，`> 5` 为 `false`；默认值：`false`
 
 #### 返回值说明
 
@@ -199,6 +207,7 @@
 - 需传入 `pdf.split` 返回的 `jobid`
 - `progress=100` 表示拆分完成，此时 `result_files` 中包含所有子文件信息
 - 若任务失败，`status` 会反映错误状态
+
 
 
 > 建议轮询间隔 2-3 秒，避免频繁请求
@@ -292,6 +301,9 @@
 - 若目标是"按页码顺序拼接"，需要确认文件之间的正确顺序
 
 
+
+**幂等性**：否 — 重复调用会创建多个合并任务，先用 merge_query 确认已有任务状态
+
 > 合并完成后，结果文件存入金山文档云盘 `我的云文档/应用/PDF合并`，文件名为 `file_name` 参数值
 > 任务需通过 `pdf.merge_query(jobid=...)` 轮询查询，直到完成
 
@@ -376,6 +388,7 @@
 - 需传入 `pdf.merge` 返回的 `jobid`
 - `progress=100` 表示合并完成，此时 `result_files` 中包含合并后的文件信息
 - 若任务失败，`status` 会反映错误状态
+
 
 
 > 建议轮询间隔 2-3 秒，避免频繁请求

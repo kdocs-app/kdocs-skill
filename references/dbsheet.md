@@ -137,7 +137,7 @@
 | 场景 | 优先工具 | 备用工具 | 说明 |
 |------|----------|----------|------|
 | 列举数据表所有 / 分页记录 | `dbsheet.records_list` | `dbsheet.list_records` | `records_list` 基于游标分页；若返回错误，改用 `list_records`（页码分页） |
-| 查询数据表中某一条记录 | `dbsheet.get_record` | `dbsheet.records_search` | `get_record` 直接按记录 id GET 查询；走不通时可用 `records_search` |
+| 查询数据表中某一条记录 | `dbsheet.get_record` | `dbsheet.records_search` | `get_record` 直接按记录 id GET 查询；返回错误时可改用 `records_search` |
 | 批量获取指定多条记录 | `dbsheet.records_search` | — | 传入记录 id 列表一次取回多条，无需逐条查询 |
 
 ---

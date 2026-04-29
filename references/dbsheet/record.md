@@ -4,7 +4,7 @@
 
 #### 功能说明
 
-在指定数据表中批量创建记录。每条记录通过 `fields_value` 字段传入一个**序列化的 JSON 字符串**，
+在指定数据表中批量创建记录。每条记录通过 `fields` 字段传入一个**序列化的 JSON 字符串**，
 字符串内部为字段名（或字段 ID）到值的映射。
 
 
@@ -12,11 +12,16 @@
 #### 操作约束
 
 - **后置验证**：调用 list_records 或 get_record 确认记录已创建
-> `fields_value` 必须是序列化后的 JSON 字符串，直接传对象会导致参数解析失败
-> prefer_id=true 时，fields_value 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
-> 响应体中记录的字段值通过 `records[].fields` 返回（非 `fields_value`），包含创建后所有字段值（含系统自动字段）
+
+**幂等性**：否 — 重复调用会插入重复记录，先确认是否已成功
+
+> `records[].fields` 是对象（key-value 映射），不是序列化 JSON 字符串
+> 关联字段（Link）值格式为 `{"recordIds": ["id1", "id2"]}`，而非直接传 id 数组
+> `prefer_id=true` 时，`fields` 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
+> `b_add_select_item=true` 时，可通过 `field_values` 提前声明要新增的选项；若不声明，选项名称直接写入 `fields` 中也会触发新增
+> `text_value` 和 `link_value` 仅影响响应返回格式，不影响写入行为
 > Url 字段传入为对象 `{address, displayText}`，响应中以数组形式返回
-> Rating 字段的上限由 `max_value`（非 `max`）定义，创建字段时通过 `dbsheet.create_fields` 设置
+> Rating 字段的上限由 `max_value`（非 `max`）定义，可通过 get_schema 查询
 
 #### 调用示例
 
@@ -29,25 +34,56 @@
   "prefer_id": false,
   "records": [
     {
-      "fields_value": "{\"文本\":\"第一行文本\",\"日期\":\"2024/12/20\"}"
+      "fields": {
+        "文本": "第一行文本",
+        "日期": "2024/12/20"
+      }
     },
     {
-      "fields_value": "{\"文本\":\"第二行文本\",\"日期\":\"2024/12/21\"}"
+      "fields": {
+        "文本": "第二行文本",
+        "日期": "2024/12/21"
+      }
     }
   ]
 }
 ```
 
-覆盖大部分可写字段类型创建记录：
+创建记录时同步新增选项：
 
 ```json
 {
   "file_id": "VsdfG0001234567",
   "sheet_id": 3,
-  "prefer_id": false,
+  "b_add_select_item": true,
+  "field_values": [
+    {
+      "fieldId": "E",
+      "listItems": [
+        {
+          "value": "选项30",
+          "color": "0xF0EEF7"
+        }
+      ]
+    }
+  ],
   "records": [
     {
-      "fields_value": "{\"日期\":\"2025/11/15\",\"时间\":\"11:12:15\",\"数字\":125,\"货币\":215,\"多行文本\":\"yesit'sright\",\"百分比\":98,\"身份证\":\"110101**************9\",\"电话\":\"18800000000\",\"超链接\":{\"address\":\"https://www.baidu.com\",\"displayText\":\"百度\"},\"单选项\":\"选项1\",\"多选项\":[\"多选选项1\",\"多选选项2\"],\"等级\":2,\"联系人\":[{\"id\":\"281653414\",\"nickname\":\"nickName1\"}],\"地址\":{\"districts\":[\"广东省\",\"珠海市\",\"香洲区\"],\"detail\":\"前岛环路金山软件园\"},\"富文本\":{\"fileId\":\"GEYDAMJTHE3DKMJYHE2DURKDINBUQS2ZGRAUGUKIKE\",\"summary\":\"富文本简略内容\",\"modifyDate\":\"2025/12/31\"}}"
+      "fields": {
+        "名称": "Hello",
+        "数量": 123,
+        "记录关联": {
+          "recordIds": [
+            "I",
+            "G"
+          ]
+        }
+      }
+    },
+    {
+      "fields": {
+        "数量": 666
+      }
     }
   ]
 }
@@ -56,58 +92,97 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID（路径参数）
-- `sheet_id` (integer, 必填): 数据表 ID（路径参数）
-- `records` (array[object], 必填): 要创建的记录列表，每个元素包含 `fields_value` 字段
-- `prefer_id` (boolean, 可选): 为 `true` 时 `fields_value` 内部使用字段 ID 作为 key；默认 `false`（使用字段名）
+- `file_id` (string, 必填): 多维表格文件 ID
+- `sheet_id` (integer, 必填): 数据表 ID
+- `records` (array[object], 必填): 要创建的记录列表，每个元素含 `fields` 对象（字段名/ID → 值的映射）
+- `prefer_id` (boolean, 可选): 默认 `false`（以字段名解析）。为 `true` 时 `fields` 内部的 key 应为字段 ID
+- `value_prefer_id` (boolean, 可选): 默认 `false`。为 `true` 时使用选项 ID 来标识选项值
+- `omit_failure` (boolean, 可选): 默认 `false`。为 `true` 时单条记录写入失败不中断整批请求
+- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）；`text` 返回文本值；`compound` 同时返回原始值和文本值
+- `link_value` (string, 可选): 关联字段响应格式：`id` 仅返回关联记录 id（默认）；`all` 返回 id 和文本
+- `b_add_select_item` (boolean, 可选): 是否允许在写入记录时同步新增选项（配合 `field_values` 使用）
+- `field_values` (array, 可选): 创建记录时需要新增的选项配置列表，每项含 `fieldId`（字段 ID）和 `listItems`（待新增选项数组，每项含 `value` 和 `color`）
 
-**records 元素结构：**
+**请求体根级参数**
 
-| 字段 | 类型 | 是否必填 | 说明 |
-|------|------|----------|------|
-| `fields_value` | string | 是 | 序列化的 JSON 字符串，内容为字段名（或字段 ID）→ 值的映射，需符合各字段类型规范 |
+| 名称 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `sheetId` | integer | 是 | 数据表 ID |
+| `records` | array[object] | 是 | 待创建记录列表，每项含 `fields` 对象 |
+| `preferId` | boolean | 否 | 默认 `false`。`true` 时 `fields` 的 key 为字段 ID |
+| `valuePreferId` | boolean | 否 | 默认 `false`。`true` 时用选项 ID 标识选项值 |
+| `omitFailure` | boolean | 否 | 默认 `false`。`true` 时单条失败不中断整批 |
+| `textValue` | string | 否 | 响应值格式：`original`（默认）/ `text` / `compound` |
+| `linkValue` | string | 否 | 关联字段响应格式：`id`（默认）/ `all` |
+| `bAddSelectItem` | boolean | 否 | 是否允许写入时同步新增选项 |
+| `fieldValues` | array[object] | 否 | 需新增的选项配置，配合 `bAddSelectItem: true` 使用 |
 
-> `fields_value` 是一个 **JSON 字符串**，不是对象。调用时需先将字段映射序列化为字符串再传入。
+**`records[]` 元素结构**
 
-**各字段类型的 fields_value 填写规范：**
+| 属性 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `fields` | object | 是 | 字段名（或字段 ID）→ 值的映射对象 |
 
-| 字段名（类型） | 值类型 | 示例值 | 备注 |
-|--------------|--------|-------|------|
+**`fieldValues[]` 元素结构**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `fieldId` | string | 要新增选项的字段 ID |
+| `listItems` | array[object] | 待新增选项，每项含 `value`（string）和 `color`（string，如 `"0xF0EEF7"`） |
+
+**`fields` 对象各字段类型填写规范**
+
+| 字段类型 | 值类型 | 示例值 | 备注 |
+|---------|--------|--------|------|
 | 文本类（SingleLineText / MultiLineText） | string | `"任务描述"` | — |
 | 日期（Date） | string | `"2025/11/15"` | 须符合字段 `number_format` 格式 |
 | 时间（Time） | string | `"11:12:15"` | 须符合字段时间格式 |
 | 数字 / 货币 / 百分比（Number / Currency / Percent） | int \| float | `125` / `215` / `98` | — |
 | 复选框（Checkbox） | boolean | `true` | — |
-| 进度（Complete） | int | `100` | 进度值 0–100 |
+| 进度（Complete） | float | `1` | 进度值 0–1 |
 | 等级（Rating） | int | `3` | 不超过字段 `max_value` 上限 |
-| 单选项（SingleSelect） | string | `"选项1"` | 必须是已有选项的 `value` |
-| 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 每项均须是已有选项 `value` |
+| 单选项（SingleSelect） | string | `"选项1"` | 已有选项的 `value`；`bAddSelectItem=true` 时可传新选项 |
+| 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 已有选项 `value` 的字符串数组 |
 | 电话 / 邮箱 / 身份证（Phone / Email / ID） | string | `"18800000000"` | — |
 | 超链接（Url） | object | `{"address":"https://…","displayText":"百度"}` | 响应中以数组形式返回 |
-| 关联（Link） | string[] | `["recXXXXXX"]` | 关联记录的 id 数组 |
+| 关联（Link） | object | `{"recordIds":["I","G"]}` | `recordIds` 为关联记录 id 数组 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `address_level` 一致 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
-| 最后修改时间（LastModifiedTime） | string | `"2024/12/10 10:10:10"` | 通常由系统自动维护 |
-| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用（Formula / AutoNumber / CreatedTime / CreatedBy / LastModifiedBy / Lookup） | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及 `data` 配置可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 
-**请求体示例（覆盖大部分可写字段类型）**
+**请求体示例**
 
 ```json
 {
-  "prefer_id": false,
+  "sheetId": 3,
+  "preferId": false,
+  "bAddSelectItem": true,
+  "fieldValues": [
+    {
+      "fieldId": "E",
+      "listItems": [{ "value": "选项30", "color": "0xF0EEF7" }]
+    }
+  ],
   "records": [
     {
-      "fields_value": "{\"日期\":\"2025/11/15\",\"时间\":\"11:12:15\",\"数字\":125,\"货币\":215,\"多行文本\":\"yesit'sright\",\"百分比\":98,\"身份证\":\"110101**************9\",\"电话\":\"18800000000\",\"超链接\":{\"address\":\"https://www.baidu.com\",\"displayText\":\"百度\"},\"单选项\":\"选项1\",\"多选项\":[\"多选选项1\",\"多选选项2\"],\"等级\":2,\"联系人\":[{\"id\":\"281653414\",\"nickname\":\"nickName1\"}],\"地址\":{\"districts\":[\"广东省\",\"珠海市\",\"香洲区\"],\"detail\":\"前岛环路金山软件园\"},\"富文本\":{\"fileId\":\"GEYDAMJTHE3DKMJYHE2DURKDINBUQS2ZGRAUGUKIKE\",\"summary\":\"富文本简略内容\",\"modifyDate\":\"2025/12/31\"}}"
+      "fields": {
+        "名称": "Hello",
+        "数量": 123,
+        "记录关联": { "recordIds": ["I", "G"] }
+      }
+    },
+    {
+      "fields": { "数量": 666 }
     }
   ]
 }
 ```
 
-`fields_value` 反序列化后内容（各字段类型对应值）：
+`fields` 反序列化后内容（各字段类型对应值）：
 
 | 字段名 | 字段类型 | 值示例 |
 |--------|----------|--------|
@@ -116,7 +191,7 @@
 | `数字` | Number | `125` |
 | `货币` | Currency | `215` |
 | `多行文本` | MultiLineText | `"yesit'sright"` |
-| `百分比` | Percent | `98` |
+| `百分比` | Percent | `0.98` |
 | `身份证` | ID | `"110101**************9"` |
 | `电话` | Phone | `"18800000000"` |
 | `超链接` | Url | `{"address":"https://www.baidu.com","displayText":"百度"}` |
@@ -165,7 +240,7 @@
 
 #### 功能说明
 
-批量更新数据表中已有记录的字段值。每条记录必须提供 `id`（记录 ID）和 `fields_value`
+批量更新数据表中已有记录的字段值。每条记录必须提供 `id`（记录 ID）和 `fields`
 （序列化的 JSON 字符串，内容为字段名或字段 ID 到新值的映射）。
 
 
@@ -174,12 +249,16 @@
 
 - **前置检查**：调用 list_records 或 get_record 确认目标记录 ID 存在及当前字段值
 - **后置验证**：调用 get_record 确认字段已更新为预期值
-> `fields_value` 必须是序列化后的 JSON 字符串，直接传对象会导致参数解析失败
-> 仅传入需要修改的字段即可，未传字段保持原值不变
-> prefer_id=true 时，fields_value 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
-> 响应体中记录的字段值通过 `records[].fields` 返回（非 `fields_value`），包含更新后所有字段值（含系统自动字段）
+
+**幂等性**：是
+
+> `records[].fields` 是对象（key-value 映射），不是序列化 JSON 字符串；仅传入需要修改的字段，未传字段保持原值不变
+> 关联字段（Link）值格式为 `{"recordIds": ["id1", "id2"]}`，而非直接传 id 数组
+> `prefer_id=true` 时，`fields` 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
+> `b_add_select_item=true` 时，可通过 `field_values` 预声明要新增的选项
+> `text_value` 和 `link_value` 仅影响响应返回格式，不影响写入行为
 > Url 字段传入为对象 `{address, displayText}`，响应中以数组形式返回
-> Rating 字段的上限由 `max_value`（非 `max`）定义，创建字段时通过 `dbsheet.create_fields` 设置
+> Rating 字段的上限由 `max_value`/`max`定义，创建字段时通过 `dbsheet.create_fields` 设置
 
 #### 调用示例
 
@@ -193,27 +272,53 @@
   "records": [
     {
       "id": "G",
-      "fields_value": "{\"文本\":\"新的文本\",\"日期\":\"2024/12/21\"}"
+      "fields": {
+        "文本": "新的文本",
+        "日期": "2024/12/21"
+      }
     },
     {
       "id": "H",
-      "fields_value": "{\"文本\":\"另一行文本\",\"状态\":\"已完成\"}"
+      "fields": {
+        "文本": "另一行文本",
+        "状态": "已完成"
+      }
     }
   ]
 }
 ```
 
-覆盖大部分可写字段类型更新记录：
+更新记录时同步新增选项：
 
 ```json
 {
   "file_id": "VsdfG0001234567",
   "sheet_id": 3,
-  "prefer_id": false,
+  "b_add_select_item": true,
+  "field_values": [
+    {
+      "fieldId": "E",
+      "listItems": [
+        {
+          "value": "选项30",
+          "color": "0xF0EEF7"
+        }
+      ]
+    }
+  ],
   "records": [
     {
-      "id": "recXXXXXXXX",
-      "fields_value": "{\"日期\":\"2025/11/15\",\"时间\":\"11:12:15\",\"数字\":125,\"货币\":215,\"多行文本\":\"yesit'sright\",\"百分比\":98,\"身份证\":\"110101**************9\",\"电话\":\"18800000000\",\"超链接\":{\"address\":\"https://www.baidu.com\",\"displayText\":\"百度\"},\"单选项\":\"选项1\",\"多选项\":[\"多选选项1\",\"多选选项2\"],\"等级\":2,\"联系人\":[{\"id\":\"281653414\",\"nickname\":\"nickName1\"}],\"地址\":{\"districts\":[\"广东省\",\"珠海市\",\"香洲区\"],\"detail\":\"前岛环路金山软件园\"},\"富文本\":{\"fileId\":\"GEYDAMJTHE3DKMJYHE2DURKDINBUQS2ZGRAUGUKIKE\",\"summary\":\"富文本简略内容\",\"modifyDate\":\"2025/12/31\"}}"
+      "id": "B",
+      "fields": {
+        "名称": "Hello",
+        "数量": 123
+      }
+    },
+    {
+      "id": "C",
+      "fields": {
+        "数量": 666
+      }
     }
   ]
 }
@@ -222,54 +327,90 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID（路径参数）
-- `sheet_id` (integer, 必填): 数据表 ID（路径参数）
-- `records` (array[object], 必填): 要更新的记录列表，每个元素包含 `id`（记录 ID）和 `fields_value`（序列化 JSON 字符串）
-- `prefer_id` (boolean, 可选): 为 `true` 时 `fields_value` 内部使用字段 ID 作为 key；默认 `false`（使用字段名）
+- `file_id` (string, 必填): 多维表格文件 ID
+- `sheet_id` (integer, 必填): 数据表 ID
+- `records` (array[object], 必填): 要更新的记录列表，每个元素包含 `id`（记录 ID）和 `fields`（序列化 JSON 字符串）
+- `prefer_id` (boolean, 可选): 默认 `false`（以字段名解析）。为 `true` 时 `fields` 内部的 key 应为字段 ID
+- `value_prefer_id` (boolean, 可选): 默认 `false`。为 `true` 时使用选项 ID 来标识选项值
+- `omit_failure` (boolean, 可选): 默认 `false`。为 `true` 时单条记录写入失败不中断整批请求
+- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）；`text` 返回文本值；`compound` 同时返回原始值和文本值
+- `link_value` (string, 可选): 关联字段响应格式：`id` 仅返回关联记录 id（默认）；`all` 返回 id 和文本
+- `b_add_select_item` (boolean, 可选): 是否允许在写入记录时同步新增选项（配合 `field_values` 使用）
+- `field_values` (array, 可选): 更新记录时需要新增的选项配置列表，每项含 `fieldId`（字段 ID）和 `listItems`（待新增选项数组，每项含 `value` 和 `color`）
 
-**records 元素结构：**
+**请求体根级参数**
 
-| 字段 | 类型 | 是否必填 | 说明 |
-|------|------|----------|------|
-| `id` | string | 是 | 目标记录的记录 ID（由 `list_records` / `get_record` 返回） |
-| `fields_value` | string | 是 | 序列化的 JSON 字符串，内容为字段名（或字段 ID）→ 新值的映射，仅需传入要修改的字段 |
+| 名称 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `sheetId` | integer | 是 | 数据表 ID |
+| `records` | array[object] | 是 | 待更新记录列表，每项含 `id` 和 `fields` 对象 |
+| `preferId` | boolean | 否 | 默认 `false`。`true` 时 `fields` 的 key 为字段 ID |
+| `valuePreferId` | boolean | 否 | 默认 `false`。`true` 时用选项 ID 标识选项值 |
+| `omitFailure` | boolean | 否 | 默认 `false`。`true` 时单条失败不中断整批 |
+| `textValue` | string | 否 | 响应值格式：`original`（默认）/ `text` / `compound` |
+| `linkValue` | string | 否 | 关联字段响应格式：`id`（默认）/ `all` |
+| `bAddSelectItem` | boolean | 否 | 是否允许写入时同步新增选项 |
+| `fieldValues` | array[object] | 否 | 需新增的选项配置，配合 `bAddSelectItem: true` 使用 |
 
-> `fields_value` 是 **JSON 字符串**，不是对象。只传需要修改的字段，未传字段保持原值不变。
+**`records[]` 元素结构**
 
-**各字段类型的 fields_value 填写规范：**
+| 属性 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | **是** | 目标记录 ID（通过 list_records / get_record 获取） |
+| `fields` | object | 是 | 字段名（或字段 ID）→ 新值的映射对象；仅传需要修改的字段 |
 
-| 字段名（类型） | 值类型 | 示例值 | 备注 |
-|--------------|--------|-------|------|
+**`fieldValues[]` 元素结构**
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `fieldId` | string | 要新增选项的字段 ID |
+| `listItems` | array[object] | 待新增选项，每项含 `value`（string）和 `color`（string，如 `"0xF0EEF7"`） |
+
+**`fields` 对象各字段类型填写规范**
+
+| 字段类型 | 值类型 | 示例值 | 备注 |
+|---------|--------|--------|------|
 | 文本类（SingleLineText / MultiLineText） | string | `"新文本"` | — |
 | 日期（Date） | string | `"2025/11/15"` | 须符合字段 `number_format` 格式 |
 | 时间（Time） | string | `"11:12:15"` | 须符合字段时间格式 |
 | 数字 / 货币 / 百分比（Number / Currency / Percent） | int \| float | `125` / `215` / `98` | — |
 | 复选框（Checkbox） | boolean | `false` | — |
-| 进度（Complete） | int | `50` | 进度值 0–100 |
-| 等级（Rating） | int | `3` | 不超过字段 `max_value` 上限 |
-| 单选项（SingleSelect） | string | `"选项1"` | 必须是已有选项的 `value` |
-| 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 每项均须是已有选项 `value` |
+| 进度（Complete） | float | `0.5` | 进度值 0–1 |
+| 等级（Rating） | int | `3` | 不超过字段 `max_value`/`max` 上限 |
+| 单选项（SingleSelect） | string | `"选项1"` | 已有选项的 `value`；`bAddSelectItem=true` 时可传新选项 |
+| 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 已有选项 `value` 的字符串数组 |
 | 电话 / 邮箱 / 身份证（Phone / Email / ID） | string | `"18800000000"` | — |
 | 超链接（Url） | object | `{"address":"https://…","displayText":"百度"}` | 响应中以数组形式返回 |
-| 关联（Link） | string[] | `["recXXXXXX"]` | 关联记录的 id 数组 |
+| 关联（Link） | object | `{"recordIds":["I","G"]}` | `recordIds` 为关联记录 id 数组 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `address_level` 一致 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
-| 最后修改时间（LastModifiedTime） | string | `"2024/12/10 10:10:10"` | 通常由系统自动维护 |
-| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用（Formula / AutoNumber / CreatedTime / CreatedBy / LastModifiedBy / Lookup） | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及值格式完整说明可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 
-**请求体示例（覆盖大部分可写字段类型）**
+**请求体示例**
 
 ```json
 {
-  "prefer_id": false,
+  "sheetId": 3,
+  "preferId": false,
+  "bAddSelectItem": true,
+  "fieldValues": [
+    {
+      "fieldId": "E",
+      "listItems": [{ "value": "选项30", "color": "0xF0EEF7" }]
+    }
+  ],
   "records": [
     {
-      "id": "recXXXXXXXX",
-      "fields_value": "{\"日期\":\"2025/11/15\",\"时间\":\"11:12:15\",\"数字\":125,\"货币\":215,\"多行文本\":\"yesit'sright\",\"百分比\":98,\"身份证\":\"110101**************9\",\"电话\":\"18800000000\",\"超链接\":{\"address\":\"https://www.baidu.com\",\"displayText\":\"百度\"},\"单选项\":\"选项1\",\"多选项\":[\"多选选项1\",\"多选选项2\"],\"等级\":2,\"联系人\":[{\"id\":\"281653414\",\"nickname\":\"nickName1\"}],\"地址\":{\"districts\":[\"广东省\",\"珠海市\",\"香洲区\"],\"detail\":\"前岛环路金山软件园\"},\"富文本\":{\"fileId\":\"GEYDAMJTHE3DKMJYHE2DURKDINBUQS2ZGRAUGUKIKE\",\"summary\":\"富文本简略内容\",\"modifyDate\":\"2025/12/31\"}}"
+      "id": "B",
+      "fields": { "名称": "Hello", "数量": 123 }
+    },
+    {
+      "id": "C",
+      "fields": { "数量": 666 }
     }
   ]
 }
@@ -285,8 +426,13 @@
   "data": {
     "records": [
       {
-        "fields": "{\"日期\":\"2025/11/15\",\"数字\":125,\"公式\":340,\"最后修改者\":{\"id\":\"280026893\",\"nickName\":\"霧雨澪音\"},\"最后修改时间\":\"2024/12/09 17:47:18\"}",
-        "id": "recXXXXXXXX"
+        "id": "B",
+        "fields": {
+          "名称": "Hello",
+          "数量": 123,
+          "最后修改者": { "id": "280026893", "nickName": "霧雨澪音" },
+          "最后修改时间": "2024/12/09 17:47:18"
+        }
       }
     ]
   }
@@ -297,8 +443,9 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `code` | integer | 0 表示成功 |
+| `msg` | string | 响应信息 |
 | `data.records[].id` | string | 已更新记录 ID |
-| `data.records[].fields` | string | 序列化 JSON 字符串，包含更新后所有字段的实际值（含系统自动字段） |
+| `data.records[].fields` | object | 更新后所有字段的实际值（含系统自动字段） |
 
 
 ---
@@ -479,7 +626,7 @@
 
 #### 功能说明
 
-批量删除数据表中的指定记录。`records` 为记录 ID 的字符串数组，**不是对象数组**。
+批量删除数据表中的指定记录。`records` 为记录 ID 的对象数组，**不是字符串数组**。
 
 
 
@@ -487,9 +634,10 @@
 
 - **前置检查**：调用 list_records 或 get_record 核对拟删记录的内容，确认记录 ID 正确
 - **用户确认**：批量删除记录不可恢复，必须向用户确认记录列表和数量
-- **禁止**：未经用户在对话中明确同意，禁止调用
-> `records` 是字符串数组（记录 ID），**不是**对象数组；传 `[{"id":"G"}]` 等对象格式会导致请求失败
-> 删除操作不可逆，执行前务必完成 pre_check 和用户确认
+
+**幂等性**：是
+
+> `records` 是对象数组（记录 ID），**不是**字符串数组；不应该传 `["G"]` 等字符串格式，而应该传 `[{"id":"G"}]` 等对象格式
 
 #### 调用示例
 
@@ -500,8 +648,12 @@
   "file_id": "VsdfG0001234567",
   "sheet_id": 3,
   "records": [
-    "G",
-    "H"
+    {
+      "id": "G"
+    },
+    {
+      "id": "H"
+    }
   ]
 }
 ```
@@ -510,20 +662,24 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID（路径参数）
-- `sheet_id` (integer, 必填): 数据表 ID（路径参数）
-- `records` (array[string], 必填): 要删除的记录 ID 列表（字符串数组，每项为一个记录 ID）
+- `sheet_id` (integer, 必填): 数据表 ID
+- `records` (array[string], 必填): 要删除的记录 ID 列表（对象数组，每项为一个记录 ID）
 
 **请求体结构：**
 
 | 字段 | 类型 | 是否必填 | 说明 |
 |------|------|----------|------|
-| `records` | array[string] | 是 | 记录 ID 字符串数组，每个元素为一条记录的 ID |
+| `records` | array[object] | 是 | 记录 ID 对象数组，每个元素为一条记录的 ID |
 
 **请求体示例：**
 
 ```json
 {
-  "records": ["G", "H", "I"]
+  "records": [
+    { "id": "G" },
+    { "id": "H" },
+    { "id": "I" }
+  ]
 }
 ```
 
@@ -577,14 +733,13 @@
 | text_value | string | 否 | 不填默认 original；可选 original、text、compound |
 | view_id | string | 否 | 指定视图则从该视图取用户可见记录；不填从工作表取 |
 
-SkillHub：未传 `body` 或仅 `{}` 时合并默认 `prefer_id=false`、`show_fields_info=false`、`text_value=original`；可与顶层同名字段或整包 `body` 混用，**同键以 MCP 顶层为准**。
 
 
-> filter.criteria 的结构需符合多维表格开放接口对筛选条件的约定。
+> filter.criteria 的结构需符合多维表格接口对筛选条件的约定。
 
 #### 调用示例
 
-最简（依赖 SkillHub 默认体）：
+最简：
 
 ```json
 {
@@ -642,8 +797,6 @@ SkillHub：未传 `body` 或仅 `{}` 时合并默认 `prefer_id=false`、`show_f
 - `view_id` (string, 可选): 指定视图 id。填写后从该视图获取用户所见记录；不填则从工作表获取记录
 
 所有列举参数均在 **POST JSON 请求体** 中，不拼 URL query。
-
-**SkillHub 默认体**：`prefer_id=false`、`show_fields_info=false`、`text_value=original`。
 
 若同时传 `body` 与顶层字段，同键以 **顶层** 为准。
 
@@ -709,6 +862,7 @@ SkillHub：未传 `body` 或仅 `{}` 时合并默认 `prefer_id=false`、`show_f
 | show_fields_info | boolean | 否 | 为 true 时额外返回 fields 结构体展示字段信息；返回范围取决于是否指定 fields 或 view_id |
 | show_record_extra_info | boolean | 否 | 为 true 时额外显示创建者、创建时间、最后修改者、最后修改时间（与是否有对应字段无关） |
 | text_value | string | 否 | 返回值类型，不填默认 original；可选 original、text、compound |
+
 
 
 > records 为必填参数，需传入有效的记录 id 列表。

@@ -43,7 +43,7 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 }
 ```
 
-创建完成后用下文 **`otl.insert_content`** 写入 Markdown/文本。**勿**对 `.otl` 使用 `upload_file`：该工具面向本地文字/表格/演示/PDF 文件上传，不支持 `.otl` 智能文档。
+创建完成后用下文 **`otl.insert_content`** 写入 Markdown/HTML。**勿**对 `.otl` 使用 `upload_file`：该工具面向本地文字/表格/演示/PDF 文件上传，不支持 `.otl` 智能文档。
 
 ### 读取智能文档
 
@@ -62,6 +62,8 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 
 > ⚠️ `read_file_content` 对智能文档存在**内容遗漏风险**——部分组件类型（如嵌入表格、附件、特殊块）可能在转换过程中丢失。**仅在需要将文档导出为 Markdown 格式时使用**，日常读取和编辑前的内容确认应优先使用 `otl.block_query`。
 
+> **图片导出**：默认导出的 Markdown 不含图片链接。仅当需要获取文档中的图片时，传入 `enable_upload_medias: true`，导出结果中的图片会携带可下载的 URL。**注意：该 URL 有效期约 10 分钟**，导出完成后应立即告知用户图片链接存在有效期限制，并询问是否需要下载；若用户需要下载，须在有效期内及时完成。
+
 ##### 步骤 1：提交读取任务
 
 调用参数：
@@ -71,7 +73,8 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
   "drive_id": "drive_abc123",
   "file_id": "file_otl_001",
   "format": "markdown",
-  "include_elements": ["all"]
+  "include_elements": ["all"],
+  "enable_upload_medias": false
 }
 ```
 
@@ -81,6 +84,7 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 | `file_id` | string | 是 | 文件 ID |
 | `format` | string | 是 | 固定传 `"markdown"` |
 | `include_elements` | array | 是 | 固定传 `["all"]` |
+| `enable_upload_medias` | boolean | 否 | 默认 `false`，图片为空链接；为 `true` 时图片携带临时可下载 URL（有效期约 10 分钟） |
 
 > **⚠️ CLI 调用注意**：`include_elements` 是**数组**，`key=value` 语法无法可靠传递数组。请用 JSON 字符串或 `@file` 传递：
 >
@@ -100,6 +104,7 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
   "file_id": "file_otl_001",
   "format": "markdown",
   "include_elements": ["all"],
+  "enable_upload_medias": false,
   "task_id": "步骤1返回的task_id"
 }
 ```
@@ -124,11 +129,11 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 
 ## 一、内容写入与转换
 
-> 整篇 Markdown/纯文本写入与 HTML/Markdown 转块数据
+> 整篇 Markdown/HTML 写入与 HTML/Markdown 转块数据
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`otl.insert_content`](otl/insert_content.md) | 向智能文档插入 Markdown/文本内容 | `file_id`, `content` |
+| [`otl.insert_content`](otl/insert_content.md) | 向智能文档插入 Markdown/HTML 内容 | `file_id`, `content` |
 | [`otl.convert`](otl/convert.md) | 将 HTML/Markdown 转换为智能文档块结构 | `file_id`, `params` |
 
 ## 二、块级操作
@@ -148,6 +153,6 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 |----------|-------------|
 | 新建文档并写入内容 | `create_file` → `otl.insert_content` |
 | 读取现有文档内容 | `otl.block_query`（`blockIds: ["doc"]` 获取全文） |
-| 导出文档为 Markdown | `read_file_content`（可能遗漏部分组件内容） |
+| 导出文档为 Markdown | `read_file_content`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
 | 精确修改文档块 | `otl.block_query` → `otl.block_delete` / `otl.block_insert` |
 | 外部内容转块后插入 | `otl.convert` → `otl.block_insert` |

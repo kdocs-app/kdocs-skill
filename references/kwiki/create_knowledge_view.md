@@ -11,6 +11,8 @@
 
 - **后置验证**：新建后调用 `kwiki.get_knowledge_view` 或 `kwiki.list_knowledge_views` 核对返回的 `drive_id`、`group_id`、`kuid`
 
+**幂等性**：否 — 重复调用会创建多个知识库，先确认是否已成功
+
 #### 调用示例
 
 创建销售知识库：

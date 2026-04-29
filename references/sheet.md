@@ -111,7 +111,7 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `worksheet_id`, `row_from`, `row_to`, `col_from`, `col_to` |
+| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `worksheet_id`, `range` |
 | [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `worksheet_id`, `range_data` |
 | [`sheet.delete_range`](sheet/data.md) | 删除行或列 | `file_id`, `sheetId`, `rangeData` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `sheetId`, `rangeData` |

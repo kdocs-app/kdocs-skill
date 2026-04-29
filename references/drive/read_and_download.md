@@ -102,6 +102,7 @@
 - **没有**：不传。
 
 
+
 > 不支持在线文档类型的下载，仅支持上传的二进制文件（.docx / .xlsx / .pdf / .pptx 等）。获取在线文档内容的替代方案：.otl → `read_file_content` 或 `otl.block_query`；.ksheet/.xlsx → `sheet.*`；.dbt → `dbsheet.*`
 
 #### 调用示例
@@ -297,19 +298,19 @@ file_id：
 
 > **`file_id` 与 `link_id` 二选一必填**：通过文件直接访问时传 `file_id`；通过分享链接访问时传 `link_id`。两者不可同时为空。
 
-> ⚠️ **不支持 .csv 格式**，遇到 CSV 文件请勿调用本工具，建议用户转为 .xlsx 后用 `sheet.*` 读取。
+**类型适用范围**：不支持 .csv 格式。Excel（.xlsx）与智能表格（.ksheet）应使用 `sheet.*`，多维表格（.dbt）应使用 `dbsheet.*`，智能文档（.otl）日常读取优先使用 `otl.block_query`（本工具对 otl 存在内容遗漏风险）。
 
-> ⚠️ **以下类型不以 `read_file_content` 作为结构化读写主路径**：
->
-> - **Excel（.xlsx）与智能表格（.ksheet）**：使用 **`sheet.*`**。**获取内容**：`sheet.get_sheets_info` → `sheet.get_range_data`（矩形区域）。完整工具列表与参数见 `sheet.md`。
-> - **多维表格（.dbt）**：使用 **`dbsheet.*`**。**获取结构**：`dbsheet.get_schema`；**获取内容**：`dbsheet.list_records`、`dbsheet.get_record`；完整工具列表与参数见 `dbsheet.md`。
 
-> ⚠️ **智能文档（.otl）**：`read_file_content` 对 otl 存在内容遗漏风险（部分组件类型可能丢失），日常读取应优先使用 `otl.block_query`。仅在需要导出 Markdown 格式时使用本工具，并**务必**按照 references/otl.md 的参数要求调用。
 
+#### 操作约束
+
+- **禁止**：禁止对 .csv 文件调用本工具
+- **提示**：Excel/智能表格用 `sheet.*`，多维表格用 `dbsheet.*`，智能文档日常读取优先 `otl.block_query`
+
+**幂等性**：是
 
 > 首次调用（不传 `task_id`）若返回 `task_status=success`，此时内容已就绪，无需再次轮询；若返回 `task_status=running`，再携带 `task_id` 轮询
 > `file_id` 与 `link_id` 二选一必填，两者均为空时请求无效
-> 不支持 .csv 格式，禁止对 CSV 文件调用本工具
 > 避免重复提交：同一 `file_id`（或 `link_id`）+ `format` + `include_elements` 在已有 `running` 任务时，优先继续使用原 `task_id` 轮询
 
 #### 调用示例
@@ -334,10 +335,11 @@ file_id：
 #### 参数说明
 
 - `drive_id` (string, 必填): 驱动盘 ID
-- `file_id` (string, 可选): 文件 ID。与 `link_id` 二选一传入
-- `link_id` (string, 可选): 分享链接 ID。与 `file_id` 二选一传入；通过分享链接访问文件时使用
+- `file_id` (string, 二选一必填: `file_id` / `link_id`): 文件 ID。与 `link_id` 二选一传入
+- `link_id` (string, 二选一必填: `file_id` / `link_id`): 分享链接 ID。与 `file_id` 二选一传入；通过分享链接访问文件时使用
 - `format` (string, 可选): 文档内容目标格式。可选值：`kdc`（结构化表示）/ `plain`（纯文本）/ `markdown`
 - `include_elements` (array, 可选): 指定抽取元素。默认元素为 `para`（段落），且一定会被导出；其余附加元素根据参数选择性导出。可选值：`para` / `table` / `component` / `textbox` / `all`
+- `enable_upload_medias` (boolean, 可选): 默认 `false`，抽取结果中图片为空链接；为 `true` 时图片会携带可下载的临时 URL（有效期约 10 分钟）。仅当 `format` 为 `markdown` 或 `kdc` 时生效
 - `mode` (string, 可选): **仅支持 `async`**，无需传或固定传 `async`
 - `task_id` (string, 可选): 异步任务 ID，用于结果轮询；首次调用不传，后续用返回的 `task_id` 查询直至 `task_status` 为 `success`
 

@@ -1,8 +1,8 @@
 ---
 name: kdocs
-description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云端文档的官方 Skill。 用此 Skill 帮用户在云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。 当用户的任务涉及云端文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。 也适用于用户提到金山文档、WPS、Kdocs、云文档、在线文档、协作文档、智能文档、云表格、在线表格、在线 Excel、多维表格、在线 PDF、幻灯片、知识库，或表达"帮我写"、"帮我总结"、"帮我整理"、"帮我翻译"、"帮我做PPT"等意图时。"
+description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.4
+version: 2.4.5
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -138,7 +138,8 @@ kdocs-cli <service> <action> [参数]
 > fs.writeFileSync('payload.json', JSON.stringify({
 >   file_id: "<file_id>",
 >   content: fs.readFileSync('article.md', 'utf8'),
->   pos: "end"
+>   format: "markdown",
+>   mode: "append"
 > }), 'utf8');
 > ```
 > ```
@@ -159,29 +160,9 @@ kdocs-cli <service> <action> [参数]
 **帮助**：`kdocs-cli --help`、`kdocs-cli <service> --help`、`kdocs-cli <service> <action> --help`
 
 
-以下工具涉及数据变更，调用前必须遵守对应的风险控制要求。
+以下工具不可逆，调用前必须向用户确认（详细约束见各工具参考文档的「操作约束」区）：
 
-### 高风险（不可逆操作）
-
-| 工具 | 约束 |
-|------|------|
-| `otl.block_delete` | **用户确认**：删除操作不可逆，执行前必须向用户确认删除范围；**前置检查**：先 otl.block_query 确认待删除块的内容，避免误删 |
-| `dbsheet.delete_sheet` | **前置检查**：get_schema 核对拟删数据表的名称和内容；**用户确认**：删除数据表不可恢复，必须向用户确认数据表名称和 ID；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `kwiki.close_knowledge_view` | **用户确认**：关闭知识库不可恢复，必须向用户确认目标知识库名称和 ID；**前置检查**：`kwiki.get_knowledge_view` 确认目标知识库 |
-| `sheet.delete_sheets` | **前置检查**：`sheet.get_sheets_info` 核对拟删工作表名称与 sheetId；**用户确认**：删除工作表不可恢复，必须向用户确认工作表名称和 ID；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `sheet.delete_range` | **前置检查**：`sheet.get_range_data` 核对拟删行/列范围内现有数据；**用户确认**：删除行或列会移位其余内容且难以恢复，必须向用户确认范围与影响；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `dbsheet.delete_view` | **前置检查**：get_schema 核对拟删视图的名称和类型；**用户确认**：删除视图不可恢复，必须向用户确认视图名称和 ID；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `dbsheet.delete_fields` | **前置检查**：get_schema 核对拟删字段的名称和类型；**用户确认**：删除字段不可恢复，字段数据将永久丢失，必须向用户确认字段列表；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `cancel_share` | **用户确认**（mode=delete）：永久删除分享链接，不可恢复，必须向用户确认；**禁止**（mode=delete）：禁止自动重试，失败后报告用户；**提示**：建议优先使用 mode=pause（可恢复）；**后置验证**：get_share_info 确认分享状态已变更 |
-| `kwiki.delete_item` | **前置检查**：`kwiki.list_items` 确认对象名称和位置；**用户确认**：删除操作不可逆（非空文件夹会连带删除），必须向用户确认 |
-| `sheet.delete_protection_ranges` | **前置检查**：`sheet.list_protection_ranges` 确认拟删区域权限 ID 与范围；**用户确认**：删除区域权限不可恢复，必须向用户确认；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `dbsheet.delete_records` | **前置检查**：调用 list_records 或 get_record 核对拟删记录的内容，确认记录 ID 正确；**用户确认**：批量删除记录不可恢复，必须向用户确认记录列表和数量；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `sheet.delete_data_validations` | **前置检查**：`sheet.get_data_validations` 确认目标区域存在拟删校验规则；**用户确认**：删除数据校验规则不可恢复，必须向用户确认；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `sheet.delete_conditional_format_rules` | **前置检查**：`sheet.get_conditional_format_rules` 确认拟删规则与目标区域；**用户确认**：删除条件格式规则不可恢复，必须向用户确认；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `sheet.delete_float_images` | **前置检查**：`sheet.list_float_images` 或 `sheet.get_float_image` 确认目标浮动图片；**用户确认**：删除浮动图片不可恢复，必须向用户确认；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `sheet.delete_filters` | **前置检查**：`sheet.get_filters` 确认当前工作表已启用筛选及拟删条件；**用户确认**：删除筛选不可恢复，必须向用户确认；**禁止**：未经用户在对话中明确同意，禁止调用 |
-| `dbsheet.sheet_batch_delete` | **用户确认**：删除后表及记录不可恢复 |
-| `dbsheet.permission_delete_roles_async` | **用户确认**：删除角色将影响已绑定成员的能力 |
+`otl.block_delete`、`dbsheet.delete_sheet`、`kwiki.close_knowledge_view`、`sheet.delete_sheets`、`sheet.delete_range`、`dbsheet.delete_view`、`dbsheet.delete_fields`、`cancel_share`、`kwiki.delete_item`、`sheet.delete_protection_ranges`、`dbsheet.delete_records`、`sheet.delete_data_validations`、`sheet.delete_conditional_format_rules`、`sheet.delete_float_images`、`sheet.delete_filters`、`dbsheet.sheet_batch_delete`、`dbsheet.permission_delete_roles_async`
 
 ---
 
@@ -321,27 +302,7 @@ kdocs-cli <service> <action> [参数]
 | 错误信息含 `version`、`incompatible`、`not_supported`、`deprecated` 等版本关键词 | Skill 或 API 版本不兼容 | 执行上方「版本自检」流程 |
 | 工具调用失败且原因不明 | 可能是 Skill 版本过旧 | 执行上方「版本自检」流程 |
 | 上述处理方式均已尝试仍无法解决 | 未知问题 | 运行 `kdocs-cli feedback` 获取反馈链接，引导用户提交反馈 |
-
-### 幂等性与重试
-
-| 操作 | 幂等 | 重试策略 |
-|------|------|----------|
-| 所有读取操作 | ✅ | 可安全重试 |
-| `create_file` | ❌ | 重试前 search_files 检查是否已创建 |
-| `otl.insert_content` | ❌ | 非幂等操作，重复调用会导致内容重复插入；失败后应先用 otl.block_query 确认文档当前状态，再决定是否重新插入 |
-| `scrape_url` | ❌ | 重试前查 scrape_progress 确认上次状态 |
-| `upload_file` | ✅ | 可重试，以最后一次为准 |
-| `move_file` | ✅ | 可重试 |
-| `rename_file` | ✅ | 可重试 |
-| `share_file` | ✅ | 可重试 |
-| `wpp.execute` | ❌ | 非幂等操作，重试前需确认当前幻灯片状态 |
-| `cancel_share` | ❌ | pause 可重试；delete 禁止重试 |
-| `dbsheet.delete_webhook` | ❌ | 删除失败勿盲目重试，先 list_webhooks 确认 hook_id |
-| `dbsheet.dashboard_copy` | ❌ | 重复调用可能产生多个副本，先确认是否已成功 |
-| `dbsheet.sheet_batch_delete` | ❌ | — |
-| `dbsheet.permission_create_roles_async` | ❌ | 先 permission_query_task 再决定是否重试 |
-| `dbsheet.permission_update_roles_async` | ❌ | — |
-| `dbsheet.permission_delete_roles_async` | ❌ | 先 query_task 确认状态 |
+| 工具调用失败需判断是否可重试 | 不同工具幂等性不同 | 查看该工具参考文档「操作约束」区的幂等性说明，幂等工具可安全重试，非幂等工具须先确认状态 |
 
 ---
 

@@ -12,6 +12,8 @@
 - **前置检查**：`kwiki.get_knowledge_view` 确认目标知识库存在及当前配置
 - **后置验证**：`kwiki.get_knowledge_view` 确认名称或简介已更新
 
+**幂等性**：是
+
 #### 调用示例
 
 更新名称与描述：

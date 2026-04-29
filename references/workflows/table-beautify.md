@@ -36,7 +36,7 @@
 **步骤 2**：读取表格结构和数据
 ```
 sheet.get_sheets_info(file_id) → 获取 sheetId、数据区域 rowTo/colTo
-sheet.get_range_data(file_id, sheetId, range={rowFrom:0, rowTo, colFrom:0, colTo}) → 读取全部数据
+sheet.get_range_data(file_id, worksheet_id=sheetId, row_from=0, row_to=rowTo, col_from=0, col_to=colTo) → 读取全部数据
 ```
 
 **步骤 3**：AI 分析数据问题，识别列类型，生成美化与规范方案
@@ -50,29 +50,29 @@ sheet.get_range_data(file_id, sheetId, range={rowFrom:0, rowTo, colFrom:0, colTo
 
 **格式美化**（字体、颜色、对齐、边框）：
 ```
-sheet.update_range_data(file_id, sheetId, rangeData=[
-  {opType: "format", rowFrom, rowTo, colFrom, colTo, xf: {font: {...}, alcH: 2, fill: {...}, dgBottom: 1, ...}}
+sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
+  {op_type: "cell_operation_type_format", row_from, row_to, col_from, col_to, xf: {font: {...}, alc_h: 2, fill: {...}, dg_bottom: 1, ...}}
 ])
 ```
 
 **表头规范**（重写列名）：
 ```
-sheet.update_range_data(file_id, sheetId, rangeData=[
-  {opType: "formula", rowFrom: 0, rowTo: 0, colFrom: 0, colTo: 0, formula: "新列名"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
+  {op_type: "cell_operation_type_formula", row_from: 0, row_to: 0, col_from: 0, col_to: 0, formula: "新列名"}
 ])
 ```
 
 **数据格式统一**（如统一手机号、日期格式）：
 ```
-sheet.update_range_data(file_id, sheetId, rangeData=[
-  {opType: "formula", rowFrom: r, rowTo: r, colFrom: c, colTo: c, formula: "规范化后的值"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
+  {op_type: "cell_operation_type_formula", row_from: r, row_to: r, col_from: c, col_to: c, formula: "规范化后的值"}
 ])
 ```
 
 **合并单元格**：
 ```
-sheet.update_range_data(file_id, sheetId, rangeData=[
-  {opType: "merge", rowFrom, rowTo, colFrom, colTo, type: "MergeCenter"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
+  {op_type: "cell_operation_type_merge", row_from, row_to, col_from, col_to, merge_type: "merge_type_center"}
 ])
 ```
 
@@ -80,8 +80,8 @@ sheet.update_range_data(file_id, sheetId, rangeData=[
 由于没有直接的删行 API，通过「读取 → 本地去重 → 全量覆盖 → 清空多余行」实现：
 1. `get_range_data` 读取包含可能重复数据的所有行（如 100 行）
 2. AI 在本地识别并剔除重复行，得到去重后的数据（如 80 行）
-3. `update_range_data` 将去重后的 80 行覆盖写入表格顶部（`rowFrom:0` 到 `rowTo:79`）
-4. `update_range_data(opType="formula", formula="")` 将底部多余的 20 行（`rowFrom:80` 到 `rowTo:99`）清空
+3. `update_range_data` 将去重后的 80 行覆盖写入表格顶部（`row_from: 0` 到 `row_to: 79`）
+4. `update_range_data`（`op_type: "cell_operation_type_formula"`, `formula: ""`）将底部多余的 20 行（`row_from: 80` 到 `row_to: 99`）清空
 
 **步骤 5**：条件格式（高亮异常值）
 
