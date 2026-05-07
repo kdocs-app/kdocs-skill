@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.5
+version: 2.4.6
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -73,8 +73,6 @@ echo "<token>" | kdocs-cli auth set-token -
 
 `set-token` 保存后会自动验证 Token 有效性，返回验证结果。
 
-> **当用户指令中包含 Token 时，必须使用 `auth set-token` 保存，不要使用 `export` 环境变量或 `auth login`。**
-
 ### Token 登录
 
 无现成 Token 时，通过浏览器 OAuth 登录获取：
@@ -94,8 +92,6 @@ kdocs-cli auth login
 | 验证 | `kdocs-cli drive search-files keyword=test page_size=1` — 返回 `code: 0` 即认证成功 |
 | 过期 | 收到错误码 `400006` 时，CLI 自动输出诊断信息，根据提示修复或使用 `auth set-token` 重新设置 |
 
-> **Token 安全**：不得将 Token 明文值展示给用户或写入不安全位置。
-
 #### 手动获取 Token（登录命令失败时的兜底方案）
 
 当 `kdocs-cli auth login` 或 `get-token` 脚本因环境问题执行失败时，引导用户手动获取：
@@ -109,7 +105,7 @@ kdocs-cli auth login
 kdocs-cli auth set-token <TOKEN>
 ```
 
-> 收到用户 Token 后直接通过 `auth set-token` 保存，禁止回显 Token 明文。保存后自动验证（`code: 0` 即成功）。
+> 收到用户 Token 后直接通过 `auth set-token` 保存。保存后自动验证（`code: 0` 即成功）。
 
 ---
 
