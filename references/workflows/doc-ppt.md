@@ -183,5 +183,5 @@
 - **本地格式转换是必要步骤**：文档链路和主题链路最终生成接口一致，都需要 `{topic, outlines[]}` 格式
 - 生成速度约每页 60 秒，20 页以上的 PPT 生成可能耗时 20-30 分钟
 - 所有中间文件使用 UTF-8 编码，JSON 文件必须通过 `JSON.stringify()` 序列化（禁止手动拼接）
-- 上传 PPTX 到云端时必须使用 `@file` 方式传入（Base64 内容超出命令行长度限制）：`kdocs-cli drive upload-file @06_upload_args.json`
+- 上传 PPTX 到云端时必须使用 `--file` 方式传入（Base64 内容超出命令行长度限制）：`kdocs-cli drive upload-file --file 06_upload_args.json`
 - 详细的调用规则、脚本模板和中间文件约定见 `references/aippt.md`

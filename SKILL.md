@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.6
+version: 2.4.7
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -26,8 +26,13 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 
 ---
 
-## 版本自检
-何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown command` 或不兼容错误**。其他时刻无需重复执行。版本自检流程见 `references/version-check.md`。
+## 保持最新版本
+何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown action` 或 `unknown service` 错误**。
+
+1. **CLI 版本**：`kdocs-cli version` — 若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
+2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=<本文件version>`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接（格式 `https://...kdocs.zip`），下载解压替换当前 Skill 目录
+
+若无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
 
 ---
 
@@ -119,15 +124,15 @@ kdocs-cli <service> <action> [参数]
 |----------|----------|------|
 | 简单值（无中文） | key=value | `kdocs-cli drive search-files keyword=test type=all` |
 | 数组/对象，短 JSON | JSON 字符串 | `kdocs-cli sheet query-records '{"file_id":"xxx","filter":{}}'` |
-| 数组/对象，或含中文/换行/>200 字符 | @file | `kdocs-cli otl insert-content @payload.json` |
+| 数组/对象，或含中文/换行/>200 字符 | --file | `kdocs-cli otl insert-content --file payload.json` |
 | 脚本流水线集成 | stdin | `node gen.js \| kdocs-cli otl insert-content -` |
 
-- @file / stdin 输入必须是该工具的**完整 JSON 参数对象**
+- `--file` / stdin 输入必须是该工具的**完整 JSON 参数对象**
 - 中文/多行参数**禁止** key=value（Windows/PowerShell 破坏 UTF-8 编码）
 - 生成 JSON 文件用 Node.js/Python；**禁止** ConvertTo-Json（输出带 BOM）
 - PowerShell 传 JSON 字符串须反斜杠转义：`'{\"key\":[\"val\"]}'`
 
-> **@file 示例**：写入大段内容时，用脚本生成 JSON 文件再 `@file.json` 传入：
+> **--file 示例**：写入大段内容时，用脚本生成 JSON 文件再 `--file` 传入：
 >
 > ```javascript
 > const fs = require('fs');
@@ -139,7 +144,7 @@ kdocs-cli <service> <action> [参数]
 > }), 'utf8');
 > ```
 > ```
-> kdocs-cli otl insert-content @payload.json --silent
+> kdocs-cli otl insert-content --file payload.json --silent
 > ```
 
 **全局选项**：
@@ -286,17 +291,17 @@ kdocs-cli <service> <action> [参数]
 | `400006` / 鉴权失败 | Token 过期或未配置 | 运行 `kdocs-cli auth login` 重新登录，或 `kdocs-cli auth set-token <token>` 重新设置 |
 | `429001` / 限频 | 请求过于频繁，响应含**限频恢复时间** | 立即停止命令调用，直到达到恢复时间；禁止立即重试、换参、换子命令连续请求 |
 | `429002` / 熔断 | 多因短时间内连续触发 `429001` ，响应含**熔断持续时间** | 熔断时长内零请求，期满再试；重新规划任务避免请求过频 |
-| 工具找不到 | service 或 action 名称错误 | 运行 `kdocs-cli --help` 或 `kdocs-cli <service> --help` 确认可用命令 |
+| `unknown action` / `unknown service` | CLI 版本过旧或名称拼写错误 | 先运行 `kdocs-cli upgrade` 升级到最新版本；仍报错再运行 `kdocs-cli <service> --help` 确认可用命令 |
 | 搜索无结果 | 关键词过精确 / 索引延迟 | 缩短关键词 / 等待 3-5 秒重试 |
 | 读取内容为空 | 文件无内容或格式不支持 | 确认文件非空且后缀正确 |
 | 创建文件失败 | 文件名后缀不正确 | 检查后缀：`.otl` / `.docx` / `.xlsx` / `.ksheet` / `.dbt` / `.pdf` / `.pptx` |
 | 移动文件失败 | 目标文件夹不存在 | 先搜索确认或创建文件夹 |
 | HTTP 5xx / 超时 | 服务端故障 | 等 3 秒重试 1 次 |
 | 验证不通过（回读值与预期不符） | 写入未生效或延迟 | 等 2 秒重新验证，仍不通过则报告用户 |
-| `setup.sh` 执行失败 / 安装报错 | 当前版本可能已不兼容 | 执行上方「版本自检」流程 |
-| CLI 接口返回未知错误码（非 5xx、非 400006、非 429001/429002、非工具不存在） | Skill 版本过旧导致接口不兼容 | 执行上方「版本自检」流程 |
-| 错误信息含 `version`、`incompatible`、`not_supported`、`deprecated` 等版本关键词 | Skill 或 API 版本不兼容 | 执行上方「版本自检」流程 |
-| 工具调用失败且原因不明 | 可能是 Skill 版本过旧 | 执行上方「版本自检」流程 |
+| `setup.sh` 执行失败 / 安装报错 | 当前版本可能已不兼容 | 执行上方「保持最新版本」流程 |
+| CLI 接口返回未知错误码（非 5xx、非 400006、非 429001/429002、非工具不存在） | Skill 版本过旧导致接口不兼容 | 执行上方「保持最新版本」流程 |
+| 错误信息含 `version`、`incompatible`、`not_supported`、`deprecated` 等版本关键词 | Skill 或 API 版本不兼容 | 执行上方「保持最新版本」流程 |
+| 工具调用失败且原因不明 | 可能是 Skill 版本过旧 | 执行上方「保持最新版本」流程 |
 | 上述处理方式均已尝试仍无法解决 | 未知问题 | 运行 `kdocs-cli feedback` 获取反馈链接，引导用户提交反馈 |
 | 工具调用失败需判断是否可重试 | 不同工具幂等性不同 | 查看该工具参考文档「操作约束」区的幂等性说明，幂等工具可安全重试，非幂等工具须先确认状态 |
 
@@ -313,7 +318,7 @@ kdocs-cli <service> <action> [参数]
 
 当满足以下任一条件时，生成反馈链接并提供给用户：
 
-1. 错误速查表中的处理方式（重试、版本自检等）均已尝试但问题仍未解决
+1. 错误速查表中的处理方式（重试、保持最新版本等）均已尝试但问题仍未解决
 2. 用户主动要求反馈或投诉
 
 运行 `kdocs-cli feedback` 获取反馈链接，将完整链接展示给用户并告知"点击即可打开反馈页面"，由用户决定是否打开。

@@ -5,14 +5,14 @@
 ---
 
 ## 前置说明（重要）
-当终端为 PowerShell 时，为避免转义问题，推荐使用 `@file` 方式传入 JSON 参数：
+当终端为 PowerShell 时，为避免转义问题，推荐使用 `--file` 方式传入 JSON 参数：
 ### JSON 参数传递方式
-#### 方式一：`@file`（推荐）
-先将参数写入 JSON 文件，再用 `@file` 传入：
+#### 方式一：`--file`（推荐）
+先将参数写入 JSON 文件，再用 `--file` 传入：
 
 示例
 ```powershell
-kdocs-cli otl block-query @params.json
+kdocs-cli otl block-query --file params.json
 ```
 #### 方式二：JSON 字符串
 PowerShell 中双引号用 `\"` 转义：
@@ -86,13 +86,13 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 | `include_elements` | array | 是 | 固定传 `["all"]` |
 | `enable_upload_medias` | boolean | 否 | 默认 `false`，图片为空链接；为 `true` 时图片携带临时可下载 URL（有效期约 10 分钟） |
 
-> **⚠️ CLI 调用注意**：`include_elements` 是**数组**，`key=value` 语法无法可靠传递数组。请用 JSON 字符串或 `@file` 传递：
+> **⚠️ CLI 调用注意**：`include_elements` 是**数组**，`key=value` 语法无法可靠传递数组。请用 JSON 字符串或 `--file` 传递：
 >
 > ```shell
 > kdocs-cli drive read-file-content '{"drive_id":"<DRIVE_ID>","file_id":"<FILE_ID>","format":"markdown","include_elements":["all"]}'
 > ```
 >
-> 或使用 `@file` 方式：`kdocs-cli drive read-file-content @params.json`
+> 或使用 `--file` 方式：`kdocs-cli drive read-file-content --file params.json`
 
 ##### 步骤 2：轮询获取内容
 
@@ -115,7 +115,7 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 > kdocs-cli drive read-file-content '{"drive_id":"<DRIVE_ID>","file_id":"<FILE_ID>","format":"markdown","include_elements":["all"],"task_id":"<TASK_ID>"}'
 > ```
 >
-> 或使用 `@file` 方式（将含 `task_id` 的完整参数写入 JSON 文件）：`kdocs-cli drive read-file-content @params.json`
+> 或使用 `--file` 方式（将含 `task_id` 的完整参数写入 JSON 文件）：`kdocs-cli drive read-file-content --file params.json`
 
 > ⚠️ **`include_elements` 必须是数组** `["all"]`，不是字符串 `"all"`。传错类型会导致服务端仅返回段落文本。
 >

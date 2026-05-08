@@ -309,19 +309,19 @@ main().catch(e => { console.error('[ERROR]', e.message); process.exit(1); });
 
 ### 各调用方式适用范围
 
-| 工具 / 步骤 | `kdocs-cli … @file` | `mcporter call` 命令行 | `_call_mcp.js` 脚本 | `callOnce()` 编程 API |
+| 工具 / 步骤 | `kdocs-cli … --file` | `mcporter call` 命令行 | `_call_mcp.js` 脚本 | `callOnce()` 编程 API |
 | --- | --- | --- | --- | --- |
-| `aippt.theme_questions` | 可以（参数短，也可不用 `@file`） | 可以（参数短） | 可以 | 可以 |
-| `aippt.theme_deep_research` | 可以（参数短，也可不用 `@file`） | 可以（参数短） | 可以 | 可以 |
-| `aippt.theme_outline` | **推荐**（`@file` 绕过长度限制） | **不推荐**（`references` 可能很长） | **推荐** | 可以 |
-| `aippt.theme_generate_html_pptx` | **推荐**（`@file` 绕过长度限制） | **不推荐**（`outlines` 可能很长） | **推荐** | 可以 |
-| `aippt.doc_create_session` | 可以（参数短，也可不用 `@file`） | 可以（参数短） | 可以 | 可以 |
-| `aippt.doc_outline_options` | 可以（参数短，也可不用 `@file`） | 可以（参数短） | 可以 | 可以 |
-| `aippt.doc_outline` | **推荐**（`@file` 绕过长度限制） | **不推荐**（`resume_info` 可能较长） | **推荐** | 可以 |
-| `aippt.doc_beautify` | **推荐**（`@file` 绕过长度限制） | **不推荐**（`outline` 可能很长） | **推荐** | 可以 |
-| `aippt.doc_generate_ppt` | **推荐**（`@file` 绕过长度限制） | **不推荐**（`outline`+`beautify` 很长） | **推荐** | 可以 |
-| `upload_file`（含 `content_base64`） | **推荐**（`@file` 从磁盘读取，绕过 OS 限制） | **不可用**（超出 OS 命令行限制） | **不可用**（`spawnSync` 同样超限） | **mcporter必须使用** |
-| `get_file_link` / `search_files` 等 | 可以（参数短，也可不用 `@file`） | 可以（参数短） | 可以 | 可以 |
+| `aippt.theme_questions` | 可以（参数短，也可不用 `--file`） | 可以（参数短） | 可以 | 可以 |
+| `aippt.theme_deep_research` | 可以（参数短，也可不用 `--file`） | 可以（参数短） | 可以 | 可以 |
+| `aippt.theme_outline` | **推荐**（`--file` 绕过长度限制） | **不推荐**（`references` 可能很长） | **推荐** | 可以 |
+| `aippt.theme_generate_html_pptx` | **推荐**（`--file` 绕过长度限制） | **不推荐**（`outlines` 可能很长） | **推荐** | 可以 |
+| `aippt.doc_create_session` | 可以（参数短，也可不用 `--file`） | 可以（参数短） | 可以 | 可以 |
+| `aippt.doc_outline_options` | 可以（参数短，也可不用 `--file`） | 可以（参数短） | 可以 | 可以 |
+| `aippt.doc_outline` | **推荐**（`--file` 绕过长度限制） | **不推荐**（`resume_info` 可能较长） | **推荐** | 可以 |
+| `aippt.doc_beautify` | **推荐**（`--file` 绕过长度限制） | **不推荐**（`outline` 可能很长） | **推荐** | 可以 |
+| `aippt.doc_generate_ppt` | **推荐**（`--file` 绕过长度限制） | **不推荐**（`outline`+`beautify` 很长） | **推荐** | 可以 |
+| `upload_file`（含 `content_base64`） | **推荐**（`--file` 从磁盘读取，绕过 OS 限制） | **不可用**（超出 OS 命令行限制） | **不可用**（`spawnSync` 同样超限） | **mcporter必须使用** |
+| `get_file_link` / `search_files` 等 | 可以（参数短，也可不用 `--file`） | 可以（参数短） | 可以 | 可以 |
 
 ---
 
