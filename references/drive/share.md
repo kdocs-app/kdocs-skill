@@ -51,10 +51,10 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID。
+- `drive_id` (string, 可选): 目标云盘 ID
 - `file_id` (string, 必填): 文件 ID
-- `scope` (string, 必填): 链接权限范围。可选值：`anyone`（所有人，仅公网支持）/ `company`（仅企业）/ `users`（指定用户）
-- `opts` (object, 可选): 链接选项
+- `scope` (string, 必填): 链接权限范围。可选值：`anyone`（所有人）/ `company`（仅企业）/ `users`（指定用户）
+- `opts` (object, 可选): 链接设置
   - `allow_perm_apply` (boolean, 可选): 允许申请权限
   - `check_code` (string, 可选): 访问密码
   - `close_after_expire` (boolean, 可选): 过期后取消分享链接
@@ -151,8 +151,8 @@ file_id：
 
 #### 参数说明
 
-- `link_id` (string, 必填): 分享链接 ID（由 `share_file` 返回的 `data.id`）
-- `scope` (string, 可选): 链接权限范围。可选值：`anyone`（仅公网支持）/ `company` / `users`。`login_users` 仅私有化支持
+- `link_id` (string, 必填): 分享链接 ID
+- `scope` (string, 可选): 链接权限范围。可选值：`anyone`（所有人）/ `company`（仅企业）/ `users`（指定用户）
 - `opts` (object, 可选): 链接设置
   - `allow_perm_apply` (boolean, 可选): 允许申请权限
   - `check_code` (string, 可选): 访问密码
@@ -219,7 +219,7 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID。
+- `drive_id` (string, 可选): 云盘 ID
 - `file_id` (string, 必填): 文件 ID
 - `mode` (string, 可选): 取消分享模式，默认 `pause`。可选值：`pause`（暂停分享）/ `delete`（删除分享）
 
@@ -256,7 +256,7 @@ file_id：
 
 #### 参数说明
 
-- `link_id` (string, 必填): 分享链接 ID（由 `share_file` 返回的 `data.id`）
+- `link_id` (string, 必填): 分享链接 ID
 
 #### 返回值说明
 

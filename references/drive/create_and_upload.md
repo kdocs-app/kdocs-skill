@@ -61,13 +61,13 @@
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID。与 `parent_id` 一起指定保存位置；规则见上文「`drive_id` / `parent_id`」。
-- `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。与 `drive_id` 成对；规则见上文「`drive_id` / `parent_id`」。
-- `file_type` (string, 必填): 文件类型。可选值：`file` / `folder` / `shortcut`
-- `name` (string, 必填): 文件名。创建文件时须带上后缀，例: `doc.docx`(普通文件), `abc.docx.link`(快捷方式)；创建文件夹时不需要后缀。支持格式：doc, docx, form, xls, otl, ppt, dbt, xlsx, ksheet, pptx。若为 `.pdf`，请改用 `upload_file`
-- `on_name_conflict` (string, 可选): 文件名冲突处理方式，该接口只识别 rename 和 fail。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
-- `parent_path` (array[string], 可选): 父文件夹路径分段（每段为文件夹名，非 ID）；缺级时系统可自动创建。与 `drive_id`/`parent_id` 的用法见上文。
-- `file_id` (string, 可选): 条件必填：file_type=shortcut 时必填。快捷方式的源文件 ID
+- `drive_id` (string, 可选): 目标云盘 ID，与 `parent_id` 一起指定保存位置
+- `parent_id` (string, 可选): 父目录 ID，根目录为 `"0"`。默认值为 `"0"`
+- `file_type` (string, 必填): 创建目标类型：`file`=文件（`name` 需带受支持后缀），`folder`=文件夹（`name` 不带后缀），`shortcut`=快捷方式（需同时传 `file_id`，`name` 通常为原文件名 + `.link`）。可选值：`file` / `folder` / `shortcut`
+- `name` (string, 必填): 名称/文件名（与 `file_type` 联动）：`file` 必须带后缀（如 `方案.docx`、`周报.otl`，支持 doc/docx/otl/form/dbt/xlsx/xls/pptx/ppt）；`folder` 不带后缀（如 `项目资料`）；`shortcut` 常用 `原文件名.ext.link`（如 `方案.docx.link`）。`.pdf` 不支持通过本工具创建，请改用 `upload_file`
+- `on_name_conflict` (string, 可选): 文件名冲突处理方式。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
+- `parent_path` (array[string], 可选): 相对路径（每段为文件目录名，非 ID），不存在则自动创建
+- `file_id` (string, 可选): file_type=shortcut 时必填。快捷方式的源文件 ID
 
 #### 返回值说明
 
@@ -199,7 +199,7 @@
 
 #### 参数说明
 
-- `job_id` (string, 必填): `scrape_url` 返回的异步任务 ID
+- `job_id` (string, 必填): 异步任务 ID（由`scrape_url` 返回）
 
 #### 返回值说明
 
@@ -410,13 +410,13 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 #### 参数说明
 
-- `file_id` (string, 必填): 已有文档文件 ID
+- `file_id` (string, 必填): 已有文件 ID
 - `filename` (string, 必填): 附件名
-- `url` (string, 二选一必填: `url` / `content_base64`): 条件必填。远程附件 URL，与 content_base64 二选一
-- `content_base64` (string, 二选一必填: `url` / `content_base64`): 条件必填。本地附件内容的 Base64 编码，与 url 二选一
-- `content_type` (string, 可选): 可选。附件 MIME 类型；content_base64 模式下不传则默认 application/octet-stream
-- `source_type` (string, 可选): 可选。上传内容类型
-- `source` (string, 可选): 可选。来源标记，如 processon
+- `url` (string, 二选一必填: `url` / `content_base64`): 远程附件 URL，条件必填。与 content_base64 二选一
+- `content_base64` (string, 二选一必填: `url` / `content_base64`): 本地附件内容的 Base64 编码，条件必填。与 url 二选一
+- `content_type` (string, 可选): 附件 MIME 类型，可选；content_base64 模式下不传则默认 application/octet-stream
+- `source_type` (string, 可选): 上传内容类型，可选
+- `source` (string, 可选): 来源标记，可选；如 processon
 
 #### 返回值说明
 

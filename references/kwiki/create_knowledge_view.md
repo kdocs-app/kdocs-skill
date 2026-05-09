@@ -52,7 +52,7 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `data.drive_id` | string | 新建知识库的驱动盘 ID |
+| `data.drive_id` | string | 新建知识库的云盘 ID |
 | `data.group_id` | string | 新建知识库的群组 ID |
 | `data.kuid` | string | 新建知识库的 kuid，格式 `0s_...` |
 

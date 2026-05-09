@@ -32,7 +32,7 @@
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 知识库驱动盘 ID，来自 `list_knowledge_views` 或 `get_knowledge_view` 返回值
+- `drive_id` (string, 必填): 知识库云盘 ID，来自 `list_knowledge_views` 或 `get_knowledge_view` 返回值
 - `group_id` (string, 可选): 群组 ID，来自 `list_knowledge_views` 或 `get_knowledge_view` 返回值
 - `name` (string, 可选): 新的知识库名称，不传则保持原值
 - `desc` (string, 可选): 新的知识库描述，不传则保持原值

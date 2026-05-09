@@ -32,7 +32,7 @@
 
 #### 参数说明
 
-- `drive_id` (string, 二选一必填: `drive_id` / `name`): 条件必填：已知知识库驱动盘 ID 时直接传（来自 `list_knowledge_views` / `create_knowledge_view` 返回值）。与 name 至少填其一
+- `drive_id` (string, 二选一必填: `drive_id` / `name`): 条件必填：已知知识库云盘 ID 时直接传（来自 `list_knowledge_views` / `create_knowledge_view` 返回值）。与 name 至少填其一
 - `name` (string, 二选一必填: `drive_id` / `name`): 条件必填：仅知道名称时传入，模糊匹配。与 drive_id 至少填其一
 - `group_id` (string, 可选): 群组 ID（来自 `list_knowledge_views` / `create_knowledge_view` 返回值），已知时传入可加速定位
 
@@ -64,7 +64,7 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `data.drive_id` | string | 知识库驱动盘 ID |
+| `data.drive_id` | string | 知识库云盘 ID |
 | `data.group_id` | string | 群组 ID |
 | `data.kuid` | string | 知识库唯一标识，格式 `0s_...`，用于构造访问链接：`https://www.kdocs.cn/wiki/l/{kuid}` |
 | `data.space_name` | string | 知识库名称 |

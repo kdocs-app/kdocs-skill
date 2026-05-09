@@ -33,33 +33,33 @@
 
 - `keyword` (string, 可选): 搜索关键字
 - `type` (string, 必填): 搜索类型。可选值：`file_name`表示搜索文件名，`content`表示搜索文件内容，`all`表示全局搜索。
-- `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0）
+- `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0），传 0 表示按 50
 - `page_token` (string, 可选): 翻页 token
 - `file_type` (string, 可选): 文件类型筛选。可选值：`folder` / `file`
 - `file_exts` (array, 可选): 文件后缀过滤
-- `drive_ids` (array, 可选): 搜索盘列表
+- `drive_ids` (array, 可选): 搜索云盘 ID列表
 - `parent_ids` (array, 可选): 搜索目录列表
-- `creator_ids` (array, 可选): 创建者 ID。公网只支持选择是否自己创建的文件
-- `modifier_ids` (array, 可选): 编辑者 ID
-- `sharer_ids` (array, 可选): 分享者 ID
-- `receiver_ids` (array, 可选): 接收者 ID
+- `creator_ids` (array, 可选): 创建者 ID 列表。公网只支持选择是否自己创建的文件
+- `modifier_ids` (array, 可选): 编辑者 ID 列表
+- `sharer_ids` (array, 可选): 分享者 ID 列表
+- `receiver_ids` (array, 可选): 接收者 ID 列表
 - `time_type` (string, 可选): 时间范围类型。可选值：`ctime` / `mtime` / `otime` / `stime`
 - `start_time` (integer, 可选): 最小时间
 - `end_time` (integer, 可选): 最大时间
 - `with_permission` (boolean, 可选): 是否返回文件操作权限
 - `with_link` (boolean, 可选): 是否返回文件分享信息
 - `with_total` (boolean, 可选): 是否返回搜索到的总条数
-- `with_drive` (boolean, 可选): 是否返回驱动盘
+- `with_drive` (boolean, 可选): 是否返回云盘信息
 - `order` (string, 可选): 排序方式。可选值：`desc` / `asc`
 - `order_by` (string, 可选): 排序字段。可选值：`ctime` / `mtime`
 - `scope` (array, 可选): 搜索范围。可选值：`all` / `share_by_me` / `share_to_me` / `latest` / `personal_drive` / `group_drive` / `recycle` / `customize` / `latest_opened` / `latest_edited`
 - `channels` (array, 可选): 渠道信息
-- `device_ids` (array, 可选): 设备 ID
+- `device_ids` (array, 可选): 设备 ID 列表
 - `exclude_channels` (array, 可选): 排除渠道信息
 - `exclude_file_exts` (array, 可选): 排除文件后缀
 - `filter_user_id` (integer, 可选): 创建者分享者过滤
 - `file_ext_groups` (array, 可选): 文件分组后缀
-- `search_operator_name` (boolean, 可选): 搜索文件的创建者或文件分享者
+- `search_operator_name` (boolean, 可选): 是否搜索文件的创建者或分享者
 
 #### 返回值说明
 

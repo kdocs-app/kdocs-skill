@@ -43,6 +43,7 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`wpp.insert_slide`](wpp/slide.md) | 在已有演示中插入空白页 | `file_id`, `slide_idx` |
+| [`wpp.import_slides`](wpp/slide.md) | 将外部 PPTX 的指定页面导入到已有演示文稿 | `link_id`, `object_url`, `slide_idx`, `source_idxs` |
 
 ## 二、主题（字体与配色）
 

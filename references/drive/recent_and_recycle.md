@@ -22,10 +22,10 @@
 
 - `page_size` (integer, 必填): 每页条数；建议 20；范围 1–500
 - `page_token` (string, 可选): 分页 token
-- `include_exts` (string, 可选): 只返回指定后缀的文件，逗号分隔
-- `exclude_exts` (string, 可选): 排除指定后缀的文件，逗号分隔
-- `include_creators` (string, 可选): 只返回指定创建者的文件，逗号分隔（创建者 ID）
-- `exclude_creators` (string, 可选): 排除指定创建者的文件，逗号分隔
+- `include_exts` (string, 可选): 包含的文件后缀，逗号分隔
+- `exclude_exts` (string, 可选): 排除的文件后缀，逗号分隔
+- `include_creators` (string, 可选): 包含的创建者 ID，逗号分隔
+- `exclude_creators` (string, 可选): 排除的创建者 ID，逗号分隔
 - `with_permission` (boolean, 可选): 是否返回权限信息
 - `with_link` (boolean, 可选): 是否返回分享信息
 
@@ -63,7 +63,7 @@
 
 #### 功能说明
 
-获取回收站文件列表，支持分页和按驱动盘过滤。
+获取回收站文件列表，支持分页和按云盘过滤。
 
 
 
@@ -82,9 +82,9 @@
 
 - `page_size` (integer, 必填): 每页条数；建议 20；范围 1–100
 - `page_token` (string, 可选): 分页 token
-- `drive_id` (string, 可选): 按驱动盘过滤
+- `drive_id` (string, 可选): 按云盘过滤
 - `with_ext_attrs` (boolean, 可选): 是否返回扩展属性
-- `with_drive` (boolean, 可选): 是否返回所属驱动盘信息
+- `with_drive` (boolean, 可选): 是否返回所属云盘信息
 
 #### 返回值说明
 

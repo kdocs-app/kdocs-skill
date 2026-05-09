@@ -27,7 +27,7 @@
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 要关闭的知识库驱动盘 ID，来自 `list_knowledge_views` 或 `get_knowledge_view` 返回值
+- `drive_id` (string, 必填): 要关闭的知识库云盘 ID，来自 `list_knowledge_views` 或 `get_knowledge_view` 返回值
 
 #### 返回值说明
 

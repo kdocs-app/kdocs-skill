@@ -25,8 +25,8 @@
 - `page_token` (string, 可选): 分页 token，首次不传，后续传上次返回的 `next_page_token`
 - `order` (string, 可选): 排序方向。可选值：`desc` / `asc`
 - `order_by` (string, 可选): 排序字段，如 `ctime` / `mtime` / `rank`
-- `include_exts` (string, 可选): 只返回指定后缀的文件，逗号分隔，如 `docx,xlsx`
-- `exclude_exts` (string, 可选): 排除指定后缀的文件，逗号分隔
+- `include_exts` (string, 可选): 包含的文件后缀，逗号分隔，如 `docx,xlsx`
+- `exclude_exts` (string, 可选): 排除的文件后缀，逗号分隔
 - `with_permission` (boolean, 可选): 是否返回文件操作权限信息
 - `with_link` (boolean, 可选): 是否返回文件分享信息
 
@@ -93,7 +93,7 @@
 
 #### 参数说明
 
-- `objects` (array[object], 必填): 待收藏对象列表
+- `objects` (array[object], 必填): 要收藏的文件对象列表，每项含 id 和 type
   - `id` (string, 必填): 文件 ID
   - `type` (string, 必填): 类型，取值 `file` / `drive`
 
@@ -138,7 +138,7 @@
 
 #### 参数说明
 
-- `objects` (array[object], 必填): 待移除收藏的对象列表
+- `objects` (array[object], 必填): 要移除收藏的文件对象列表，每项含 id 和 type
   - `id` (string, 必填): 文件 ID
   - `type` (string, 必填): 类型，取值 `file` / `drive`
 

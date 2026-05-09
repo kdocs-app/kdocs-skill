@@ -34,10 +34,10 @@
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 必填): 云盘 ID
 - `file_ids` (array[string], 必填): 文件 ID 列表
-- `dst_drive_id` (string, 必填): 目标驱动盘 ID
-- `dst_parent_id` (string, 必填): 目标文件夹 ID，根目录时为 "0"
+- `dst_drive_id` (string, 必填): 目标云盘 ID
+- `dst_parent_id` (string, 必填): 目标文件夹 ID，根目录为 "0"
 
 #### 返回值说明
 
@@ -98,7 +98,7 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID。
+- `drive_id` (string, 可选): 目标云盘 ID
 - `file_id` (string, 必填): 文件（夹）ID
 - `dst_name` (string, 必填): 新文件名，须带上后缀。例: `abc.txt`。支持格式：otl, doc, xls, ppt, pptx, wdoc, wxls, wppt, h5, pom, pof, docx, xlsx, ksheet, dbt, pdf
 
@@ -149,9 +149,9 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 源文件所在云盘 ID。规则见上文「`drive_id`」。
+- `drive_id` (string, 可选): 源文件所在云盘 ID
 - `file_id` (string, 必填): 源文件 ID
-- `dst_drive_id` (string, 必填): 目标驱动盘 ID
+- `dst_drive_id` (string, 必填): 目标云盘 ID
 - `dst_parent_id` (string, 必填): 目标父目录 ID，根目录为 "0"
 
 #### 返回值说明
@@ -176,7 +176,7 @@ file_id：
 | `data.id` | string | 新文件 ID |
 | `data.name` | string | 文件名 |
 | `data.type` | string | 文件类型 |
-| `data.drive_id` | string | 目标驱动盘 ID |
+| `data.drive_id` | string | 目标云盘 ID |
 | `data.parent_id` | string | 目标父目录 ID |
 
 
@@ -204,7 +204,7 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 必填): 云盘 ID
 - `parent_id` (string, 必填): 父目录 ID，根目录为 "0"
 - `name` (string, 必填): 待检查的文件名（含后缀）
 

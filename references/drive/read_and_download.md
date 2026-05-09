@@ -25,8 +25,8 @@
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
-- `parent_id` (string, 必填): 文件夹 ID，根目录时为 "0"
+- `drive_id` (string, 必填): 云盘 ID
+- `parent_id` (string, 必填): 父目录 ID，根目录时为 "0"
 - `page_size` (integer, 必填): 每页条数；建议 50；范围 1–500
 - `page_token` (string, 可选): 分页 token，首次请求不传
 - `order` (string, 可选): 排序方式。可选值：`desc` / `asc`
@@ -129,11 +129,11 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID。
+- `drive_id` (string, 可选): 目标云盘 ID
 - `file_id` (string, 必填): 文件 ID
 - `with_hash` (boolean, 可选): 是否返回校验值，对应响应里的 hashes
-- `internal` (boolean, 可选): 是否返回内网下载地址，默认 false
-- `storage_base_domain` (string, 可选): 签发的存储网关地址会根据 base_domain 优先匹配。可选值：`wps.cn` / `kdocs.cn` / `wps365.com`
+- `internal` (boolean, 可选): 是否返回内网下载地址；默认值：`false`
+- `storage_base_domain` (string, 可选): 签发的存储网关地址，根据 base_domain 优先匹配。可选值：`wps.cn` / `kdocs.cn` / `wps365.com`
 
 #### 返回值说明
 
@@ -334,12 +334,12 @@ file_id：
 
 #### 参数说明
 
-- `drive_id` (string, 必填): 驱动盘 ID
+- `drive_id` (string, 必填): 云盘 ID
 - `file_id` (string, 二选一必填: `file_id` / `link_id`): 文件 ID。与 `link_id` 二选一传入
 - `link_id` (string, 二选一必填: `file_id` / `link_id`): 分享链接 ID。与 `file_id` 二选一传入；通过分享链接访问文件时使用
 - `format` (string, 可选): 文档内容目标格式。可选值：`kdc`（结构化表示）/ `plain`（纯文本）/ `markdown`
 - `include_elements` (array, 可选): 指定抽取元素。默认元素为 `para`（段落），且一定会被导出；其余附加元素根据参数选择性导出。可选值：`para` / `table` / `component` / `textbox` / `all`
-- `enable_upload_medias` (boolean, 可选): 默认 `false`，抽取结果中图片为空链接；为 `true` 时图片会携带可下载的临时 URL（有效期约 10 分钟）。仅当 `format` 为 `markdown` 或 `kdc` 时生效
+- `enable_upload_medias` (boolean, 可选): 是否将文档中的多媒体附件上传云存储，默认 false；为 true 时抽取结果中附件(比如图片)会返回有效期内可下载的 URL, 只有当format=markdown或者kdc才生效
 - `mode` (string, 可选): **仅支持 `async`**，无需传或固定传 `async`
 - `task_id` (string, 可选): 异步任务 ID，用于结果轮询；首次调用不传，后续用返回的 `task_id` 查询直至 `task_status` 为 `success`
 

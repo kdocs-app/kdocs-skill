@@ -66,5 +66,5 @@
 
 **演示文稿**（.pptx / wpp）：
 
-- 新建写入：`create_file` 或 `upload_file` 上传本地 pptx
-- 主题生成型 AI PPT：优先走 `aippt.theme_questions` → `aippt.theme_deep_research` → `aippt.theme_outline` → 本地格式转换 → `aippt.theme_generate_html_pptx` → `upload_file`
+- 新建：`create_file` 或 `upload_file` 上传本地 pptx
+- AI 生成型 PPT：使用 `aippt.execute`，通过 `skill_type` 路由到主题生成（`theme_ppt`）或文档转 PPT（`doc_ppt`）流水线

@@ -30,4 +30,4 @@
 
 提取后调用 `get_share_info(link_id)` 获取 `file_id` 和 `drive_id`。
 
-> **AIPPT 文档转 PPT 快捷方式**：当用户提供金山文档链接并要求生成 PPT 时，从 URL 提取的 `link_id` 可直接以 `type: "v7_file_id"` 传入 `aippt.doc_outline_options` 和 `aippt.doc_outline`，无需先调用 `get_share_info` 获取 `file_id`。
+> **AIPPT 文档转 PPT 快捷方式**：当用户提供金山文档链接并要求生成 PPT 时，从 URL 提取的 `link_id` 可直接以 `type: "v7_file_id"` 传入 `aippt.execute` 的 `input` 数组，无需先调用 `get_share_info` 获取 `file_id`。

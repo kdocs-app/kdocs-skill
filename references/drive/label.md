@@ -104,7 +104,7 @@
 
 #### 参数说明
 
-- `allotee_type` (string, 必填): 归属者类型。可选值：`user` / `group` / `app`
+- `allotee_type` (string, 必填): 归属者类型。可选值：`user` / `group` / `app`；默认值：`user`
 - `name` (string, 必填): 标签名称，最多 240 字符
 - `allotee_id` (string, 可选): 归属者 ID
 - `label_type` (string, 可选): 标签类型。可选值：`custom` / `system`；默认值：`custom`
@@ -238,9 +238,9 @@
 
 #### 参数说明
 
-- `label_id` (string, 必填): 标签 ID。公网系统标签固定 ID：`1`（星标）/ `2`（待办）/ `3`（未确认协作）/ `4`（同步文件夹）/ `5`（常用）/ `6`（快速访问）；自定义标签 ID 由 `list_labels` 或 `create_label` 返回
+- `label_id` (string, 必填): 标签 ID。公网系统标签固定 ID：`1`（星标）/ `2`（待办）/ `3`（未确认协作）/ `4`（同步文件夹）/ `5`（常用）/ `6`（快速访问）；可通过 `list_labels` 查询自定义标签 ID
 - `object_type` (string, 必填): 标签对象类型。可选值：`file` / `drive` / `history` / `app` / `url`
-- `page_size` (integer, 必填): 每页条数；建议 50；范围 0–500（含 0）
+- `page_size` (integer, 必填): 每页条数，建议 50；传 0 表示按 50；范围 0–500（含 0）
 - `page_token` (string, 可选): 分页 token，首次不传，后续传上次返回的 `next_page_token`
 
 #### 返回值说明
@@ -310,8 +310,8 @@
 #### 参数说明
 
 - `label_id` (string, 必填): 标签 ID
-- `objects` (array[object], 必填): 要打标签的对象列表
-  - `id` (string, 必填): 对象 ID
+- `objects` (array[object], 必填): 要打标签的文件对象列表，每项含 id 和 type
+  - `id` (string, 必填): 文件 ID
   - `type` (string, 必填): 对象类型，可选值：`file` / `drive` / `history` / `app` / `url`
 
 #### 返回值说明
@@ -357,8 +357,8 @@
 #### 参数说明
 
 - `label_id` (string, 必填): 标签 ID
-- `objects` (array[object], 必填): 要取消标签的对象列表
-  - `id` (string, 必填): 对象 ID
+- `objects` (array[object], 必填): 要取消标签的文件对象列表，每项含 id 和 type
+  - `id` (string, 必填): 文件 ID
   - `type` (string, 必填): 对象类型，可选值：`file` / `drive` / `history` / `app` / `url`
 
 #### 返回值说明
@@ -405,7 +405,7 @@
 #### 参数说明
 
 - `label_id` (string, 必填): 标签 ID
-- `objects` (array[object], 必填): 要更新的对象列表
+- `objects` (array[object], 必填): 要更新的文件对象列表，每项含 id 和 type，可选 attr
   - `id` (string, 必填): 对象 ID
   - `type` (string, 必填): 对象类型，可选值：`file` / `drive` / `history` / `app` / `url`
   - `attr` (string, 可选): 扩展属性，最长 127 字符
@@ -456,7 +456,7 @@
 
 #### 参数说明
 
-- `labels` (array[object], 必填): 要更新的标签列表
+- `labels` (array[object], 必填): 要更新的标签列表，每项含 id，可选 name 和 attr
   - `id` (string, 必填): 标签 ID
   - `name` (string, 可选): 新名称，最长 240 字符
   - `attr` (string, 可选): 对象自定义属性，最长 127 字符

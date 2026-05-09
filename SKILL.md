@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.7
+version: 2.4.8
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -23,6 +23,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 - 不可逆操作（delete/close 类）执行前必须向用户确认
 - 写操作完成后必须用独立读取请求验证实际结果（不信任 `code: 0`）
 - 创建文档并验证通过后，必须调用 `get_file_link` 获取链接并展示给用户
+- 通过 `--file` 或脚本创建的临时 JSON 文件（如 `payload.json`、`temp.json`），在整个操作流程结束后必须删除，避免残留在用户工作目录
 
 ---
 
@@ -32,7 +33,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 1. **CLI 版本**：`kdocs-cli version` — 若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
 2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=<本文件version>`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接（格式 `https://...kdocs.zip`），下载解压替换当前 Skill 目录
 
-若无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
+若 upgrade 和 rollback 均失败，在本 Skill 目录下重新运行安装脚本（`bash setup.sh` / `powershell setup.ps1` / `node setup.cjs`，脚本位于 `scripts/`）可从 CDN 重新安装。若仍无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
 
 ---
 
@@ -132,7 +133,7 @@ kdocs-cli <service> <action> [参数]
 - 生成 JSON 文件用 Node.js/Python；**禁止** ConvertTo-Json（输出带 BOM）
 - PowerShell 传 JSON 字符串须反斜杠转义：`'{\"key\":[\"val\"]}'`
 
-> **--file 示例**：写入大段内容时，用脚本生成 JSON 文件再 `--file` 传入：
+> **--file 示例**：写入大段内容时，用脚本生成 JSON 文件再 `--file` 传入，操作完成后删除临时文件：
 >
 > ```javascript
 > const fs = require('fs');
@@ -145,6 +146,10 @@ kdocs-cli <service> <action> [参数]
 > ```
 > ```
 > kdocs-cli otl insert-content --file payload.json --silent
+> ```
+> ```javascript
+> // 操作完成后清理临时文件
+> fs.unlinkSync('payload.json');
 > ```
 
 **全局选项**：
@@ -269,13 +274,13 @@ kdocs-cli <service> <action> [参数]
 
 | 流程 | 说明 | 详细参考 |
 |------|------|---------|
-| AI 主题生成演示文稿 | 主题生成 PPT 标准链路：澄清需求、研究资料、大纲与生成上传 | `references/workflows/topic-ppt.md` |
-| AI 文档生成演示文稿 | 文档生成 PPT 标准链路：创建会话、解析文档、生成大纲、美化风格与生成上传 | `references/workflows/doc-ppt.md` |
+| AI 生成演示文稿（全文） | aippt.execute 单接口全文生成链路：两次调用完成需求澄清与生成，支持主题/文档两种来源，固定使用 html 模式 | `references/workflows/aippt-whole.md` |
 | 网页剪藏 | 抓取网页内容并自动保存为智能文档 | `references/workflows/web-scrape.md` |
 | 搜索-读取-汇报撰写 | 搜索多份文档、提取信息、汇总撰写新报告 | `references/workflows/search-read-report.md` |
 | 定期读取与播报 | 定期读取指定文档，提取关键信息生成摘要 | `references/workflows/periodic-read-summary.md` |
 | 智能分类整理 | 列出目录，按内容或指定维度分类创建文件夹并归档 | `references/workflows/smart-classify.md` |
 | 精准搜索与风险排查 | 在特定目录批量搜索文档，逐一读取分析，汇总到新文档 | `references/workflows/precise-search-analysis.md` |
+| 云文档导入幻灯片 | 将外部 PPTX 文件中的指定幻灯片导入到已有演示文稿中 | `references/workflows/import-slides.md` |
 | 接龙转表格 | 识别接龙文本内容，自动提取并转为在线表格 | `references/workflows/jielong-to-table.md` |
 | 信息收集表单生成 | 根据用户需求自动设计并创建信息收集表格 | `references/workflows/form-generator.md` |
 | 知识智能整理 | 对知识库中的零散内容进行智能化整理和结构化重组 | `references/workflows/knowledge-format.md` |
