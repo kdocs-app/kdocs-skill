@@ -16,12 +16,12 @@
 **幂等性**：否 — 重复调用会插入重复记录，先确认是否已成功
 
 > `records[].fields` 是对象（key-value 映射），不是序列化 JSON 字符串
-> 关联字段（Link）值格式为 `{"recordIds": ["id1", "id2"]}`，而非直接传 id 数组
+> 关联字段（Link）值格式为关联记录 id 的字符串数组，如 `["id1", "id2"]`
 > `prefer_id=true` 时，`fields` 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
 > `b_add_select_item=true` 时，可通过 `field_values` 提前声明要新增的选项；若不声明，选项名称直接写入 `fields` 中也会触发新增
 > `text_value` 和 `link_value` 仅影响响应返回格式，不影响写入行为
 > Url 字段传入为对象 `{address, displayText}`，响应中以数组形式返回
-> Rating 字段的上限由 `max_value`（非 `max`）定义，可通过 get_schema 查询
+> Rating 字段的上限由 `max`/`max_value` 定义，可通过 get_schema 查询
 
 #### 调用示例
 
@@ -72,12 +72,10 @@
       "fields": {
         "名称": "Hello",
         "数量": 123,
-        "记录关联": {
-          "recordIds": [
-            "I",
-            "G"
-          ]
-        }
+        "记录关联": [
+          "I",
+          "G"
+        ]
       }
     },
     {
@@ -134,23 +132,24 @@
 
 | 字段类型 | 值类型 | 示例值 | 备注 |
 |---------|--------|--------|------|
-| 文本类（SingleLineText / MultiLineText） | string | `"任务描述"` | — |
+| 多行文本（MultiLineText） | string | `"任务描述"` | — |
 | 日期（Date） | string | `"2025/11/15"` | 须符合字段 `number_format` 格式 |
 | 时间（Time） | string | `"11:12:15"` | 须符合字段时间格式 |
-| 数字 / 货币 / 百分比（Number / Currency / Percent） | int \| float | `125` / `215` / `98` | — |
+| 数值 / 货币 / 百分比（Number / Currency / Percentage） | int \| float | `125` / `215` / `85` | — |
+| 身份证 / 电话 / 电子邮箱（ID / Phone / Email） | string | `"18800000000"` | — |
+| 超链接（Url） | object \| string | `{"address":"https://…","displayText":"百度"}` 或直接传 `string` | 分别设置地址和文本时传对象，同时设置时传字符串 |
 | 复选框（Checkbox） | boolean | `true` | — |
-| 进度（Complete） | float | `1` | 进度值 0–1 |
-| 等级（Rating） | int | `3` | 不超过字段 `max_value` 上限 |
 | 单选项（SingleSelect） | string | `"选项1"` | 已有选项的 `value`；`bAddSelectItem=true` 时可传新选项 |
 | 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 已有选项 `value` 的字符串数组 |
-| 电话 / 邮箱 / 身份证（Phone / Email / ID） | string | `"18800000000"` | — |
-| 超链接（Url） | object | `{"address":"https://…","displayText":"百度"}` | 响应中以数组形式返回 |
-| 关联（Link） | object | `{"recordIds":["I","G"]}` | `recordIds` 为关联记录 id 数组 |
+| 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
+| 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 | 
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `address_level` 一致 |
-| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
-| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 关联（Link） | string[] | `["record_id_1","record_id_2"]` | 关联记录 id 数组 |
+| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
+| 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
+| 级联（Cascade） | object | `{"districts":["一级选项","二级选项"]}` | 各级选中值数组 |
+| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及 `data` 配置可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 
@@ -172,7 +171,7 @@
       "fields": {
         "名称": "Hello",
         "数量": 123,
-        "记录关联": { "recordIds": ["I", "G"] }
+        "记录关联": ["I", "G"]
       }
     },
     {
@@ -186,25 +185,27 @@
 
 | 字段名 | 字段类型 | 值示例 |
 |--------|----------|--------|
+| `多行文本` | MultiLineText | `"yesit'sright"` |
 | `日期` | Date | `"2025/11/15"` |
 | `时间` | Time | `"11:12:15"` |
-| `数字` | Number | `125` |
+| `数值` | Number | `125` |
 | `货币` | Currency | `215` |
-| `多行文本` | MultiLineText | `"yesit'sright"` |
-| `百分比` | Percent | `0.98` |
+| `百分比` | Percentage | `85` |
 | `身份证` | ID | `"110101**************9"` |
 | `电话` | Phone | `"18800000000"` |
+| `电子邮箱` | Email | `"user@example.com"` |
 | `超链接` | Url | `{"address":"https://www.baidu.com","displayText":"百度"}` |
+| `复选框` | Checkbox | `true` / `false` |
 | `单选项` | SingleSelect | 已有选项的 `value` 字符串 |
 | `多选项` | MultipleSelect | 已有选项 `value` 的字符串数组 |
-| `等级` | Rating | 不超过字段 `max_value` 的整数 |
+| `等级` | Rating | 不超过字段 `max` /`max_value` 的整数 |
+| `进度条` | Complete | `0.5` | 进度值 0.0–1.0 |
 | `联系人` | Contact | `[{"id":"uid","nickname":"昵称","avatar_url":"…"}]` |
-| `地址` | Address | `{"districts":["广东省","珠海市","香洲区"],"detail":"…"}` |
-| `富文本` | Note | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31"}` |
-| `复选框` | Checkbox | `true` / `false` |
-| `进度` | Complete | `0`–`100` 整数 |
-| `邮箱` | Email | `"user@example.com"` |
 | `附件` | Attachment | `[{"uploadId":"…","fileName":"…","size":0,"source":"Cloud","type":"image/png"}]` |
+| `关联` | Link | `["record_id_1","record_id_2"]` |
+| `富文本` | Note | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 12:00:00"}` |
+| `地址` | Address | `{"districts":["广东省","珠海市","香洲区"],"detail":"…"}` |
+| `级联` | Cascade | `{"districts":["一级选项","二级选项"]}` |
 
 > `Formula`、`AutoNumber`、`CreatedTime`、`CreatedBy`、`LastModifiedBy`、`Lookup` 为系统自动字段，**无需传入**。
 
@@ -253,12 +254,12 @@
 **幂等性**：是
 
 > `records[].fields` 是对象（key-value 映射），不是序列化 JSON 字符串；仅传入需要修改的字段，未传字段保持原值不变
-> 关联字段（Link）值格式为 `{"recordIds": ["id1", "id2"]}`，而非直接传 id 数组
+> 关联字段（Link）值格式为关联记录 id 的字符串数组，如 `["id1", "id2"]`
 > `prefer_id=true` 时，`fields` 内部的 key 应为字段 ID（由 get_schema 返回），而非字段名
 > `b_add_select_item=true` 时，可通过 `field_values` 预声明要新增的选项
 > `text_value` 和 `link_value` 仅影响响应返回格式，不影响写入行为
 > Url 字段传入为对象 `{address, displayText}`，响应中以数组形式返回
-> Rating 字段的上限由 `max_value`/`max`定义，创建字段时通过 `dbsheet.create_fields` 设置
+> Rating 字段的上限由 `max`/`max_value` 定义，创建字段时通过 `dbsheet.create_fields` 设置
 
 #### 调用示例
 
@@ -370,23 +371,24 @@
 
 | 字段类型 | 值类型 | 示例值 | 备注 |
 |---------|--------|--------|------|
-| 文本类（SingleLineText / MultiLineText） | string | `"新文本"` | — |
+| 多行文本（MultiLineText） | string | `"新文本"` | — |
 | 日期（Date） | string | `"2025/11/15"` | 须符合字段 `number_format` 格式 |
 | 时间（Time） | string | `"11:12:15"` | 须符合字段时间格式 |
-| 数字 / 货币 / 百分比（Number / Currency / Percent） | int \| float | `125` / `215` / `98` | — |
+| 数值 / 货币 / 百分比（Number / Currency / Percentage） | int \| float | `125` / `215` / `85` | — |
+| 身份证 / 电话 / 电子邮箱（ID / Phone / Email） | string | `"18800000000"` | — |
+| 超链接（Url） | object \| string | `{"address":"https://…","displayText":"百度"}` 或直接传 `string` | 分别设置地址和文本时传对象，同时设置时传字符串 |
 | 复选框（Checkbox） | boolean | `false` | — |
-| 进度（Complete） | float | `0.5` | 进度值 0–1 |
-| 等级（Rating） | int | `3` | 不超过字段 `max_value`/`max` 上限 |
 | 单选项（SingleSelect） | string | `"选项1"` | 已有选项的 `value`；`bAddSelectItem=true` 时可传新选项 |
 | 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 已有选项 `value` 的字符串数组 |
-| 电话 / 邮箱 / 身份证（Phone / Email / ID） | string | `"18800000000"` | — |
-| 超链接（Url） | object | `{"address":"https://…","displayText":"百度"}` | 响应中以数组形式返回 |
-| 关联（Link） | object | `{"recordIds":["I","G"]}` | `recordIds` 为关联记录 id 数组 |
+| 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
+| 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `address_level` 一致 |
-| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
-| 公式 / 编号 / 创建时间 / 创建人 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 关联（Link） | string[] | `["I","G"]` | 关联记录 id 数组 |
+| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
+| 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
+| 级联（Cascade） | object | `{"districts":["一级选项","二级选项"]}` | 各级选中值数组 |
+| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及值格式完整说明可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 

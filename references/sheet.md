@@ -99,7 +99,7 @@
 |------|------|----------|
 | [`sheet.get_sheets_info`](sheet/worksheet.md) | 获取工作表列表 | `file_id` |
 | [`sheet.create_airsheet_file`](sheet/worksheet.md) | 新建智能表格文件 | `tname` |
-| [`sheet.add_sheet`](sheet/worksheet.md) | 新增工作表 | `file_id`, `position` |
+| [`sheet.add_sheet`](sheet/worksheet.md) | 新增工作表 | `file_id` |
 | [`sheet.rename_sheet`](sheet/worksheet.md) | 重命名工作表 | `file_id`, `sheetId`, `name` |
 | [`sheet.delete_sheets`](sheet/worksheet.md) | 删除工作表 | `file_id`, `sheetIds` |
 | [`sheet.copy_worksheet`](sheet/worksheet.md) | 复制工作表 | `file_id`, `worksheet_id` |
@@ -111,8 +111,8 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `worksheet_id`, `range` |
-| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `worksheet_id`, `range_data` |
+| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `sheetId`, `range` |
+| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `sheetId`, `rangeData` |
 | [`sheet.delete_range`](sheet/data.md) | 删除行或列 | `file_id`, `sheetId`, `rangeData` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `sheetId`, `rangeData` |
 | [`sheet.retrieve_record`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `file_id`, `sheetId`, `range`, `Filter` |

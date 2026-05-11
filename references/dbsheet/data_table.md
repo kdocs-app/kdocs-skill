@@ -83,7 +83,7 @@
 
 #### 功能说明
 
-在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。
+在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）。
 
 
 
@@ -93,9 +93,11 @@
 
 **幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
 
-> 字段的 `data` 配置（如选项列表、日期格式等）与 `dbsheet.create_fields` 完全一致，详见其 `param_detail`
+> 此接口的 `fields[]` 配置不使用 `data` 包装层，所有字段属性（如 `items`、`numberFormat`）直接写在字段对象根级
+> `dbsheet.create_sheet` 与 `dbsheet.create_fields` 在字段参数结构上保持一致：字段专属参数均直接平铺在字段对象根级
+> 视图类型（`views[].type`）请求传入小写（如 `grid`），响应返回首字母大写（如 `Grid`）
 > `Url` 字段传字符串时地址和显示文本相同；传对象时可分别设置 `address` 和 `displayText`
-> `Link` 字段的关联目标数据表需在字段 `data.link_sheet` 中指定；创建数据表时若暂不配置可留空，后续通过 `dbsheet.update_fields` 补充
+> 需要对字段做精细配置（如日期格式、关联目标表等）时，建议创建数据表后再通过 `dbsheet.update_fields` 补充
 
 #### 调用示例
 
@@ -108,7 +110,7 @@
   "views": [
     {
       "name": "默认视图",
-      "type": "Grid"
+      "type": "grid"
     }
   ],
   "fields": [
@@ -142,11 +144,38 @@
 - `before_sheet_id` (integer, 可选): 插入到指定数据表之前
 - `views` (array, 可选): 初始视图列表（见 param_detail 视图类型枚举）
   - `name` (string, 必填): 视图名称
-  - `type` (string, 必填): 视图类型枚举，如 `Grid`、`Kanban`、`Gallery` 等（见 param_detail）
-- `fields` (array, 可选): 初始字段列表（见 param_detail 字段类型枚举及值传入格式）
+  - `type` (string, 必填): 视图类型枚举，小写，如 `grid`、`kanban`、`gallery` 等（见 param_detail）
+- `fields` (array, 可选): 初始字段列表（见 param_detail 字段类型枚举与参数明细）；字段配置直接平铺在字段对象根级（无 `data` 包装层）
   - `name` (string, 必填): 字段显示名称
   - `type` (string, 必填): 字段类型枚举（见 param_detail）
-  - `data` (object, 视类型可选): 类型专属配置，与 `dbsheet.create_fields` 的 `data` 结构相同
+  - `syncField` (boolean, 可选): 是否为同步字段，默认 `false`
+  - `width` (integer, 可选): 字段宽度，单位缇（1/1440 英寸）
+  - 类型专属参数直接平铺（如 `items`、`numberFormat`、`max`、`linkSheet` 等）
+
+**请求体根级**
+
+| 名称 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 是 | 新建数据表名称 |
+| `syncType` | string | 否 | 同步类型，默认 `None` |
+| `afterSheetId` | integer | 否 | 在指定数据表后创建 |
+| `beforeSheetId` | integer | 否 | 在指定数据表前创建 |
+| `views` | array[object] | 否 | 初始视图列表 |
+| `fields` | array[object] | 否 | 初始字段列表，字段参数直接平铺，无 `data` |
+
+**`fields[]` 通用参数**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 是 | 字段显示名称 |
+| `type` | string | 是 | 字段类型 |
+| `syncField` | boolean | 否 | 是否为同步字段，默认 `false` |
+| `width` | integer | 否 | 字段宽度，单位缇（1/1440 英寸） |
+| `uniqueValue` | boolean | 否 | 是否禁止重复（文本/数值类常用） |
+| `defaultValue` | string | 否 | 默认值 |
+| `defaultValueType` | string | 否 | `Normal` / `RecordCreator` / `RecordCreateTime` |
+
+---
 
 **字段类型枚举（`fields[].type`）**
 
@@ -173,7 +202,6 @@
 | `Note` | 富文本 | 否 |
 | `Address` | 地址 | 否 |
 | `Cascade` | 级联 | 否 |
-| `Department` | 部门 | 否 |
 | `AutoNumber` | 编号 | **是** |
 | `CreatedBy` | 创建者 | **是** |
 | `CreatedTime` | 创建时间 | **是** |
@@ -188,17 +216,60 @@
 
 ---
 
+**各字段类型的可用参数（创建字段配置）**
+
+说明：以下参数都直接写在 `fields[]` 元素根级，不使用 `data`。
+
+| 字段类型 | 可用参数（除 `name`、`type`、`syncField`、`width` 外） |
+|---------|------|
+| `MultiLineText` | `uniqueValue`、`defaultValue`、`defaultValueType` |
+| `Date` | `numberFormat`、`defaultValue`、`defaultValueType` |
+| `Time` | `numberFormat` |
+| `Number` | `numberFormat`、`uniqueValue`、`defaultValue`、`defaultValueType` |
+| `Currency` | `numberFormat` |
+| `Percentage` | `numberFormat` |
+| `ID` | `uniqueValue` |
+| `Phone` | `uniqueValue` |
+| `Email` | 无专属参数 |
+| `Url` | `displayText` |
+| `Checkbox` | 无专属参数 |
+| `SingleSelect` | `allowAddItemWhenInputting`、`autoAddItem`、`items[]`（`value: string` 必填，`color: integer` 可选） |
+| `MultipleSelect` | `allowAddItemWhenInputting`、`autoAddItem`、`items[]`（同 `SingleSelect`） |
+| `Rating` | `max`（integer） |
+| `Complete` | 无专属参数 |
+| `Contact` | `multipleContacts`、`noticeNewContact`、`extendFieldInfo`（object） |
+| `Attachment` | 无专属参数 |
+| `Link` | `isAuto`、`multipleLinks`、`linkSheet`、`filter`（object） |
+| `Note` | 无专属参数 |
+| `Address` | `addressLevel`、`detailedAddress` |
+| `Cascade` | `displayAllLevel`、`allCascadeOption`、`cascadeTitle` |
+| `AutoNumber` | `numberFormat` |
+| `CreatedBy` | `extendFieldInfo` |
+| `CreatedTime` | `numberFormat` |
+| `LastModifiedBy` | `watchedAll`、`watchedField` |
+| `LastModifiedTime` | `watchedAll`、`watchedField`、`numberFormat` |
+| `Formula` | `formula`、`numberFormat` |
+| `Lookup` | `lookupType`、`lookupSheetId`、`linkField`、`lookupField`、`aggregation`、`filter` |
+| `BarCode` | 无专属参数 |
+| `SearchLookup` | 无专属参数（配置沿用 `Lookup` 相关能力） |
+| `Button` | 无专属参数 |
+| `OneWayLink` | `isAuto`、`multipleLinks`、`linkSheet`、`filter` |
+
+---
+
 **视图类型枚举（`views[].type`）**
 
-| 类型值 | 说明 |
+请求传入小写，响应返回首字母大写（如请求 `grid` → 响应 `Grid`）。
+
+| 请求值 | 说明 |
 |--------|------|
-| `Grid` | 表格视图 |
-| `Kanban` | 看板视图 |
-| `Gallery` | 画册视图 |
-| `Form` | 表单视图 |
-| `Gantt` | 甘特视图 |
-| `Query` | 查询视图 |
-| `Calendar` | 日历视图 |
+| `grid` | 表格视图 |
+| `kanban` | 看板视图 |
+| `gallery` | 画册视图 |
+| `form` | 表单视图 |
+| `gantt` | 甘特视图 |
+| `query` | 查询视图 |
+| `calendar` | 日历视图 |
 
 ---
 
@@ -221,7 +292,6 @@
 | `Link` | string[] | `["record_id_1","record_id_2"]` |
 | `Address` | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` |
 | `Cascade` | object | `{"districts":["一级","二级"]}` |
-| `Department` | object[] | `[{"districts":["总部","研发部"],"detail":"dept_id"}]` |
 | `Note` | object | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 10:00:00"}` |
 | `AutoNumber`、`CreatedBy`、`CreatedTime`、`LastModifiedBy`、`LastModifiedTime`、`Formula`、`Lookup` | — | **自动字段，无需填写** |
 
@@ -233,13 +303,25 @@
   "detail": {
     "sheet": {
       "id": 6,
-      "name": "新数据表",
-      "primary_field_id": "L",
+      "name": "sheetName",
+      "primaryFieldId": "L",
       "fields": [
-        { "id": "L", "name": "名称", "type": "SingleLineText" }
+        { "id": "L", "name": "field1", "type": "SingleLineText" },
+        {
+          "id": "M",
+          "name": "field2",
+          "type": "SingleSelect",
+          "items": [
+            { "id": "K", "value": "A" },
+            { "id": "L", "value": "B" },
+            { "id": "M", "value": "C" }
+          ]
+        }
       ],
       "views": [
-        { "id": "J", "name": "默认视图", "type": "Grid" }
+        { "id": "J", "name": "view1", "type": "Grid" },
+        { "id": "K", "name": "view2", "type": "Kanban" },
+        { "id": "L", "name": "view3", "type": "Gallery" }
       ]
     }
   },
@@ -252,9 +334,14 @@
 |------|------|------|
 | `detail.sheet.id` | integer | 新建数据表 ID |
 | `detail.sheet.name` | string | 数据表名称 |
-| `detail.sheet.primary_field_id` | string | 主字段 ID |
-| `detail.sheet.fields` | array | 字段列表 |
-| `detail.sheet.views` | array | 视图列表 |
+| `detail.sheet.primaryFieldId` | string | 主字段 ID |
+| `detail.sheet.fields[].id` | string | 字段 ID |
+| `detail.sheet.fields[].name` | string | 字段显示名称 |
+| `detail.sheet.fields[].type` | string | 字段类型 |
+| `detail.sheet.fields[].items` | array | 选项列表（SingleSelect / MultipleSelect），每项含 id、value |
+| `detail.sheet.views[].id` | string | 视图 ID |
+| `detail.sheet.views[].name` | string | 视图名称 |
+| `detail.sheet.views[].type` | string | 视图类型 |
 | `result` | string | ok 表示成功 |
 
 

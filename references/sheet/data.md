@@ -5,7 +5,7 @@
 #### 功能说明
 
 获取指定工作表中某个矩形区域内的单元格数据。行列索引均为 0-based。
-范围参数通过 Query 传入（非请求体）。
+请求参数使用 `sheetId` 和 `range` 对象。
 
 
 
@@ -20,7 +20,7 @@
 ```json
 {
   "file_id": "VsdfG0001234567",
-  "worksheet_id": 3,
+  "sheetId": 3,
   "range": {
     "rowFrom": 0,
     "rowTo": 10,
@@ -34,7 +34,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID（路径参数）
-- `worksheet_id` (integer, 必填): 工作表 ID（路径参数）
+- `sheetId` (integer, 必填): 工作表 ID
 - `range` (object, 必填): 选区范围，行列索引均为 0-based
 
 #### 返回值说明
@@ -64,6 +64,16 @@
         "originalCellValue": "111",
         "rowFrom": 0,
         "rowTo": 0
+      },
+      {
+        "cellText": "332",
+        "colFrom": 0,
+        "colTo": 0,
+        "isCellPic": false,
+        "numFormat": "G/通用格式",
+        "originalCellValue": "332",
+        "rowFrom": 1,
+        "rowTo": 1
       },
       {
         "cellText": "=DISPIMG(\"ID_018590616CC643F796F3CB58682DEA85\",1)",
@@ -97,19 +107,20 @@
 #### 功能说明
 
 批量更新单元格选区数据，支持写值/公式、设置格式、合并单元格、写入图片。
-每项操作必须包含 `op_type` 和四个坐标字段（`row_from`/`row_to`/`col_from`/`col_to`）。
+每项操作必须包含 `opType` 和四个坐标字段（`rowFrom`/`rowTo`/`colFrom`/`colTo`）。
 
 
 
 #### 操作约束
 
 - **前置检查**：调用 sheet.get_range_data 读取目标区域现有数据，确认覆盖范围
-- **提示**：每项必须包含 row_from/row_to/col_from/col_to 四个坐标；op_type 须使用完整枚举值
+- **提示**：每项必须包含 rowFrom/rowTo/colFrom/colTo 四个坐标；opType 必须使用 formula/format/merge/picture
 
 **幂等性**：是
 
-> 参数名全部为 snake_case（如 `op_type`、`row_from`、`alc_h`），勿使用旧版 camelCase 写法
-> merge_type 必须使用完整枚举值（如 `merge_type_center`），不可简写为 `MergeCenter`
+> 参数名使用 camelCase（如 `opType`、`rowFrom`、`alcH`、`cellPicInfo`）
+> merge 操作的 `type` 使用 `MergeCenter`、`MergeContent`、`MergeSame`、`MergeColumns`
+> picture 操作的 `cellPicInfo.tag` 使用 `local` / `attachment` / `url`，并按 tag 传 `uploadId` / `attachmentId` / `url`
 
 #### 调用示例
 
@@ -118,14 +129,14 @@
 ```json
 {
   "file_id": "VsdfG0001234567",
-  "worksheet_id": 3,
-  "range_data": [
+  "sheetId": 3,
+  "rangeData": [
     {
-      "op_type": "cell_operation_type_formula",
-      "row_from": 0,
-      "row_to": 0,
-      "col_from": 0,
-      "col_to": 0,
+      "opType": "formula",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 0,
+      "colTo": 0,
       "formula": "Hello"
     }
   ]
@@ -137,26 +148,26 @@
 ```json
 {
   "file_id": "VsdfG0001234567",
-  "worksheet_id": 3,
-  "range_data": [
+  "sheetId": 3,
+  "rangeData": [
     {
-      "op_type": "cell_operation_type_format",
-      "row_from": 0,
-      "row_to": 0,
-      "col_from": 0,
-      "col_to": 5,
+      "opType": "format",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 0,
+      "colTo": 5,
       "xf": {
         "font": {
           "name": "微软雅黑",
-          "dy_height": 220,
+          "dyHeight": 220,
           "bls": true,
           "color": {
             "type": 2,
             "value": 16777215
           }
         },
-        "alc_h": 2,
-        "alc_v": 1,
+        "alcH": 2,
+        "alcV": 1,
         "wrap": true,
         "fill": {
           "type": 1,
@@ -181,15 +192,15 @@
 ```json
 {
   "file_id": "VsdfG0001234567",
-  "worksheet_id": 3,
-  "range_data": [
+  "sheetId": 3,
+  "rangeData": [
     {
-      "op_type": "cell_operation_type_merge",
-      "row_from": 2,
-      "row_to": 3,
-      "col_from": 0,
-      "col_to": 3,
-      "merge_type": "merge_type_center"
+      "opType": "merge",
+      "rowFrom": 2,
+      "rowTo": 3,
+      "colFrom": 0,
+      "colTo": 3,
+      "type": "MergeCenter"
     }
   ]
 }
@@ -200,17 +211,17 @@
 ```json
 {
   "file_id": "VsdfG0001234567",
-  "worksheet_id": 3,
-  "range_data": [
+  "sheetId": 3,
+  "rangeData": [
     {
-      "op_type": "cell_operation_type_picture",
-      "row_from": 0,
-      "row_to": 0,
-      "col_from": 1,
-      "col_to": 1,
-      "cell_pic_info": {
-        "tag": "sheet_pic_type_url",
-        "pic_content": "https://example.com/image.png",
+      "opType": "picture",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 1,
+      "colTo": 1,
+      "cellPicInfo": {
+        "tag": "url",
+        "url": "https://example.com/image.png",
         "width": 200,
         "height": 150
       }
@@ -223,92 +234,94 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID（路径参数）
-- `worksheet_id` (integer, 必填): 工作表 ID（路径参数）
-- `range_data` (array[object], 必填): 单元格操作数组，每项必须包含 `op_type` 和坐标字段，详见 param_detail
+- `sheetId` (integer, 必填): 工作表 ID
+- `rangeData` (array[object], 必填): 单元格操作数组，每项必须包含 `opType` 和坐标字段，详见 param_detail
 
-**range_data 每项字段：**
+**rangeData 每项字段：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `op_type` | string | 是 | 操作类型（枚举值见下表） |
-| `row_from` | integer | 是 | 起始行（0-based） |
-| `row_to` | integer | 是 | 结束行 |
-| `col_from` | integer | 是 | 起始列（0-based） |
-| `col_to` | integer | 是 | 结束列 |
-| `formula` | string | 否 | 值或公式（`cell_operation_type_formula` 时使用） |
-| `xf` | object | 否 | 格式对象（`cell_operation_type_format` 时使用，见下方 xf 说明） |
-| `merge_type` | string | 否 | 合并类型（`cell_operation_type_merge` 时使用） |
-| `cell_pic_info` | object | 否 | 图片信息（`cell_operation_type_picture` 时使用） |
+| `opType` | string | 是 | 操作类型（枚举值见下表） |
+| `rowFrom` | integer | 是 | 起始行（0-based） |
+| `rowTo` | integer | 是 | 结束行 |
+| `colFrom` | integer | 是 | 起始列（0-based） |
+| `colTo` | integer | 是 | 结束列 |
+| `formula` | string | 否 | 单元格公式或内容（`opType=formula` 时使用） |
+| `xf` | object | 否 | 格式对象（`opType=format` 时使用，见下方 xf 说明） |
+| `type` | string | 否 | 合并类型（`opType=merge` 时使用） |
+| `cellPicInfo` | object | 否 | 图片信息（`opType=picture` 时使用） |
 
 ---
 
-**op_type 枚举值：**
+**opType 枚举值：**
 
 | 枚举值 | 说明 | 需要的额外字段 |
 |--------|------|--------------|
-| `cell_operation_type_formula` | 写值/公式 | `formula` |
-| `cell_operation_type_format` | 设置格式 | `xf` |
-| `cell_operation_type_merge` | 合并单元格 | `merge_type` |
-| `cell_operation_type_picture` | 写入图片 | `cell_pic_info` |
+| `formula` | 写值/公式 | `formula` |
+| `format` | 设置格式 | `xf` |
+| `merge` | 合并单元格 | `type` |
+| `picture` | 写入图片 | `cellPicInfo` |
 
 ---
 
-**merge_type 枚举值：**
+**type 枚举值（opType = merge）：**
 
 | 枚举值 | 说明 |
 |--------|------|
-| `merge_type_center` | 居中合并 |
-| `merge_type_content` | 内容合并 |
-| `merge_type_same` | 相同内容合并 |
-| `merge_type_columns` | 按列合并 |
+| `MergeCenter` | 合并居中 |
+| `MergeContent` | 内容合并 |
+| `MergeSame` | 相同内容合并 |
+| `MergeColumns` | 按列合并 |
 
 ---
 
-**cell_pic_info 字段（op_type = cell_operation_type_picture）：**
+**cellPicInfo 字段（opType = picture）：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `tag` | string | 是 | 图片类型枚举：`sheet_pic_type_local`（本地）/ `sheet_pic_type_attachment`（附件）/ `sheet_pic_type_url`（在线 URL） |
-| `pic_content` | string | 是 | 图片具体内容（URL 字符串、附件 ID 或 base64，视 tag 而定） |
-| `width` | integer | 是 | 图片宽度（像素） |
-| `height` | integer | 是 | 图片高度（像素） |
+| `width` | integer | 是 | 图片宽度；`-1` 表示自适应 |
+| `height` | integer | 是 | 图片高度；`-1` 表示自适应 |
+| `tag` | string | 是 | 图片来源：`local` / `attachment` / `url` 三选一 |
+| `uploadId` | string | 否 | 本地文件（`tag=local`）时必填 |
+| `attachmentId` | string | 否 | 附件（`tag=attachment`）时必填 |
+| `url` | string | 否 | 在线 URL（`tag=url`）时必填 |
 
 ---
 
-**xf 字段（op_type = cell_operation_type_format）：**
+**xf 字段（opType = format）：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `alc_h` | integer | 否 | 水平对齐：1=左，2=居中，3=右，4=填充，5=两端，6=跨列，7=分散 |
-| `alc_v` | integer | 否 | 垂直对齐：0=上，1=中，2=下，3=两端，4=分散 |
+| `alcH` | integer | 否 | 水平对齐：1=左，2=居中，3=右，4=填充，5=两端，6=跨列，7=分散 |
+| `alcV` | integer | 否 | 垂直对齐：0=上，1=中，2=下，3=两端，4=分散 |
 | `wrap` | boolean | 否 | 自动换行 |
-| `shrink_to_fit` | boolean | 否 | 缩小字体填充 |
+| `shrinkToFit` | boolean | 否 | 缩小字体填充 |
 | `locked` | boolean | 否 | 锁定单元格 |
 | `hidden` | boolean | 否 | 隐藏公式 |
 | `indent` | integer | 否 | 缩进 |
-| `reading_order` | integer | 否 | 文字方向 |
+| `readingOrder` | integer | 否 | 文字方向 |
 | `trot` | integer | 否 | 文字旋转角度 |
 | `numfmt` | string | 否 | 数字格式串，如 `"G/通用格式"`、`"yyyy-mm-dd"`、`"0.00%"` |
 | `mask_cats` | integer | 否 | 掩码 |
-| `mask_cats_font` | integer | 否 | 掩码字体 |
+| `mask_catsFont` | integer | 否 | 掩码字体 |
 | `font` | object | 否 | 字体，见下方 font 字段表 |
 | `fill` | object | 否 | 填充，见下方 fill 字段表 |
-| `dg_left` | integer | 否 | 左边框线型 |
-| `dg_right` | integer | 否 | 右边框线型 |
-| `dg_top` | integer | 否 | 上边框线型 |
-| `dg_bottom` | integer | 否 | 下边框线型 |
-| `dg_diag_down` | integer | 否 | 向下斜线边框线型 |
-| `dg_diag_up` | integer | 否 | 向上斜线边框线型 |
-| `dg_inside_horz` | integer | 否 | 内框横线线型 |
-| `dg_inside_vert` | integer | 否 | 内框竖线线型 |
-| `clr_left` | object | 否 | 左边框颜色（颜色对象，见下方颜色说明） |
-| `clr_right` | object | 否 | 右边框颜色 |
-| `clr_top` | object | 否 | 上边框颜色 |
-| `clr_bottom` | object | 否 | 下边框颜色 |
-| `clr_diag_down` | object | 否 | 向下斜线边框颜色 |
-| `clr_diag_up` | object | 否 | 向上斜线边框颜色 |
-| `clr_inside_horz` | object | 否 | 内框横线颜色 |
-| `clr_inside_vert` | object | 否 | 内框竖线颜色 |
+| `dgLeft` | integer | 否 | 左边框线型 |
+| `dgRight` | integer | 否 | 右边框线型 |
+| `dgTop` | integer | 否 | 上边框线型 |
+| `dgBottom` | integer | 否 | 下边框线型 |
+| `dgDiagDown` | integer | 否 | 向下斜线边框线型 |
+| `dgDiagUp` | integer | 否 | 向上斜线边框线型 |
+| `dgInsideHorz` | integer | 否 | 内框横线线型 |
+| `dgInsideVert` | integer | 否 | 内框竖线线型 |
+| `clrLeft` | object | 否 | 左边框颜色（颜色对象，见下方颜色说明） |
+| `clrRight` | object | 否 | 右边框颜色 |
+| `clrTop` | object | 否 | 上边框颜色 |
+| `clrBottom` | object | 否 | 下边框颜色 |
+| `clrDiagDown` | object | 否 | 向下斜线边框颜色 |
+| `clrDiagUp` | object | 否 | 向上斜线边框颜色 |
+| `clrInsideHorz` | object | 否 | 内框横线颜色 |
+| `clrInsideVert` | object | 否 | 内框竖线颜色 |
 
 边框线型枚举：0=无，1=细线，2=中等，3=虚线，4=点线，5=粗线，6=双线，7=细虚线
 
@@ -317,14 +330,14 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `name` | string | 否 | 字体名称，如 `"微软雅黑"` |
-| `dy_height` | integer | 否 | 字体高度（单位 Twip，1pt=20Twip，如 11pt=220） |
-| `char_set` | integer | 否 | 字符集 |
+| `dyHeight` | integer | 否 | 字体高度（单位 Twip，1pt=20Twip，如 11pt=220） |
+| `charSet` | integer | 否 | 字符集 |
 | `bls` | boolean | 否 | 粗体 |
 | `italic` | boolean | 否 | 斜体 |
 | `strikeout` | boolean | 否 | 删除线 |
 | `uls` | integer | 否 | 下划线类型 |
 | `sss` | integer | 否 | 上下标类型 |
-| `theme_font` | integer | 否 | 字体类型 |
+| `themeFont` | integer | 否 | 字体类型 |
 | `color` | object | 否 | 字体颜色（颜色对象，见下方颜色说明） |
 
 **xf.fill 字段：**

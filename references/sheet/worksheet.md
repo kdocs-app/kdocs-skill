@@ -134,6 +134,7 @@
 #### 功能说明
 
 在指定表格文件中新增工作表。可指定名称、数量、插入位置和默认列宽。
+插入位置通过 `before` / `after` / `end` 三选一控制。
 
 
 
@@ -147,10 +148,10 @@
 {
   "file_id": "string",
   "name": "销售数据",
-  "col_width": 0,
-  "position": {
-    "end": true
-  }
+  "end": true,
+  "type": "xlWorksheet",
+  "defColWidth": 1335,
+  "count": 1
 }
 ```
 
@@ -160,8 +161,8 @@
 {
   "file_id": "string",
   "name": "新工作表",
-  "position": {
-    "after_sheet_id": 3
+  "after": {
+    "sheetId": 3
   }
 }
 ```
@@ -171,8 +172,8 @@
 ```json
 {
   "file_id": "string",
-  "position": {
-    "before_sheet_id": 2
+  "before": {
+    "sheetId": 2
   }
 }
 ```
@@ -181,10 +182,13 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID（路径参数 `{file_id}`）
-- `col_width` (number, 可选): 列宽
-- `name` (string, 可选): 工作表名
-- `position` (object, 必填): 插入位置。子字段 `after_sheet_id`、`before_sheet_id`、`end` 均为可选，但应按业务需要指定其一（或按服务端约定组合），以确定插入到哪个 sheet 之前/之后或是否置于末尾。
-
+- `before` (object, 可选): 插入到指定工作表之前；与 `after`、`end` 三选一
+- `after` (object, 可选): 插入到指定工作表之后；与 `before`、`end` 三选一
+- `end` (boolean, 可选): 是否插入到末尾；与 `before`、`after` 三选一
+- `type` (string, 可选): 工作表类型，默认 `xlWorksheet`；默认值：`xlWorksheet`
+- `defColWidth` (integer, 可选): 默认列宽，如 `1335`（约 10.5 个字符）
+- `count` (integer, 可选): 新增工作表数量，默认 `1`；默认值：`1`
+- `name` (string, 可选): 工作表名，默认 `sheetn`
 
 **Path 参数：**
 
@@ -194,17 +198,19 @@
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `col_width` | number | 否 | 列宽 |
-| `name` | string | 否 | 工作表名 |
-| `position` | object | 是 | 插入位置 |
+| `before` | object | 否 | 在指定工作表之前插入；与 `after`、`end` 三选一 |
+| `after` | object | 否 | 在指定工作表之后插入；与 `before`、`end` 三选一 |
+| `end` | boolean | 否 | 是否在末尾插入；与 `before`、`after` 三选一 |
+| `type` | string | 否 | 工作表类型，默认 `xlWorksheet` |
+| `defColWidth` | integer | 否 | 默认列宽，如 `1335`（约 10.5 个字符） |
+| `count` | integer | 否 | 新增工作表数量，默认 `1` |
+| `name` | string | 否 | 工作表名，默认 `sheetn` |
 
-**position 对象：**
+**before / after 对象：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `after_sheet_id` | integer | 否 | 在哪个 sheet 之后 |
-| `before_sheet_id` | integer | 否 | 在哪个 sheet 之前 |
-| `end` | boolean | 否 | 是否插入到最后 |
+| `sheetId` | integer | 是 | 目标工作表 ID |
 
 
 #### 返回值说明
@@ -325,7 +331,7 @@
 
 **幂等性**：否 — 重复调用会生成多个副本，先确认是否已成功
 
-> 若需要复制首个工作表的特殊布局，可按需设置 `copy_first_sheet`
+> 可根据是否复制第一个工作表，按需设置 `copy_first_sheet`,若要复制第一个工作表必须带该参数且设置为 true
 
 #### 调用示例
 
@@ -343,7 +349,7 @@
 
 - `file_id` (string, 必填): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
-- `copy_first_sheet` (boolean, 可选): 是否复制第一个工作表
+- `copy_first_sheet` (boolean, 可选): 是否复制第一个工作表,若要复制第一个工作表必须带该参数且设置为 true
 
 #### 返回值说明
 
