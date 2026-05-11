@@ -82,7 +82,7 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID（路径参数）
 - `sheet_id` (integer, 必填): 数据表 ID
-- `fields` (array, 必填): 待创建字段列表；每项为对象，至少含 `name`、`type`，类型专属属性直接平铺在字段对象上（无 `data` 包装层），见 param_detail
+- `fields` (array, 必填): 待创建字段列表；每项为对象，须含 `name`、`type`，类型专属属性直接平铺在字段对象上（无 `data` 包装层），见 param_detail
   - `name` (string, 必填): 字段显示名称
   - `type` (string, 必填): 字段类型枚举（见 param_detail 完整列表）
   - `width` (integer, 可选): 字段宽度，单位缇（1/1440 英寸）

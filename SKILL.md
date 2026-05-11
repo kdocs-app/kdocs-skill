@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.9
+version: 2.4.10
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -30,88 +30,21 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 ## 保持最新版本
 何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown action` 或 `unknown service` 错误**。
 
-1. **CLI 版本**：`kdocs-cli version` — 若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
+1. **CLI 版本**：`kdocs-cli version` — 若命令不存在则按下方「工具安装与认证」安装；若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
 2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=<本文件version>`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接（格式 `https://...kdocs.zip`），下载解压替换当前 Skill 目录
 
 若 upgrade 和 rollback 均失败，在本 Skill 目录下重新运行安装脚本（`bash setup.sh` / `powershell setup.ps1` / `node setup.cjs`，脚本位于 `scripts/`）可从 CDN 重新安装。若仍无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
 
 ---
 
-## 工具安装
+## 工具安装与认证
 
-运行安装脚本，自动检测平台并下载对应二进制到全局 PATH 位置：
-
-```bash
-bash scripts/setup.sh          # Linux/macOS → ~/.local/bin/kdocs-cli
-powershell scripts/setup.ps1    # Windows → %LOCALAPPDATA%\kdocs-cli\
-node scripts/setup.cjs          # 任意平台（需 Node.js >= 18）
-```
-
-验证安装：
-
-```bash
-kdocs-cli version
-```
-
-**升级**
-
-```bash
-kdocs-cli upgrade              # 内置自升级到最新版本
-kdocs-cli upgrade --check      # 仅检查新版本
-kdocs-cli upgrade --rollback   # 回滚到上一版本
-```
-
-## 认证配置
-
-### Token 设置（推荐）
-
-当用户已提供 Token 或通过其他途径获取到 Token 时，使用 `auth set-token` 直接保存到系统密钥链：
-
-```bash
-kdocs-cli auth set-token <token>
-```
-
-Token 包含 `/`、`+`、`=` 等特殊字符时，使用 stdin 模式避免 shell 转义问题：
-
-```bash
-echo "<token>" | kdocs-cli auth set-token -
-```
-
-`set-token` 保存后会自动验证 Token 有效性，返回验证结果。
-
-### Token 登录
-
-无现成 Token 时，通过浏览器 OAuth 登录获取：
-
-```bash
-kdocs-cli auth login
-```
-
-登录成功后 Token 自动保存到系统密钥链，后续命令自动使用。
-
-| 操作 | 说明 |
+| 操作 | 命令 |
 |------|------|
-| 设置 Token | `kdocs-cli auth set-token <token>` — 直接保存到系统密钥链（推荐） |
-| 浏览器登录 | `kdocs-cli auth login` — OAuth 登录，Token 自动保存到密钥链 |
-| 查看状态 / 诊断 | `kdocs-cli auth status` — Token 来源、密钥链一致性、环境变量状态 |
-| 退出登录 | `kdocs-cli auth logout` — 从密钥链移除 Token |
-| 验证 | `kdocs-cli drive search-files keyword=test page_size=1` — 返回 `code: 0` 即认证成功 |
-| 过期 | 收到错误码 `400006` 时，CLI 自动输出诊断信息，根据提示修复或使用 `auth set-token` 重新设置 |
+| 安装 | `bash scripts/setup.sh` / `powershell scripts/setup.ps1` / `node scripts/setup.cjs` |
+| 认证 | 用户已提供 Token: `kdocs-cli auth set-token "<token>"` · 无 Token: `kdocs-cli auth login` |
 
-#### 手动获取 Token（登录命令失败时的兜底方案）
-
-当 `kdocs-cli auth login` 或 `get-token` 脚本因环境问题执行失败时，引导用户手动获取：
-
-1. 用户在浏览器访问 https://www.kdocs.cn/latest （需已登录 WPS 账号）
-2. 点击页面右上角个人头像旁的主菜单 → 选择「龙虾专属入口」→ 复制 Token
-3. 用户将 Token 提供给 Agent
-4. Agent 保存到密钥链：
-
-```bash
-kdocs-cli auth set-token <TOKEN>
-```
-
-> 收到用户 Token 后直接通过 `auth set-token` 保存。保存后自动验证（`code: 0` 即成功）。
+login 失败时的手动获取流程、`auth status` 诊断、`auth logout` 退出等详见 `references/auth.md`。
 
 ---
 

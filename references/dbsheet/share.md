@@ -209,7 +209,7 @@
 - `sheet_id` (integer, 必填): 数据表 ID
 - `view_id` (string, 必填): 视图 ID
 - `share_id` (string, 必填): 分享链接 ID
-- `body` (object, 可选): 若接口要求关闭原因等字段则传入；否则可 {}
+- `body` (object, 可选): 可传入要求关闭原因等字段；无需附加则传空对象
 
 #### 返回值说明
 
@@ -317,7 +317,7 @@
 - `sheet_id` (integer, 必填): 数据表 ID
 - `view_id` (string, 必填): 表单视图 ID
 - `share_id` (string, 必填): 分享链接 ID
-- `body` (object, 必填): 须含 repeatable（boolean），可与顶层同名字段合并
+- `body` (object, 必填): JSON 请求体，须含 repeatable（boolean）字段，可与顶层同名字段合并
 
 **body 根级必填**
 
@@ -383,7 +383,7 @@
 - `sheet_id` (integer, 必填): 数据表 ID
 - `view_id` (string, 必填): 视图 ID
 - `share_id` (string, 必填): 分享链接 ID
-- `body` (object, 必填): JSON 请求体，包含 permission、share_to
+- `body` (object, 必填): JSON 请求体，须含 permission、share_to 字段
 
 **请求体（`body`）字段**
 

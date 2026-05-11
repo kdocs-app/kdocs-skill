@@ -25,7 +25,7 @@
 #### 参数说明
 
 - `keyword` (string, 可选): 搜索关键字，匹配知识库名称；不传则返回全部
-- `page_size` (number, 可选): 每页返回条数，不传使用服务端默认值
+- `page_size` (number, 可选): 每页返回条数，不传则使用服务端默认值
 - `page_token` (string, 可选): 分页 token，首次请求不传；后续页传上一次返回的 `next_page_token`
 
 #### 返回值说明

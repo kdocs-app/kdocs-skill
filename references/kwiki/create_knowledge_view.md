@@ -30,8 +30,8 @@
 
 - `space_name` (string, 必填): 知识库名称
 - `status` (number, 必填): 可见性状态。`1`=团队可见；`2`=企业可见；`3`=互联网公开。未提供该字段会返回 `inner invalid argument (status)` 错误。可选值：`1` / `2` / `3`；默认值：`1`
-- `desc` (string, 可选): 知识库简介文本
-- `img` (string, 可选): 封面图 URL 或资源标识，不传使用系统默认封面
+- `desc` (string, 可选): 知识库简介
+- `img` (string, 可选): 封面图片 URL，不传使用系统默认封面
 - `source` (string, 可选): 创建来源标识，用于业务溯源
 - `role_id` (string, 可选): 创建者角色 ID，不传使用默认角色
 

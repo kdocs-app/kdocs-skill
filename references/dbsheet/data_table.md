@@ -491,7 +491,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `body` (object, 必填): 须含 sheets 数组
+- `body` (object, 必填): JSON 请求体，须含 sheets 数组，数组元素描述待建数据表
 
 **body 根级必填**
 
@@ -554,7 +554,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `body` (object, 必填): 须含 sheet_ids
+- `body` (object, 必填): JSON 请求体，须含 sheet_ids 字段，数组元素为待删除数据表 ID
 
 **body 根级必填**
 

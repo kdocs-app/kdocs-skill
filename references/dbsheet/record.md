@@ -93,10 +93,10 @@
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID
 - `records` (array[object], 必填): 要创建的记录列表，每个元素含 `fields` 对象（字段名/ID → 值的映射）
-- `prefer_id` (boolean, 可选): 默认 `false`（以字段名解析）。为 `true` 时 `fields` 内部的 key 应为字段 ID
-- `value_prefer_id` (boolean, 可选): 默认 `false`。为 `true` 时使用选项 ID 来标识选项值
-- `omit_failure` (boolean, 可选): 默认 `false`。为 `true` 时单条记录写入失败不中断整批请求
-- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）；`text` 返回文本值；`compound` 同时返回原始值和文本值
+- `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
+- `value_prefer_id` (boolean, 可选): 是否使用选项 ID 作为 选项值，默认为 false
+- `omit_failure` (boolean, 可选): 单条记录创建失败是否不中断整批请求，默认为 false
+- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）、`text` 返回文本值、`compound` 同时返回原始值和文本值
 - `link_value` (string, 可选): 关联字段响应格式：`id` 仅返回关联记录 id（默认）；`all` 返回 id 和文本
 - `b_add_select_item` (boolean, 可选): 是否允许在写入记录时同步新增选项（配合 `field_values` 使用）
 - `field_values` (array, 可选): 创建记录时需要新增的选项配置列表，每项含 `fieldId`（字段 ID）和 `listItems`（待新增选项数组，每项含 `value` 和 `color`）
@@ -331,10 +331,10 @@
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID
 - `records` (array[object], 必填): 要更新的记录列表，每个元素包含 `id`（记录 ID）和 `fields`（序列化 JSON 字符串）
-- `prefer_id` (boolean, 可选): 默认 `false`（以字段名解析）。为 `true` 时 `fields` 内部的 key 应为字段 ID
-- `value_prefer_id` (boolean, 可选): 默认 `false`。为 `true` 时使用选项 ID 来标识选项值
-- `omit_failure` (boolean, 可选): 默认 `false`。为 `true` 时单条记录写入失败不中断整批请求
-- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）；`text` 返回文本值；`compound` 同时返回原始值和文本值
+- `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
+- `value_prefer_id` (boolean, 可选): 是否使用选项 ID 作为 选项值，默认为 false
+- `omit_failure` (boolean, 可选): 单条记录创建失败是否不中断整批请求，默认为 false
+- `text_value` (string, 可选): 响应返回值格式：`original` 返回原始值（默认）、`text` 返回文本值、`compound` 同时返回原始值和文本值
 - `link_value` (string, 可选): 关联字段响应格式：`id` 仅返回关联记录 id（默认）；`all` 返回 id 和文本
 - `b_add_select_item` (boolean, 可选): 是否允许在写入记录时同步新增选项（配合 `field_values` 使用）
 - `field_values` (array, 可选): 更新记录时需要新增的选项配置列表，每项含 `fieldId`（字段 ID）和 `listItems`（待新增选项数组，每项含 `value` 和 `color`）
@@ -525,7 +525,7 @@
 - `view_id` (string, 可选): 按指定视图返回记录
 - `max_records` (integer, 可选): 最多返回的记录总数
 - `fields` (array, 可选): 只返回指定字段列表，不填则返回所有字段
-- `filter` (object, 可选): 筛选条件
+- `filter` (object, 可选): 筛选条件，含 mode 和 criteria 列表
   - `mode` (string, 必填): 条件连接方式：`"AND"` 或 `"OR"`
   - `criteria` (array, 必填): 筛选条件列表
     - `field` (string, 必填): 字段名称或 ID
@@ -780,21 +780,21 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 id
+- `sheet_id` (integer, 必填): 数据表 ID
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
-- `fields` (array, 必填): 指定所返回记录中的字段信息，若不填写则默认返回全部字段。依据 prefer_id 的值，需要输入字段名或字段 id
+- `fields` (array, 必填): 指定所返回记录中的字段信息，若不填写则默认返回全部字段。prefer_id=true 时须用字段 id，否则用字段名
 - `filter` (object, 可选): 筛选条件
   - `mode` (string, 必填): 条件连接方式：`"AND"` 或 `"OR"`
   - `criteria` (array, 必填): 筛选条件列表，每项包含：
     - `field` (string, 必填): 字段名称或字段 id（由 prefer_id 决定）
     - `op` (string, 必填): 筛选操作符，见多维表格参数说明（如 `Contains`、`Intersected`、`Greater`、`Less`、`Equal`、`Empty`、`NotEmpty` 等）
     - `values` (array, 可选): 筛选值；`Empty` / `NotEmpty` 操作符时可省略
-- `max_records` (integer, 可选): 指定要获取的"前 max_records 条记录"，若不填写则默认返回全部记录
-- `page_size` (integer, 可选): 分页获取记录时的每页大小，缺省值为 100，取值范围 1-1000
+- `max_records` (integer, 可选): 最多返回前 max_records 条，若不填写则默认返回全部记录
+- `page_size` (integer, 可选): 分页获取记录时的每页大小，默认 100，取值范围 1-1000
 - `page_token` (string, 可选): 分页起始位置。当存在分页且未查询到最后一页或 max_records 记录时，返回值会包含 page_token
 - `prefer_id` (boolean, 可选): 使用 id 来标识字段和选项。为 true 时，参数内全部的 field、fields 参数均按照 id 做解析
-- `show_fields_info` (boolean, 可选): 是否额外返回一个 fields 结构体，展示字段信息（类似 Base Schema 中的 fields）
-- `show_record_extra_info` (boolean, 可选): 是否额外显示创建者、创建时间、最后修改者、最后修改时间信息（与是否有对应字段无关）
+- `show_fields_info` (boolean, 可选): 是否返回一个 fields 结构体，展示字段信息（类似 Base Schema 中的 fields）
+- `show_record_extra_info` (boolean, 可选): 是否返回创建者、创建时间、最后修改者、最后修改时间信息（与是否有对应字段无关）
 - `text_value` (string, 可选): 返回值类型，不填默认为 original。可选：original（原始值）、text（文本值）、compound（原始值和文本值）
 - `view_id` (string, 可选): 指定视图 id。填写后从该视图获取用户所见记录；不填则从工作表获取记录
 
@@ -905,13 +905,13 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 id
-- `sheet_id` (integer, 必填): 数据表 id
+- `file_id` (string, 必填): 多维表格文件 ID
+- `sheet_id` (integer, 必填): 数据表 ID
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
-- `records` (array, 必填): 记录 id 列表，指定要检索的记录
-- `prefer_id` (boolean, 可选): 是否使用字段 / 选项 id 而不是字段 / 选项名来标识
-- `show_fields_info` (boolean, 可选): 是否额外返回 fields 结构体展示字段信息。为 true 时，若指定了 fields 则返回指定字段；未指定 fields 时，根据是否指定 view_id 决定返回视图可见字段或全部字段
-- `show_record_extra_info` (boolean, 可选): 是否额外显示创建者、创建时间、最后修改者、最后修改时间信息（与是否有对应字段无关）
+- `records` (array, 必填): 记录 ID 列表，指定要检索的记录
+- `prefer_id` (boolean, 可选): 是否使用字段 / 选项 ID 而不是字段 / 选项名来标识
+- `show_fields_info` (boolean, 可选): 是否返回 fields 结构体展示字段信息。为 true 时，若指定了 fields 则返回指定字段；未指定 fields 时，根据是否指定 view_id 决定返回视图可见字段或全部字段
+- `show_record_extra_info` (boolean, 可选): 是否返回创建者、创建时间、最后修改者、最后修改时间信息（与是否有对应字段无关）
 - `text_value` (string, 可选): 返回值类型，不填默认为 original。可选：original（原始值）、text（文本值）、compound（原始值和文本值）
 
 #### 返回值说明

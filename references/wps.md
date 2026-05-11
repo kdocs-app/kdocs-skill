@@ -124,14 +124,14 @@
 - `cid` (string, 可选): `format=docx` 时可传，分享链接 ID
 - `from_page` (number, 可选): `format=pdf` 时可传，起始页码；默认值：`1`
 - `to_page` (number, 可选): `format=pdf` 时可传，结束页码；默认值：`9999`
-- `client_id` (string, 可选): 导出时可传的客户端标识
+- `client_id` (string, 可选): 导出时可选的客户端标识
 - `password` (string, 可选): `format=pdf` 时可传，源文档密码
 - `store_type` (string, 可选): `format=pdf` 时可传，如 `ks3`、`cloud`
 - `multipage` (number, 可选): `format=pdf` 时可传；默认值：`1`
 - `opt_frame` (boolean, 可选): `format=pdf` 时可传；默认值：`true`
-- `export_open_password` (string, 可选): `format=pdf` 时可传
-- `export_modify_password` (string, 可选): `format=pdf` 时可传
-- `name` (string, 可选): `format=ap` 时必填，AP 文稿名称，不含后缀
+- `export_open_password` (string, 可选): `format=pdf` 时可传，导出 PDF 打开密码
+- `export_modify_password` (string, 可选): `format=pdf` 时可传，导出 PDF 修改密码
+- `name` (string, 可选): `format=ap` 时必填，智能文档名称，不含后缀
 
 ---
 
@@ -168,16 +168,16 @@
 #### 参数说明
 
 - `link_id` (string, 必填): 在线文字文件的链接 ID（非 file_id）
-- `format` (string, 必填): 图片格式。可选值：`png` / `jpeg`
-- `dpi` (number, 可选): 图片 DPI；默认值：`96`
+- `format` (string, 必填): 导出图片格式。可选值：`png` / `jpeg`
+- `dpi` (number, 可选): 导出图片 DPI。可选值：`96` / `150` / `300`；默认值：`96`
 - `water_mark` (boolean, 可选): 是否添加水印；默认值：`true`
 - `from_page` (number, 可选): 起始页码；默认值：`1`
 - `to_page` (number, 可选): 结束页码；默认值：`9999`
-- `combine_long_pic` (boolean, 可选): 是否合并为长图；默认值：`true`
+- `combine_long_pic` (boolean, 可选): 是否合并为长图；`false` 表示逐页；默认值：`true`
 - `use_xva` (boolean, 可选): 是否启用 XVA 渲染
-- `client_id` (string, 可选): 导出时可传的客户端标识
+- `client_id` (string, 可选): 导出时可选的客户端标识
 - `password` (string, 可选): 源文档密码
-- `store_type` (string, 可选): 如 `ks3`、`cloud`
+- `store_type` (string, 可选): 存储类型，如 `ks3`、`cloud`
 
 #### 返回值说明
 
@@ -238,7 +238,7 @@
 - `format` (string, 必填): 导出格式。可选值：`pdf` / `ap`
 - `task_id` (string, 必填): 导出任务 ID
 - `task_type` (string, 可选): `format=pdf` 时可传，通常为 `normal_export`
-- `file_id` (string, 可选): `format=ap` 时必填，传 `wps.export` 返回的新 AP 文件 ID
+- `file_id` (string, 可选): `format=ap` 时必填，传 `wps.export` 返回的新智能文档文件 ID
 - `extra_query` (object, 可选): `format=ap` 时可传，补充查询参数
 
 ---

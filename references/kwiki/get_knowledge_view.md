@@ -34,7 +34,7 @@
 
 - `drive_id` (string, 二选一必填: `drive_id` / `name`): 条件必填：已知知识库云盘 ID 时直接传（来自 `list_knowledge_views` / `create_knowledge_view` 返回值）。与 name 至少填其一
 - `name` (string, 二选一必填: `drive_id` / `name`): 条件必填：仅知道名称时传入，模糊匹配。与 drive_id 至少填其一
-- `group_id` (string, 可选): 群组 ID（来自 `list_knowledge_views` / `create_knowledge_view` 返回值），已知时传入可加速定位
+- `group_id` (string, 可选): 知识库所属群组 ID（来自 `list_knowledge_views` / `create_knowledge_view` 返回值），已知时建议一并传入
 
 #### 返回值说明
 

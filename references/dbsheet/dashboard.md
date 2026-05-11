@@ -34,9 +34,9 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID
 - `dashboard_id` (integer, 必填): 源仪表盘 ID
-- `body` (object, 必填): 须含 name（新仪表盘名称）；其它字段以接口约定为准
+- `body` (object, 必填): JSON 请求体，须含 name（新仪表盘名称）
 
-**body 根级必填（与 SkillHub 校验一致）**
+**body 根级必填**
 
 | 字段 | 类型 | 说明 |
 |------|------|------|

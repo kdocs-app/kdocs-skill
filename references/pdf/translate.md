@@ -51,8 +51,8 @@
 
 #### 参数说明
 
-- `async_mode` (integer, 可选): 映射下游 `_m` 参数，MCP 侧统一同步返回语义；默认值：`0`
-- `file_type` (string, 可选): 文件类型。传 `doc` 拉起文字内核；不传默认 PDF 内核
+- `async_mode` (integer, 可选): 映射下游 `_m` 参数；默认 0；默认值：`0`
+- `file_type` (string, 可选): 文件类型，传 `doc` 走文字内核；默认 PDF 内核
 - `file_id` (string, 必填): 待导出文件 ID，可传空字符串（表示当前文件）
 - `file_source` (object, 必填): 文档来源信息，包含 `origin`、`s3_params`、`s3_file_info` 等，必须包含 origin: kdocs.cn
 - `password` (string, 可选): 文件密码。**注意：暂不支持加密文件。**
@@ -222,17 +222,17 @@
 | my | 缅甸语 |
 | ti | 提格雷尼亚语 |
 
-- `engine_type` (string, 必填): 翻译引擎
+- `engine_type` (string, 必填): 翻译引擎类型
 - `enable_sp_tag_trans` (boolean, 可选): 是否开启 SP 标签翻译；默认值：`false`
 - `pages` (array, 必填): 页码区间数组，每项包含 "begin"、"end"、"task_id"，全文翻译传[{"begin": 0, "end": 总页数-1}]
 - `output_file_mode` (integer, 必填): 导出模式，`1` 左右流式、`2` 左右保持格式、`5` 上下对照
-- `output_file_two_lang` (boolean, 必填): 导出是否双语
+- `output_file_two_lang` (boolean, 必填): 是否导出双语
 - `orig_para_bg_color` (string, 可选): 原文段落背景色，如 `0xffffffff`
 - `client_chan` (string, 可选): 客户端渠道标识；默认值：`00001.00000001`
 - `client_type` (string, 可选): 客户端类型；默认值：`wps-pc`
 - `client_version` (string, 可选): 客户端版本；默认值：`0.0.0.0`
 - `client_lang` (string, 可选): 客户端语言；默认值：`zh_CN`
-- `device_id` (string, 可选): 设备 ID
+- `device_id` (string, 可选): 客户端设备 ID
 - `min_font_scale` (string, 可选): 最小字体缩放比例
 - `is_trans_image` (boolean, 可选): 是否翻译图片；默认值：`false`
 

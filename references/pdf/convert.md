@@ -43,8 +43,8 @@
 - `file_name` (string, 可选): 转换后文件的文件名（不含扩展名，如原文件为"报告.pdf"则默认输出"报告"）；默认值：`自动取原 PDF 文件名（去掉 .pdf 后缀）`
 - `page_range_from` (integer, 可选): 起始页码（1-based）；默认值：`1`
 - `page_range_to` (integer, 可选): 结束页码（1-based）；默认值：`1`
-- `open_password` (string, 可选): PDF 打开密码（有密码文件时填写）
-- `edit_password` (string, 可选): PDF 编辑密码（有密码文件时填写）
+- `open_password` (string, 可选): 打开密码（有密码文件时填写）
+- `edit_password` (string, 可选): 编辑密码（有密码文件时填写）
 - `messy_repair` (boolean, 可选): 是否开启乱码修复；默认值：`false`
 - `is_free_convert` (boolean, 可选): 是否使用免费转换额度（免费额度最多处理前 5 页）。默认 false，优先使用付费额度以获得完整转换。当返回会员/VIP 不足错误（code=400100 或含 VipLevelNotEnough 等提示）时，应使用相同参数、仅将此字段设为 true 重新发起转换；默认值：`false`
 
@@ -139,7 +139,7 @@
 
 #### 参数说明
 
-- `jobid` (string, 必填): `pdf.convert` 返回的转换任务 ID
+- `jobid` (string, 必填): 转换任务 ID，来自 `pdf.convert` 返回值
 - `file_id` (string, 必填): 源 PDF 文件 ID
 - `fname` (string, 可选): 源 PDF 文件名（含 .pdf 后缀）；默认值：`document.pdf`
 

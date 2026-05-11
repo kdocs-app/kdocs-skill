@@ -34,7 +34,7 @@
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `name` (string, 必填): 视图名称
-- `type` (string, 必填): 视图类型（见附录：视图类型）
+- `type` (string, 必填): 视图类型：Grid / Kanban / Gallery / Form / Gantt / Calendar
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key
 - `group_field` (string, 可选): 分组字段名称
 

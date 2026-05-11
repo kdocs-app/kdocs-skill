@@ -62,7 +62,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 智能文档文件 ID
-- `params` (object, 必填): 删除操作
+- `params` (object, 必填): 删除操作配置
   - `blockId` (string, 常用): 目标父块 ID；`doc` 表示删除文档根节点的子节点
   - `startIndex` (integer, 常用): 删除开始位置（包含该位置），且 `startIndex < endIndex`
   - `endIndex` (integer, 常用): 删除结束位置（不包含该位置）。例如 `startIndex=2, endIndex=5` 时，会删除索引 2、3、4。当 `blockId='doc'` 时，`index=0` 指向 title 节点，正文从 `index=1` 开始

@@ -65,7 +65,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 智能文档文件 ID
-- `params` (object, 必填): 插入操作
+- `params` (object, 必填): 插入操作配置
   - `blockId` (string, 常用): 目标父块 ID，例如 `doc`
   - `index` (integer, 常用): 插入位置索引（从 0 开始）
   - `content` (array, 常用): 待插入的块内容数组

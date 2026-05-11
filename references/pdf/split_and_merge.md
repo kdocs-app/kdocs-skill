@@ -51,7 +51,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 原始 PDF 文件 ID
-- `ranges` (array, 必填): 要提取的页码范围列表，不能为空
+- `ranges` (array, 必填): 要提取的页码范围列表，每项含 from 和 to（1-based）
   - `from` (integer, 必填): 起始页，1-based，且包含该页
   - `to` (integer, 必填): 结束页，1-based，且包含该页
 
@@ -140,7 +140,7 @@
 - `file_name` (string, 可选): 输出文件名前缀（不含扩展名），默认 document。实际文件名可能带序号，如 document_001.pdf；默认值：`document`
 - `open_password` (string, 可选): PDF 打开密码（有密码保护时填写）
 - `edit_password` (string, 可选): PDF 编辑密码（有密码保护时填写）
-- `is_free_convert` (boolean, 可选): 由 `pdf.get_pdf_page_count` 返回的 `page_count` 唯一确定：`page_count <= 5` 为 `true`，`> 5` 为 `false`；默认值：`false`
+- `is_free_convert` (boolean, 可选): 是否使用免费额度，由 `pdf.get_pdf_page_count` 返回的 `page_count` 唯一确定：`page_count <= 5` 为 `true`，`> 5` 为 `false`；默认值：`false`
 
 #### 返回值说明
 

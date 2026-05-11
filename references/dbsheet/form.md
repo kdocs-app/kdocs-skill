@@ -193,7 +193,7 @@
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID
 - `view_id` (string, 必填): 表单视图 ID
-- `body` (object, 必填): 须含 meta 对象
+- `body` (object, 必填): JSON 请求体，须含 meta 对象
 
 **body 根级必填**
 

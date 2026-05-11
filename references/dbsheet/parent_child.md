@@ -32,7 +32,7 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID
-- `body` (object, 可选): 若接口要求附加参数则传入；否则可 {}
+- `body` (object, 可选): JSON 请求体，补充附加参数；无需附加则传空对象
 
 #### 返回值说明
 
@@ -80,7 +80,7 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID
-- `body` (object, 可选): 若接口要求附加参数则传入；否则可 {}
+- `body` (object, 可选): JSON 请求体，补充附加参数；无需附加则传空对象
 
 #### 返回值说明
 

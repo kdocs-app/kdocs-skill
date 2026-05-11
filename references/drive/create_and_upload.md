@@ -328,7 +328,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 - `file_id` (string, 二选一必填: `file_id` / `name`): 条件必填：更新模式必填。要覆盖的文件 ID（仅支持 docx/pdf 文件）
 - `name` (string, 二选一必填: `file_id` / `name`): 条件必填：新建模式必填。本地文件名，必须带后缀，如 `.docx` / `.xlsx` / `.pptx` / `.pdf`；仅在不传 `file_id` 时使用
 - `content_base64` (string, 必填): 源文件内容，Base64 编码。若为 Markdown 文本需同时传 content_format=markdown，确保 UTF-8 格式、base64 编码
-- `content_format` (string, 可选): 源内容格式。与目标文件同类型，或 `markdown`（会先转为目标格式再上传；仅支持目标为 docx / pdf）。可选值：`doc` / `docx` / `xls` / `xlsx` / `pdf` / `markdown`
+- `content_format` (string, 可选): 源内容格式。与目标文件同类型，或 `markdown`（会先转为目标格式再上传；仅支持目标为 docx / pdf）。可选值：`doc` / `docx` / `xls` / `xlsx` / `pdf` / `ppt` / `pptx` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
 - `file_type` (string, 可选): 哈希类型。可选值：`sha256` / `md5` / `sha1`
 - `parent_path` (array[string], 可选): 父文件夹路径分段（文件夹名，非 ID）。新建时按文件夹名指定父路径；与 `drive_id`/`parent_id` 的用法见上文。

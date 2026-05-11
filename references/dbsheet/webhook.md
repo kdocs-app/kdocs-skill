@@ -190,7 +190,7 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID
 - `hook_id` (string, 必填): Hook 订阅 ID
-- `body` (object, 可选): 若接口要求附加字段则置于 body；否则可省略或传 {}
+- `body` (object, 可选): JSON 请求体，补充附加字段；可省略或传 {}
 
 #### 返回值说明
 

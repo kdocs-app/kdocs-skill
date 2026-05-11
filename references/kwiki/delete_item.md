@@ -31,7 +31,7 @@
 
 #### 参数说明
 
-- `kuid` (string, 必填): 待删除条目的 kuid，来自 `list_items` 返回值
+- `kuid` (string, 必填): 待删除文件或文件夹的 kuid
 
 #### 返回值说明
 

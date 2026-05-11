@@ -470,9 +470,9 @@
 
 - `file_id` (string, 必填): 多维表格文件 ID
 - `cloud_permission_id` (integer, 必填): 云权限 ID（query 参数）
-- `permission_type` (string, 必填): 权限组类型（query 参数），枚举 system、team_custom、content_custom
-- `alias_name` (string, 可选): 权限别名（query 参数）；拿不到 permission_id 时可传，枚举 manageable、viewable、editable
-- `page_token` (string, 可选): 分页起始位置标识（query 参数），首页可不传，默认分页数量 20 个 item
+- `permission_type` (string, 必填): 权限组类型（query 参数），可选值：`system`、`team_custom`、`content_custom`
+- `alias_name` (string, 可选): 权限别名（query 参数）；拿不到 permission_id 时可传，可选值：`manageable`、`viewable`、`editable`
+- `page_token` (string, 可选): 分页起始位置标识（query 参数），首页可不传，默认每页约 20 条
 
 **请求参数**
 
