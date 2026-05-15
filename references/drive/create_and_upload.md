@@ -4,8 +4,8 @@
 
 #### 功能说明
 
-在云盘下新建文件时，`file_type` 固定为 `file`；文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.pptx`、`.ppt`。
-**不要把 `otl/docx/xlsx/pptx` 等后缀值传给 `file_type`**，应将其写在 `name` 后缀中。**PDF 不通过本工具创建，请改用 `upload_file` 直接创建并写入。**
+在云盘下新建文件时，文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.pptx`、`.ppt`。
+本工具用于创建**支持后缀**定义类型的云文档文件。创建 PDF 请使用 `upload_file`，创建文件夹请使用 `create_folder`，创建 `.ksheet` 请使用 `sheet.create_airsheet_file`。
 
 **`drive_id` / `parent_id`**（非必填）：
 - **用户未说明保存到哪个文件夹**：两参数可省略。
@@ -17,10 +17,9 @@
 #### 操作约束
 
 - **前置检查**：search_files 查重，避免创建同名文件
+- **前置检查**：name 必须带受支持后缀（.doc/.docx/.otl/.dbt/.xlsx/.xls/.pptx/.ppt），否则创建失败
 - **后置验证**：get_file_info 确认文件已创建
-- **提示**：file_type 固定传 file；不要传 otl/docx/xlsx/pptx 等文档后缀
-- **提示**：文件名必须带后缀，否则创建失败
-- **提示**：PDF 不支持 create_file，需使用 upload_file
+- **提示**：后缀不在支持集合时不要重试 create_file，应改走对应分流工具
 - **提示**：.md/.txt 不支持直接创建，请先转换后再创建或上传
 
 **幂等性**：否 — 重试前 search_files 检查是否已创建
@@ -33,7 +32,6 @@
 {
   "drive_id": "string",
   "parent_id": "string",
-  "file_type": "file",
   "name": "Q1区域销售周报.otl",
   "on_name_conflict": "rename"
 }
@@ -45,7 +43,6 @@
 {
   "drive_id": "string",
   "parent_id": "string",
-  "file_type": "file",
   "name": "合作协议.docx",
   "on_name_conflict": "rename"
 }
@@ -55,7 +52,6 @@
 
 ```json
 {
-  "file_type": "file",
   "name": "快速草稿.otl",
   "on_name_conflict": "rename"
 }
@@ -66,7 +62,6 @@
 
 - `drive_id` (string, 可选): 目标云盘 ID，与 `parent_id` 一起指定保存位置
 - `parent_id` (string, 可选): 父目录 ID，根目录为 `"0"`。默认值为 `"0"`
-- `file_type` (string, 必填): 创建目标类型，固定为 `file`。可选值：`file`
 - `name` (string, 必填): 文件名，如 `方案.docx`、`周报.otl`。必须带文件类型后缀，支持 .doc/.docx/.otl/.dbt/.xlsx/.xls/.pptx/.ppt。`.pdf`、`.form`、`.md`、`.txt` 不支持通过本工具创建
 - `on_name_conflict` (string, 可选): 文件名冲突处理方式。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
 - `parent_path` (array[string], 可选): 相对路径（每段为文件目录名，非 ID），不存在则自动创建

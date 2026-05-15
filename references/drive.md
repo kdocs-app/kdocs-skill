@@ -12,7 +12,7 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`create_file`](drive/create_and_upload.md) | 在云盘下新建文件 | `file_type`, `name` |
+| [`create_file`](drive/create_and_upload.md) | 在云盘下新建文件 | `name` |
 | [`create_folder`](drive/create_and_upload.md) | 在云盘下新建文件夹 | `drive_id`, `parent_id`, `name` |
 | [`scrape_url`](drive/create_and_upload.md) | 网页剪藏，抓取网页内容并自动保存为智能文档 | `url` |
 | [`scrape_progress`](drive/create_and_upload.md) | 查询网页剪藏任务进度 | `job_id` |

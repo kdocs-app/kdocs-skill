@@ -6,6 +6,13 @@
 
 `create_file` / `upload_file`（新建）：`drive_id`、`parent_id` 非必填。**用户未指定文件夹**时可省略两参数。**已说明目标文件夹且已查到drive_id、parent_id** 时必须传入；细则见 `file-locating-guide.md`。
 
+#### 调用 create_file 前先检查文件名
+
+`create_file` 中文档类型只由 `name` 后缀定义。
+
+- `name` 无后缀时，先让用户确认文档类型并补充后缀，再调用工具
+- `name` 后缀不在支持集合时，不要重试 `create_file`，改走对应分流路径
+
 #### 本地文件上传（`upload_file`）
 
 适用场景：用户提供本地文件内容，需要直接上传到云盘（新建）或覆盖已有文件。
