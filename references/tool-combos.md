@@ -7,7 +7,7 @@
 | 找 + 读 + 写新 | `search_files` → `read_file_content` → `create_file` → `upload_file` |
 | 找 + 读 + 更新 | `search_files` → `read_file_content` → `upload_file`（传 file_id） |
 | 浏览目录 | `list_files` |
-| 整理归类 | `list_files` → `read_file_content` → `create_file(folder)` → `move_file` |
+| 整理归类 | `list_files` → `read_file_content` → `create_folder` → `move_file` |
 | 网页保存 | `scrape_url` → `scrape_progress` |
 | 分享文档 | `share_file` → `set_share_permission` |
 | 获取链接 | `get_file_link` |

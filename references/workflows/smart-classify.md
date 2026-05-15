@@ -8,7 +8,7 @@
 
 - 用户要求对文件夹内容进行分类整理
 
-**工具链**：`search_files` → `list_files`（递归/分页）→ `read_file_content`（批量）→ AI 分类 → `create_file(folder)` → `move_file`
+**工具链**：`search_files` → `list_files`（递归/分页）→ `read_file_content`（批量）→ AI 分类 → `create_folder` → `move_file`
 
 ## 涉及工具
 
@@ -17,7 +17,7 @@
 | `search_files` | drive | 定位目标目录（根目录时 parent_id="0"） |
 | `list_files` | drive | 列出目录内容（有 next_page_token 时翻页，子文件夹递归调用） |
 | `read_file_content` | drive | 批量读取文档内容用于 AI 分析 |
-| `create_file` | drive | 创建分类文件夹 |
+| `create_folder` | drive | 创建分类文件夹 |
 | `move_file` | drive | 移动文件到对应文件夹 |
 
 ## 执行流程
@@ -36,7 +36,7 @@
 步骤 4: AI 按用户指定维度分类（按内容/类型/部门/项目等）
         → 生成分类方案并向用户确认
 
-步骤 5: create_file(name="分类文件夹名", file_type="folder") 创建分类目录
+步骤 5: create_folder(name="分类文件夹名") 创建分类目录
         move_file(file_ids=[...], dst_parent_id=分类文件夹ID)
         → ⚠️ 批量移动前需向用户确认
 ```

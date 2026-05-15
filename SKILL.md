@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.4.10
+version: 2.4.12
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -107,6 +107,20 @@ kdocs-cli <service> <action> [参数]
 
 ## 能力范围
 
+### 操作域路由
+
+Agent 首先判定用户请求的操作域：
+
+| 操作域 | 触发场景 | 路由 |
+|--------|---------|------|
+| 创建/写入 | 新建文档/编辑内容/上传文件 | **必读** `references/file-writing-guide.md` |
+| 读取 | 读取/提取/导出文档内容 | **必读** `references/file-reading-guide.md` |
+| 定位文件 | 搜索/按链接找文件/浏览目录 | **必读** `references/file-locating-guide.md` |
+| 文件管理 | 移动/重命名/分享/标签/收藏/回收站 | → `references/drive.md` |
+| 文档专项功能 | 格式/样式/导出/转换/数据校验等 | 按文档类型查下方表 → 对应 reference |
+| AI 生成 | AI 做PPT/生成演示文稿 | → `references/aippt.md` |
+| 知识库 | 知识库空间/导入/整理 | → `references/kwiki.md` |
+
 ### 支持的文档类型
 
 | 类型 | 别名 | 文件后缀 | 说明 | 详细参考 |
@@ -118,69 +132,6 @@ kdocs-cli <service> <action> [参数]
 | 演示文稿 | wpp | .pptx | PPT 文档专用 | `references/wpp.md` — 幻灯片主题字体和配色设置、下载和导出 |
 | 智能表格 | as | .ksheet | 结构化表格，支持多视图、字段管理 | `references/sheet.md` — 工作表管理、范围数据获取、批量更新 |
 | 多维表格 | db / dbsheet | .dbt | 多数据表、丰富字段类型与视图（表格/看板/甘特等） | `references/dbsheet.md` — 支持数据表/视图/字段/记录的完整增删改查，含表单视图、父子记录、分享协作、高级权限与 Webhook |
-
-### 通用工具总览
-
-#### 文档创建与上传
-| 工具 | 用途 |
-|------|------|
-| `create_file` | 在云盘下新建文件或文件夹 |
-| `scrape_url` | 网页剪藏，抓取网页内容并自动保存为智能文档 |
-| `scrape_progress` | 查询网页剪藏任务进度 |
-| `upload_file` | 全量上传写入文件（更新已有 docx/pdf 或新建并上传本地文件） |
-
-#### 文档读取与下载
-| 工具 | 用途 |
-|------|------|
-| `list_files` | 获取指定文件夹下的子文件列表 |
-| `download_file` | 获取文件下载信息 |
-| `read_file_content` | 文档内容抽取为 Markdown/纯文本 |
-
-#### 文件组织
-| 工具 | 用途 |
-|------|------|
-| `move_file` | 批量移动文件(夹) |
-| `rename_file` | 重命名文件（夹） |
-
-#### 分享与访问
-| 工具 | 用途 |
-|------|------|
-| `share_file` | 开启文件分享 |
-| `set_share_permission` | 修改分享链接属性 |
-| `cancel_share` | 取消文件分享 |
-| `get_share_info` | 获取分享链接信息 |
-| `get_file_link` | 获取文件的云文档在线访问链接 |
-
-#### 搜索
-| 工具 | 用途 |
-|------|------|
-| `search_files` | 文件（夹）搜索 |
-
-完整参数、示例与返回值见 `references/drive.md`。
-
-### 不支持的操作
-
-- 无批量删除文件工具（仅支持移动）
-- 云盘 drive 侧暂无逐文件 ACL 成员矩阵（以分享链接为主）；多维表格（.dbt）见 dbsheet.permission_* 与 dbsheet.share_*（详阅 references/dbsheet.md）
-- 在线 Excel / 智能表格工作表区域保护见 sheet.*_protection_ranges 相关工具（详阅 references/sheet.md）
-- 无文件版本回滚
-- 无实时协同编辑控制
-
----
-
-## 操作指南
-
-### 执行指南
-
-> 执行以下操作前，**必须**先阅读对应指南文件：
-
-| 操作类型 | 指南文件 | 何时阅读 |
-|----------|----------|----------|
-| 获取文件标识指南 | `references/file-locating-guide.md` | 需要搜索或浏览文件时 |
-| 文件读取指南 | `references/file-reading-guide.md` | 需要获取文档内容时 |
-| 文件创建与写入指南 | `references/file-writing-guide.md` | 需要创建或编辑文档时 |
-
-⚠️ 不阅读指南直接操作可能导致：参数错误、内容丢失、格式异常。
 
 ### 高频流程指引
 

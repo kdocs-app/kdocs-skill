@@ -4,7 +4,8 @@
 
 #### 功能说明
 
-在云盘下新建文件或文件夹。通过 `file_type` 区分：`file` 创建文件，`folder` 创建文件夹，`shortcut` 创建快捷方式。支持格式：doc, docx, form, xls, otl, ppt, dbt, xlsx, ksheet, pptx。**PDF 不使用本工具创建，请改用 `upload_file` 直接创建并写入。**
+在云盘下新建文件时，`file_type` 固定为 `file`；文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.pptx`、`.ppt`。
+**不要把 `otl/docx/xlsx/pptx` 等后缀值传给 `file_type`**，应将其写在 `name` 后缀中。**PDF 不通过本工具创建，请改用 `upload_file` 直接创建并写入。**
 
 **`drive_id` / `parent_id`**（非必填）：
 - **用户未说明保存到哪个文件夹**：两参数可省略。
@@ -17,8 +18,10 @@
 
 - **前置检查**：search_files 查重，避免创建同名文件
 - **后置验证**：get_file_info 确认文件已创建
+- **提示**：file_type 固定传 file；不要传 otl/docx/xlsx/pptx 等文档后缀
 - **提示**：文件名必须带后缀，否则创建失败
 - **提示**：PDF 不支持 create_file，需使用 upload_file
+- **提示**：.md/.txt 不支持直接创建，请先转换后再创建或上传
 
 **幂等性**：否 — 重试前 search_files 检查是否已创建
 
@@ -36,14 +39,14 @@
 }
 ```
 
-创建文件夹：
+创建 Word 文档：
 
 ```json
 {
   "drive_id": "string",
   "parent_id": "string",
-  "file_type": "folder",
-  "name": "2024年合同文件",
+  "file_type": "file",
+  "name": "合作协议.docx",
   "on_name_conflict": "rename"
 }
 ```
@@ -63,11 +66,109 @@
 
 - `drive_id` (string, 可选): 目标云盘 ID，与 `parent_id` 一起指定保存位置
 - `parent_id` (string, 可选): 父目录 ID，根目录为 `"0"`。默认值为 `"0"`
-- `file_type` (string, 必填): 创建目标类型：`file`=文件（`name` 需带受支持后缀），`folder`=文件夹（`name` 不带后缀），`shortcut`=快捷方式（需同时传 `file_id`，`name` 通常为原文件名 + `.link`）。可选值：`file` / `folder` / `shortcut`
-- `name` (string, 必填): 名称/文件名（与 `file_type` 联动）：`file` 必须带后缀（如 `方案.docx`、`周报.otl`，支持 doc/docx/otl/form/dbt/xlsx/xls/pptx/ppt）；`folder` 不带后缀（如 `项目资料`）；`shortcut` 常用 `原文件名.ext.link`（如 `方案.docx.link`）。`.pdf` 不支持通过本工具创建，请改用 `upload_file`
+- `file_type` (string, 必填): 创建目标类型，固定为 `file`。可选值：`file`
+- `name` (string, 必填): 文件名，如 `方案.docx`、`周报.otl`。必须带文件类型后缀，支持 .doc/.docx/.otl/.dbt/.xlsx/.xls/.pptx/.ppt。`.pdf`、`.form`、`.md`、`.txt` 不支持通过本工具创建
 - `on_name_conflict` (string, 可选): 文件名冲突处理方式。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
 - `parent_path` (array[string], 可选): 相对路径（每段为文件目录名，非 ID），不存在则自动创建
-- `file_id` (string, 可选): file_type=shortcut 时必填。快捷方式的源文件 ID
+
+#### 返回值说明
+
+```json
+{
+  "data": {
+    "created_by": {
+      "avatar": "string",
+      "company_id": "string",
+      "id": "string",
+      "name": "string",
+      "type": "user"
+    },
+    "ctime": 0,
+    "drive_id": "string",
+    "ext_attrs": [
+      { "name": "string", "value": "string" }
+    ],
+    "id": "string",
+    "link_id": "string",
+    "link_url": "string",
+    "modified_by": {
+      "avatar": "string",
+      "company_id": "string",
+      "id": "string",
+      "name": "string",
+      "type": "user"
+    },
+    "mtime": 0,
+    "name": "string",
+    "parent_id": "string",
+    "shared": true,
+    "size": 0,
+    "type": "file",
+    "version": 0
+  },
+  "code": 0,
+  "msg": "string"
+}
+
+```
+
+> `data` 字段结构见通用文件信息结构（附录 A）
+
+
+---
+
+## 2. create_folder
+
+#### 功能说明
+
+在云盘下新建文件夹。该工具只用于文件夹创建，`name` 传文件夹名即可，不要附带文件后缀。
+
+**`drive_id` / `parent_id`**（必填）：
+- 如何查询 ID 见 `file-locating-guide`。
+
+
+
+#### 操作约束
+
+- **前置检查**：search_files 查重，避免创建同名目录
+- **后置验证**：get_file_info 确认目录已创建
+- **提示**：create_folder 只创建文件夹，创建文件请使用 create_file
+- **提示**：name 仅传目录名，不要附带文件后缀
+
+**幂等性**：否 — 重试前 search_files 检查是否已创建
+
+#### 调用示例
+
+在指定目录创建文件夹：
+
+```json
+{
+  "drive_id": "string",
+  "parent_id": "string",
+  "name": "2026年合同归档",
+  "on_name_conflict": "rename"
+}
+```
+
+在根目录创建文件夹：
+
+```json
+{
+  "drive_id": "string",
+  "parent_id": "0",
+  "name": "临时资料",
+  "on_name_conflict": "rename"
+}
+```
+
+
+#### 参数说明
+
+- `drive_id` (string, 必填): 目标云盘 ID，与 `parent_id` 一起指定保存位置
+- `parent_id` (string, 必填): 父目录 ID，根目录为 `"0"`
+- `name` (string, 必填): 文件夹名称（不带文件后缀），如 `2026年项目归档`
+- `on_name_conflict` (string, 可选): 文件夹同名冲突处理方式。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
+- `parent_path` (array[string], 可选): 相对路径（每段为文件目录名，非 ID），不存在则自动创建
 
 #### 返回值说明
 
@@ -115,7 +216,7 @@
 
 ---
 
-## 2. scrape_url
+## 3. scrape_url
 
 #### 功能说明
 
@@ -168,7 +269,7 @@
 
 ---
 
-## 3. scrape_progress
+## 4. scrape_progress
 
 #### 功能说明
 
@@ -233,17 +334,18 @@
 
 ---
 
-## 4. upload_file
+## 5. upload_file
 
 #### 功能说明
 
-**全量上传写入文件**：服务端完成三步上传，可用于：
+**全量上传写入文件**：服务端完成三步上传。两种用法（二选一）：
 
-- **更新已有文件**：传 `file_id`，覆盖已有 `docx` / `pdf`
-- **新建并上传本地文件**：不传 `file_id`，改传 `name`（必须带文件后缀）
+1. **更新已有文件**：传 `file_id`（**仅限 docx / pdf 文件**，xlsx/pptx/otl 等不支持覆盖）
+2. **新建并上传本地文件**：传 `name`（必须带后缀 `.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf`）
 
-- **支持类型**：更新模式仅支持目标文件为 **docx**、**pdf**；新建模式支持文件名为 **doc**、**docx**、**xls**、**xlsx**、**ppt**、**pptx**、**pdf**
-- **源为 Markdown 时**：务必传 `content_format=markdown`；仅支持转为 **docx**、**pdf** 后上传
+> **不支持的文件类型**：`.txt`、`.csv`、`.md`、`.json`、`.html`、`.xml`、`.zip`、`.png`、`.jpg` 等均不可直接上传。
+
+**三个必传参数**：`file_id` 或 `name`（二选一）+ `content_base64`（始终必传）。缺少任何一个都会报错。
 
 **`drive_id` / `parent_id`**（非必填）：
 
@@ -257,8 +359,6 @@
 
 - **前置检查**（更新已有文件时）：先 read_file_content 读取现有内容，确认覆盖范围
 - **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file_content 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
-- **提示**：更新模式支持 docx/pdf；新建模式支持 doc/docx/xls/xlsx/ppt/pptx/pdf
-- **提示**：Markdown 源内容务必传 content_format=markdown
 
 **幂等性**：是
 
@@ -298,24 +398,24 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 }
 ```
 
-新建文件（显式 drive_id、parent_id）：
+Markdown 新建文件（显式 drive_id、parent_id）：
 
 ```json
 {
   "drive_id": "string",
   "parent_id": "string",
   "name": "会议纪要.docx",
-  "content_base64": "UEsDBBQAAAAI...",
+  "content_base64": "<Markdown UTF-8 文本的 Base64>",
   "content_format": "markdown"
 }
 ```
 
-新建文件（仅 name + 内容；未指定目录时可不传 drive_id、parent_id）：
+Markdown 新建文件（未指定目录时可不传 drive_id、parent_id）：
 
 ```json
 {
   "name": "会议纪要.docx",
-  "content_base64": "UEsDBBQAAAAI...",
+  "content_base64": "<Markdown UTF-8 文本的 Base64>",
   "content_format": "markdown"
 }
 ```
@@ -325,10 +425,10 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 - `drive_id` (string, 可选): 目标云盘 ID。新建：规则见上文「`drive_id` / `parent_id`」。更新：与目标文件所在盘一致。
 - `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。新建：规则见上文。更新：与目标文件父目录一致。
-- `file_id` (string, 二选一必填: `file_id` / `name`): 条件必填：更新模式必填。要覆盖的文件 ID（仅支持 docx/pdf 文件）
-- `name` (string, 二选一必填: `file_id` / `name`): 条件必填：新建模式必填。本地文件名，必须带后缀，如 `.docx` / `.xlsx` / `.pptx` / `.pdf`；仅在不传 `file_id` 时使用
-- `content_base64` (string, 必填): 源文件内容，Base64 编码。若为 Markdown 文本需同时传 content_format=markdown，确保 UTF-8 格式、base64 编码
-- `content_format` (string, 可选): 源内容格式。与目标文件同类型，或 `markdown`（会先转为目标格式再上传；仅支持目标为 docx / pdf）。可选值：`doc` / `docx` / `xls` / `xlsx` / `pdf` / `ppt` / `pptx` / `markdown`
+- `file_id` (string, 二选一必填: `file_id` / `name`): 条件必填（与 name 二选一，不可都不传）：更新模式必填。要覆盖的文件 ID。**仅支持目标文件为 docx 或 pdf**；若目标是 xlsx/pptx/otl 等其他类型，此接口无法更新，请改用对应的编辑接口
+- `name` (string, 二选一必填: `file_id` / `name`): 条件必填（与 file_id 二选一，不可都不传）：新建模式必填。文件名**必须带以下后缀之一**：`.doc` / `.docx` / `.xls` / `.xlsx` / `.ppt` / `.pptx` / `.pdf`。不支持 .txt/.csv/.md/.json/.html/.xml 等非办公格式
+- `content_base64` (string, 必填): **必填**，不可省略。源文件内容的 Base64 编码字符串。必须先读取文件二进制内容再做 Base64 编码传入；若源内容为 Markdown 文本，需先将 UTF-8 文本做 Base64 编码，并同时传 `content_format=markdown`
+- `content_format` (string, 可选): 源内容格式。省略时按目标文件后缀推断。传 `markdown` 时服务端将 Markdown 转为目标格式后上传（仅支持目标为 docx / pdf）。注意：content_base64 的内容必须与此格式一致，不可将二进制办公文件内容以 `markdown` 格式传入。可选值：`doc` / `docx` / `xls` / `xlsx` / `ppt` / `pptx` / `pdf` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
 - `file_type` (string, 可选): 哈希类型。可选值：`sha256` / `md5` / `sha1`
 - `parent_path` (array[string], 可选): 父文件夹路径分段（文件夹名，非 ID）。新建时按文件夹名指定父路径；与 `drive_id`/`parent_id` 的用法见上文。
@@ -365,7 +465,7 @@ Markdown 覆盖（先转为 docx/pdf 再上传）：
 
 ---
 
-## 5. upload_attachment
+## 6. upload_attachment
 
 #### 功能说明
 
