@@ -229,11 +229,11 @@
 
 ---
 
-## 4. sheet.rename_sheet
+## 4. sheet.update_sheet
 
 #### 功能说明
 
-重命名指定工作表。
+更新指定工作表，支持重命名以及调整工作表位置。
 适用于 Excel（.xlsx）和智能表格（.ksheet）。
 
 
@@ -242,13 +242,15 @@
 
 #### 调用示例
 
-重命名工作表：
+更新工作表（重命名并移动）：
 
 ```json
 {
   "file_id": "string",
-  "sheetId": 1,
-  "name": "新名称"
+  "worksheet_id": 1,
+  "move_sheet_id": 0,
+  "move_type": "sheet_move_type_before",
+  "name": "string"
 }
 ```
 
@@ -256,15 +258,25 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID
-- `sheetId` (integer, 必填): 目标工作表 ID
-- `name` (string, 必填): 新工作表名称
+- `worksheet_id` (integer, 必填): 工作表 ID
+- `move_sheet_id` (integer, 可选): 移动时参照的工作表 ID
+- `move_type` (string, 可选): 需要移动的位置，若不传则不移动位置。可选值：`sheet_move_type_before` / `sheet_move_type_after`
+- `name` (string, 可选): 工作表名
 
 #### 返回值说明
 
 ```json
-{}
+{
+  "code": 0,
+  "msg": "string"
+}
 
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 响应码 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 
 
 ---
@@ -292,9 +304,8 @@
 ```json
 {
   "file_id": "string",
-  "sheetIds": [
-    1,
-    3
+  "worksheet_ids": [
+    0
   ]
 }
 ```
@@ -303,14 +314,22 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID
-- `sheetIds` (array[integer], 必填): 要删除的工作表 ID 列表
+- `worksheet_ids` (array[integer], 可选): 需要删除的工作表 ID 列表
 
 #### 返回值说明
 
 ```json
-{}
+{
+  "code": 0,
+  "msg": "string"
+}
 
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 响应码 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 
 
 ---

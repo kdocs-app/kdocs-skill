@@ -100,8 +100,8 @@
 | [`sheet.get_sheets_info`](sheet/worksheet.md) | 获取工作表列表 | `file_id` |
 | [`sheet.create_airsheet_file`](sheet/worksheet.md) | 新建智能表格文件 | `tname` |
 | [`sheet.add_sheet`](sheet/worksheet.md) | 新增工作表 | `file_id` |
-| [`sheet.rename_sheet`](sheet/worksheet.md) | 重命名工作表 | `file_id`, `sheetId`, `name` |
-| [`sheet.delete_sheets`](sheet/worksheet.md) | 删除工作表 | `file_id`, `sheetIds` |
+| [`sheet.update_sheet`](sheet/worksheet.md) | 更新工作表 | `file_id`, `worksheet_id` |
+| [`sheet.delete_sheets`](sheet/worksheet.md) | 删除工作表 | `file_id` |
 | [`sheet.copy_worksheet`](sheet/worksheet.md) | 复制工作表 | `file_id`, `worksheet_id` |
 | [`sheet.update_worksheet`](sheet/worksheet.md) | 更新工作表名称或位置 | `file_id`, `worksheet_id` |
 
@@ -113,10 +113,10 @@
 |------|------|----------|
 | [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `sheetId`, `range` |
 | [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `sheetId`, `rangeData` |
-| [`sheet.delete_range`](sheet/data.md) | 删除行或列 | `file_id`, `sheetId`, `rangeData` |
-| [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `sheetId`, `rangeData` |
-| [`sheet.retrieve_record`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `file_id`, `sheetId`, `range`, `Filter` |
-| [`sheet.get_attachment_url`](sheet/data.md) | 获取图片下载地址 | `filename` |
+| [`sheet.delete_range_data`](sheet/data.md) | 删除行或列 | `file_id`, `worksheet_id`, `range_data` |
+| [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `worksheet_id` |
+| [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `file_id`, `worksheet_id`, `range`, `filter` |
+| [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`file`, `Content-Type` |
 
 ## 三、筛选
 
@@ -173,6 +173,21 @@
 | [`sheet.create_float_images`](sheet/float_images.md) | 创建浮动图片 | `file_id`, `worksheet_id`, `sheet_id`, `tag`, `x_pos`, `y_pos` |
 | [`sheet.update_float_images`](sheet/float_images.md) | 更新浮动图片位置或尺寸 | `file_id`, `worksheet_id`, `float_image_id` |
 | [`sheet.delete_float_images`](sheet/float_images.md) | 删除浮动图片 | `file_id`, `worksheet_id`, `float_image_id` |
+
+### `sheet.find_range_data` 与 `sheet.get_range_data`的区别
+
+| 对比项 | `sheet.find_range_data` | `sheet.get_range_data` |
+|--------|-------------------------|------------------------|
+| 核心用途 | 先筛选再返回命中数据 | 直接读取固定矩形范围数据 |
+| 是否支持筛选条件 | 支持（`filter.condition`） | 不支持 |
+| 是否支持搜索 | 支持（`filter.search`） | 不支持 |
+| 是否支持去重 | 支持（`filter.duplicates`） | 不支持 |
+| 是否支持分页 | 支持（`page.page` / `page.page_size`） | 不支持（一次返回范围内数据） |
+| 是否可返回总数 | 支持（`show_total`） | 不支持 |
+| 典型场景 | 大范围检索、按条件过滤、统计候选结果 | 精准读取已知区域（如 A1:F100） |
+| 推荐使用时机 | 你只知道业务条件（例如“状态=已完成且金额>1000”），不知道具体行号，或结果很多需要分页浏览时 | 你已经知道要读的确切区域（例如 A1:F100），目标是快速拿到原始区域数据时 |
+
+快速决策：**先确认用户意图是否需要筛选/搜索/去重/分页**。需要就用 `sheet.find_range_data`；不需要且范围已知就用 `sheet.get_range_data`。
 
 ## 工具组合速查
 

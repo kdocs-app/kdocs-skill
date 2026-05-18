@@ -4,12 +4,13 @@
 
 #### 功能说明
 
-在指定数据表中批量创建字段。请求体为 JSON：`fields[]` 每项含 `name`、`type` 及类型特有属性（直接平铺在字段根级，**无 `data` 包装层**）；详见 param_detail 中各字段类型定义。创建成功后由服务端分配字段 `id`，**创建请求中禁止手填 `id`**。
+在指定数据表中批量创建字段。请求体为 JSON：`fields[]` 每项含 `name`、`type` 及类型特有属性（直接平铺在字段根级，**无 `data` 包装层**）；详见 param_detail 中各字段类型定义。创建成功后由服务端分配字段 `id`。
 
 
 
 #### 操作约束
 
+- **前置检查**：阅读 param_detail 中各 type 的专属属性及录入值说明，确认可创建字段类型后再组装 fields 参数；不得自行推断或捏造 type 值
 - **禁止**：创建请求中禁止手填 `id`，`id` 仅由服务端分配
 - **后置验证**：get_schema 确认字段已创建
 
@@ -91,19 +92,13 @@
   - **禁止**在创建请求中传入 `id`：`id` 仅创建成功后由服务端返回
 - `prefer_id` (boolean, 可选): 默认 `false`（以字段**名称**解析关联）。为 `true` 时，**Lookup** 的 `linkField`/`lookupField`、**LastModifiedBy**/**LastModifiedTime** 的 `watchedField` 等须传**字段 id**
 
-**请求详情**
-
-| 项目 | 值 |
-|------|-----|
-| Method | `POST` |
-| Content-Type | `application/json` |
 
 **请求体根级**
 
 | 名称 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `fields` | array[object] | 是 | 每项：`name`、`type`、类型专属属性（直接平铺，无 `data` 包装） |
-| `preferId` | boolean | 否 | 默认 `false`。`true` 时 Lookup / 监控类字段中的引用须用字段 id |
+| `prefer_id` | boolean | 否 | 默认 `false`。`true` 时 Lookup / 监控类字段中的引用须用字段 id |
 
 **`fields[]` 通用属性**
 
@@ -444,7 +439,7 @@
       "linkSheet": 12
     }
   ],
-  "preferId": false
+  "prefer_id": false
 }
 ```
 
@@ -491,8 +486,10 @@
 批量更新数据表中已有字段的名称、选项等属性。请求体中 `fields[]` 每项必须包含 `id`，类型专属属性直接平铺在字段对象根级（无 `data` 包装层）。
 
 
+
 #### 操作约束
 
+- **前置检查**：阅读 param_detail 的字段类型章节，获取所有合法的 type 枚举值及各类型专属属性；不得自行推断或捏造字段类型值
 - **前置检查**：get_schema 确认目标字段存在及当前属性
 
 **幂等性**：是
@@ -507,8 +504,10 @@
 
 ```json
 {
-  "file_id": "abc123",
+  "file_id": "string",
   "sheet_id": 1,
+  "prefer_id": false,
+  "omit_failure": false,
   "fields": [
     {
       "id": "q",
@@ -518,8 +517,7 @@
       "defaultValueType": "Normal",
       "defaultValue": "2024/11/23"
     }
-  ],
-  "prefer_id": true
+  ]
 }
 ```
 
@@ -535,14 +533,9 @@
   - `width` (integer, 可选): 字段宽度，单位缇（1/1440 英寸）
   - `syncField` (boolean, 可选): 默认 `false`，是否为同步字段
   - 类型专属属性直接平铺（如 `items`、`numberFormat`、`max` 等），**无 `data` 包装层**
-- `prefer_id` (boolean, 可选): 默认 `false`（以字段**名称**解析关联）。为 `true` 时，**Lookup** 的 `linkField`/`lookupField`、**LastModifiedBy**/**LastModifiedTime** 的 `watchedField` 等须传**字段 id**
+- `prefer_id` (boolean, 可选): 是否使用字段 ID 标识字段和选项，默认 `false`。为 `true` 时，Lookup 的 `linkField`/`lookupField`、LastModifiedBy/LastModifiedTime 的 `watchedField` 等须传字段 id；默认值：`false`
+- `omit_failure` (boolean, 可选): 是否忽略单个字段写入错误并继续后续字段，默认 `false`；默认值：`false`
 
-**请求详情**
-
-| 项目 | 值 |
-|------|-----|
-| Method | `POST` |
-| Content-Type | `application/json` |
 
 **请求体根级**
 
@@ -550,6 +543,7 @@
 |------|------|------|------|
 | `fields` | array[object] | 是 | 每项：`id`（必填）、`name`、`type`、类型专属属性（直接平铺，无 `data` 包装） |
 | `prefer_id` | boolean | 否 | 默认 `false`。`true` 时 Lookup / 监控类字段中的引用须用字段 id |
+| `omit_failure` | boolean | 否 | 默认 `false`。`true` 时单个字段失败不中断整批 |
 
 **`fields[]` 通用属性（更新）**
 

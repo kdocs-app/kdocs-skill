@@ -35,7 +35,7 @@
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `name` (string, 必填): 视图名称
 - `type` (string, 必填): 视图类型：Grid / Kanban / Gallery / Form / Gantt / Calendar
-- `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key
+- `prefer_id` (boolean, 可选): 是否使用字段 ID 和选项 ID 标识
 - `group_field` (string, 可选): 分组字段名称
 
 #### 返回值说明
@@ -112,11 +112,11 @@
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `view_id` (string, 必填): 视图 ID
 - `name` (string, 可选): 新视图名称
-- `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key
-- `order_fields` (array, 可选): 字段排列顺序，字段 ID 数组
-- `fields_attribute` (array, 可选): 字段显隐属性，每项包含 `field` 和 `hidden`
-- `height` (integer, 可选): 行高（Twip 单位）
-- `widths` (array, 可选): 字段列宽配置，每项包含 `field` 和 `width`
+- `prefer_id` (boolean, 可选): 是否使用字段 ID 和选项 ID 标识
+- `order_fields` (array, 可选): 字段排列顺序，字段名数组（非字段 ID），需与表中所有字段一一对应
+- `fields_attribute` (array, 可选): 字段显隐属性，每项包含 `field`（字段名）和 `hidden`（布尔值）
+- `height` (integer, 可选): 记录行高（Twip 单位），Grid 视图专属
+- `widths` (array, 可选): 字段列宽配置，每项包含 `field`（字段名）和 `width`（整数值），Grid 视图专属
 
 #### 返回值说明
 

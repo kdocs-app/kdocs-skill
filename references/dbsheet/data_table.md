@@ -50,10 +50,35 @@
         "record_ids": ["A", "B"],
         "fields": [
           { "id": "B", "name": "名称", "type": "SingleLineText", "description": "字段备注" },
-          { "id": "C", "name": "数量", "type": "Number", "description": "字段备注" }
+          { "id": "C", "name": "数量", "type": "Number", "description": "字段备注" },
+          { "id": "D", "name": "日期", "type": "Date", "description": "字段备注" },
+          {
+            "id": "E", "name": "状态", "type": "SingleSelect", "description": "字段备注",
+            "items": [
+              { "id": "B", "value": "未开始" },
+              { "id": "C", "value": "进行中" },
+              { "id": "D", "value": "已完成" }
+            ]
+          }
         ],
         "views": [
-          { "id": "B", "name": "表格视图", "type": "grid", "records_count": 10 }
+          {
+            "id": "B", "name": "表格视图", "type": "grid", "records_count": 10,
+            "notice": "{\"text\":\"公告内容\",...}"
+          },
+          { "id": "C", "name": "看板视图", "type": "kanban", "records_count": 10 }
+        ]
+      },
+      {
+        "id": 5,
+        "name": "数据表 (2)",
+        "primary_field_id": "F",
+        "fields": [
+          { "id": "F", "name": "名称", "type": "SingleLineText" },
+          { "id": "G", "name": "数量", "type": "Number" }
+        ],
+        "views": [
+          { "id": "D", "name": "表格视图", "type": "grid" }
         ]
       }
     ],
@@ -71,9 +96,19 @@
 | `detail.sheets[].primary_field_id` | string | 主字段 ID |
 | `detail.sheets[].records_count` | integer | 总记录数 |
 | `detail.sheets[].record_ids` | array | 所有记录 ID（需开启 `include_all_record_ids`） |
-| `detail.sheets[].fields` | array | 字段列表 |
-| `detail.sheets[].views` | array | 视图列表 |
-| `detail.book_type` | string | 文档类型标识，固定为 db |
+| `detail.sheets[].fields[].id` | string | 字段 ID |
+| `detail.sheets[].fields[].name` | string | 字段名称 |
+| `detail.sheets[].fields[].type` | string | 字段类型（SingleLineText / Number / Date / SingleSelect / MultiSelect 等） |
+| `detail.sheets[].fields[].description` | string | 字段备注（可选） |
+| `detail.sheets[].fields[].items` | array | 选项列表（仅选择类字段返回，如 SingleSelect / MultiSelect） |
+| `detail.sheets[].fields[].items[].id` | string | 选项 ID |
+| `detail.sheets[].fields[].items[].value` | string | 选项显示值 |
+| `detail.sheets[].views[].id` | string | 视图 ID |
+| `detail.sheets[].views[].name` | string | 视图名称 |
+| `detail.sheets[].views[].type` | string | 视图类型（grid / kanban / gallery / form / gantt / calendar） |
+| `detail.sheets[].views[].records_count` | integer | 视图内记录数 |
+| `detail.sheets[].views[].notice` | string | 视图公告（JSON 字符串，可选） |
+| `detail.book_type` | string | 文档类型标识，db 或 as |
 | `result` | string | ok 表示成功 |
 
 
@@ -83,7 +118,8 @@
 
 #### 功能说明
 
-在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）。
+在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。传入 `fields` 时，`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）；
+传入 `views` 时，每项必须包含 `name`（视图名称）和 `type`（视图类型），视图专属参数直接平铺在视图对象根级。
 
 
 
@@ -93,6 +129,7 @@
 
 **幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
 
+> 传入 `views` 时每项必须包含 `name` 和 `type`；传入 `fields` 时每项必须包含 `name` 和 `type`，两者均为必填，缺少任一会导致创建失败。
 > 此接口的 `fields[]` 配置不使用 `data` 包装层，所有字段属性（如 `items`、`numberFormat`）直接写在字段对象根级
 > `dbsheet.create_sheet` 与 `dbsheet.create_fields` 在字段参数结构上保持一致：字段专属参数均直接平铺在字段对象根级
 > 视图类型（`views[].type`）请求传入小写（如 `grid`），响应返回首字母大写（如 `Grid`）
@@ -157,9 +194,9 @@
 | 名称 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `name` | string | 是 | 新建数据表名称 |
-| `syncType` | string | 否 | 同步类型，默认 `None` |
-| `afterSheetId` | integer | 否 | 在指定数据表后创建 |
-| `beforeSheetId` | integer | 否 | 在指定数据表前创建 |
+| `sync_type` | string | 否 | 同步类型，默认 `None` |
+| `after_sheet_id` | integer | 否 | 在指定数据表后创建 |
+| `before_sheet_id` | integer | 否 | 在指定数据表前创建 |
 | `views` | array[object] | 否 | 初始视图列表 |
 | `fields` | array[object] | 否 | 初始字段列表，字段参数直接平铺，无 `data` |
 

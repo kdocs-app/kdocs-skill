@@ -6,6 +6,7 @@
 
 获取指定工作表中某个矩形区域内的单元格数据。行列索引均为 0-based。
 请求参数使用 `sheetId` 和 `range` 对象。
+**`range` 必须为对象，即使只读取一个单元格也必须包裹在对象中传入，不可传数组。**
 
 
 
@@ -33,9 +34,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID（路径参数）
+- `file_id` (string, 必填): 文件 ID
 - `sheetId` (integer, 必填): 工作表 ID
-- `range` (object, 必填): 选区范围，行列索引均为 0-based
+- `range` (object, 必填): 选区范围（必须为对象，即使只读取一个单元格也必须包裹在对象中传入，不可传数组），行列索引均为 0-based
 
 #### 返回值说明
 
@@ -108,6 +109,7 @@
 
 批量更新单元格选区数据，支持写值/公式、设置格式、合并单元格、写入图片。
 每项操作必须包含 `opType` 和四个坐标字段（`rowFrom`/`rowTo`/`colFrom`/`colTo`）。
+**`rangeData` 必须为对象数组（`array[object]`），即使只操作一个单元格也必须包裹在数组中传入，不可传单个对象。**
 
 
 
@@ -233,9 +235,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID（路径参数）
+- `file_id` (string, 必填): 文件 ID
 - `sheetId` (integer, 必填): 工作表 ID
-- `rangeData` (array[object], 必填): 单元格操作数组，每项必须包含 `opType` 和坐标字段，详见 param_detail
+- `rangeData` (array[object], 必填): 单元格操作数组（必须为数组，即使只有一项操作也不可传单个对象），每项必须包含 `opType` 和坐标字段，详见 param_detail
 
 **rangeData 每项字段：**
 
@@ -370,12 +372,12 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `code` | integer | 0 表示成功，非 0 表示失败 |
-| `msg` | string | 人可阅读的响应信息 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 
 
 ---
 
-## 3. sheet.delete_range
+## 3. sheet.delete_range_data
 
 #### 功能说明
 
@@ -395,39 +397,21 @@
 
 #### 调用示例
 
-删除行：
+删除范围数据（默认上移）：
 
 ```json
 {
   "file_id": "string",
-  "sheetId": 3,
-  "rangeData": [
+  "worksheet_id": 3,
+  "range_data": [
     {
-      "rowFrom": 5,
-      "rowTo": 5,
-      "colFrom": 0,
-      "colTo": 16383
+      "col_from": 0,
+      "col_to": 0,
+      "row_from": 0,
+      "row_to": 0
     }
   ],
-  "type": "etShiftUp"
-}
-```
-
-删除列：
-
-```json
-{
-  "file_id": "string",
-  "sheetId": 3,
-  "rangeData": [
-    {
-      "rowFrom": 0,
-      "rowTo": 1048575,
-      "colFrom": 2,
-      "colTo": 2
-    }
-  ],
-  "type": "etShiftToLeft"
+  "shift_type": "shift_up"
 }
 ```
 
@@ -435,26 +419,24 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID
-- `sheetId` (integer, 必填): 工作表 ID
-- `rangeData` (array[object], 必填): 要删除的区域列表
-  - `rowFrom` (integer, 必填): 起始行（删列时填 0）
-  - `rowTo` (integer, 必填): 结束行（删列时填 1048575 覆盖整列）
-  - `colFrom` (integer, 必填): 起始列（删行时填 0）
-  - `colTo` (integer, 必填): 结束列（删行时填 16383 覆盖整行）
-- `type` (string, 可选): 删除后移动方式
-
-| type | 说明 |
-|------|------|
-| `etShiftUp` | 上移（删行时使用，默认） |
-| `etShiftToLeft` | 左移（删列时使用） |
-
+- `worksheet_id` (integer, 必填): 工作表 ID
+- `range_data` (array[object], 必填): 范围数组；调用方需保证参数在行列最大最小值范围内，超过则执行失败。最大值可通过 `sheet.get_sheets_info` 获取
+- `shift_type` (string, 可选): 移动方式，默认向上移动。可选值：`shift_up` / `shift_left`；默认值：`shift_up`
 
 #### 返回值说明
 
 ```json
-{}
+{
+  "code": 0,
+  "msg": "string"
+}
 
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 响应码 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 
 
 ---
@@ -479,25 +461,25 @@
 ```json
 {
   "file_id": "string",
-  "sheetId": 3,
-  "rangeData": [
+  "worksheet_id": 3,
+  "range_data": [
     {
-      "opType": "formula",
+      "op_type": "cell_operation_type_formula",
       "col": 0,
       "formula": "值1"
     },
     {
-      "opType": "formula",
+      "op_type": "cell_operation_type_formula",
       "formula": "值2"
     },
     {
-      "opType": "picture",
+      "op_type": "cell_operation_type_picture",
       "col": 3,
-      "cellPicInfo": {
-        "width": -1,
-        "height": -1,
-        "tag": "url",
-        "url": "https://example.com/image.png"
+      "cell_pic_info": {
+        "width": 120,
+        "height": 120,
+        "tag": "sheet_pic_type_url",
+        "pic_content": "https://example.com/image.png"
       }
     }
   ]
@@ -508,34 +490,36 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID
-- `sheetId` (integer, 必填): 工作表 ID
-- `rangeData` (array[object], 必填): 新行各列的数据，按列顺序追加至已使用区域末尾，详见下方 rangeData 字段表
-
-**rangeData 每项字段：**
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `opType` | string | 是 | `formula`（文本/公式）或 `picture`（单元格图片） |
-| `col` | integer | 否 | 列索引，不填则在上一元素列索引基础上 +1 |
-| `formula` | string | 否 | 单元格内容（`opType` 为 `formula` 时填写） |
-| `cellPicInfo` | object | 否 | 图片信息（`opType` 为 `picture` 时填写） |
-
+- `worksheet_id` (integer, 必填): 工作表 ID
+- `range_data` (array[object], 可选): 新行各列的数据，按列顺序追加至已使用区域末尾
 
 #### 返回值说明
 
 ```json
-{}
+{
+  "code": 0,
+  "msg": "string"
+}
 
 ```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 响应码 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 
 
 ---
 
-## 5. sheet.retrieve_record
+## 5. sheet.find_range_data
 
 #### 功能说明
 
 遍历并筛选工作表中的记录，支持分页、条件筛选、文本搜索和去重。
+
+**工具选择提示**：
+- `sheet.find_range_data`：用于“先筛选再返回结果”，支持 `filter`、`search`、`duplicates`、分页和总数统计。
+- `sheet.get_range_data`：用于“直接读取固定矩形范围数据”，不做筛选、搜索、去重或分页。
 
 **适用于**：Excel（.xlsx）和智能表格（.ksheet）
 
@@ -545,85 +529,53 @@
 
 #### 调用示例
 
-基础遍历：
+按条件筛选并分页：
 
 ```json
 {
   "file_id": "string",
-  "sheetId": 3,
+  "worksheet_id": 3,
   "range": {
-    "rowFrom": 0,
-    "rowTo": 50000,
-    "colFrom": 0,
-    "colTo": 10
+    "col_from": 0,
+    "col_to": 10,
+    "row_from": 0,
+    "row_to": 50000
   },
   "page": {
-    "pageSize": 100,
-    "page": 1
+    "page": 1,
+    "page_size": 100
   },
-  "ignoreHiddenCell": false,
-  "showTotal": true,
-  "Filter": {
-    "condition": []
-  }
-}
-```
-
-复杂条件筛选：
-
-```json
-{
-  "file_id": "string",
-  "sheetId": 3,
-  "range": {
-    "rowFrom": 0,
-    "rowTo": 50000,
-    "colFrom": 0,
-    "colTo": 10
-  },
-  "page": {
-    "pageSize": 100,
-    "page": 1
-  },
-  "showTotal": true,
-  "Filter": {
+  "filter": {
     "condition": [
       {
-        "col": 1,
+        "col": 0,
         "info": [
           {
-            "value": ">=10"
-          },
-          {
-            "value": "<=100"
+            "value": "string"
           }
         ],
-        "mode": "AND"
-      },
-      {
-        "col": 2,
-        "info": [
-          {
-            "value": "=*关键词*"
-          }
-        ],
-        "mode": "AND"
-      }
-    ],
-    "search": [
-      {
-        "col": 3,
-        "value": [
-          "搜索值"
-        ]
+        "mode": "filter_mode_and"
       }
     ],
     "duplicates": {
       "col": [
         0
       ]
-    }
-  }
+    },
+    "search": [
+      {
+        "col": 0,
+        "value": [
+          "string"
+        ]
+      }
+    ]
+  },
+  "ignore_hidden_cell": true,
+  "option_cols": [
+    0
+  ],
+  "show_total": true
 }
 ```
 
@@ -631,53 +583,81 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 文件 ID
-- `sheetId` (integer, 必填): 工作表 ID
-- `range` (object, 必填): 筛选区域，第一行默认为表头
-- `page` (object, 可选): 分页参数，`pageSize` 默认 100，`page` 最小值 1
-- `Filter` (object, 必填): 筛选条件，`condition` 为空数组时返回全部
-- `ignoreHiddenCell` (boolean, 可选): 是否忽略隐藏单元格；默认值：`false`
-- `showTotal` (boolean, 可选): 是否返回总数；默认值：`false`
-- `optionCols` (array, 可选): 获取筛选结果后的选项列索引
-
-**Filter.condition 筛选条件：**
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `condition[].col` | integer | 是 | 列索引（相对于 range） |
-| `condition[].info` | array | 是 | 条件值列表 |
-| `condition[].info[].value` | string | 是 | 筛选表达式（见筛选规则附录） |
-| `condition[].mode` | string | 否 | 条件连接方式：`AND`（且，默认）或 `OR`（或） |
-| `search` | array | 否 | 文本搜索条件 |
-| `duplicates` | object | 否 | 去重配置，`col` 为去重列索引数组 |
-
+- `worksheet_id` (integer, 必填): 工作表 ID
+- `range` (object, 必填): 筛选区域
+- `page` (object, 可选): 分页参数（可选）
+- `filter` (object, 必填): 筛选条件；`condition` 传空数组时不筛选，输出全部
+- `ignore_hidden_cell` (boolean, 可选): 是否忽略隐藏单元格；默认值：`false`
+- `option_cols` (array[integer], 可选): 需返回选项统计的列坐标（相对于 `range`）
+- `show_total` (boolean, 可选): 是否返回总数；默认值：`false`
 
 #### 返回值说明
 
 ```json
 {
-  "rangeData": [
-    {
-      "cellText": "记录1",
-      "colFrom": 0,
-      "colTo": 0,
-      "isCellPic": false,
-      "numFormat": "G/通用格式",
-      "originalCellValue": "记录1",
-      "rowFrom": 1,
-      "rowTo": 1
-    }
-  ],
-  "resultType": 1,
-  "total": 50
+  "code": 0,
+  "msg": "string",
+  "data": {
+    "merge_range_data": [
+      {
+        "cell_text": "string",
+        "col_from": 0,
+        "col_to": 0,
+        "is_cell_pic": true,
+        "num_format": "string",
+        "original_cell_value": "string",
+        "pic_content": "string",
+        "pic_data": "string",
+        "row_from": 0,
+        "row_to": 0,
+        "sha1": "string",
+        "tag": "string"
+      }
+    ],
+    "option_col": [
+      {
+        "col": 0,
+        "texts": [
+          {
+            "count": 0,
+            "origin": "string",
+            "text": "string"
+          }
+        ]
+      }
+    ],
+    "range_data": [
+      {
+        "cell_text": "string",
+        "col_from": 0,
+        "col_to": 0,
+        "is_cell_pic": true,
+        "num_format": "string",
+        "original_cell_value": "string",
+        "pic_content": "string",
+        "pic_data": "string",
+        "row_from": 0,
+        "row_to": 0,
+        "sha1": "string",
+        "tag": "string"
+      }
+    ],
+    "result_type": 0,
+    "total": 0
+  }
 }
 
 ```
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `rangeData` | array | 筛选后的记录数据 |
-| `resultType` | integer | 结果类型 |
-| `total` | integer | 结果总数 |
+| `code` | integer | 响应码 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
+| `data.merge_range_data` | array[object] | 当前区域包含的合并单元格数据 |
+| `data.option_col` | array[object] | 选项结果 |
+| `data.range_data` | array[object] | 区域数据，格式与 `get_range_data` 一致；未设置筛选条件时返回全部数据 |
+| `data.result_type` | integer | 本次是否成功，`0` 失败，`1` 成功 |
+| `data.total` | integer | 结果总数 |
 
 
 ---
@@ -686,32 +666,71 @@
 
 #### 功能说明
 
-获取文档内图片的下载地址，返回可用于引用的 `uploadId`（响应中的 `object_id`）。
-用于在单元格图片或附件字段中引用。
-接口：`POST /api/v3/office/file/{fileId}/attachment`（`multipart/form-data`）；`{fileId}` 为目标文件 ID，与表单字段一并提交。
+上传附件到文件，返回上传结果与对象标识（`object_id`）。
+使用 `multipart/form-data` 方式上传。
+
+支持普通上传，以及 `local_cover`（本地官方推荐模板）和 `user_cover`（用户上传封面图）场景。
 
 
 
-> 请求需使用 `multipart/form-data` 提交上述字段
+> 请求需使用 `multipart/form-data` 提交参数
+> `url` 与 `file` 必须二选一
+> 当 `source_type=local_cover` 时，必须传 `cover_id`
+> 当 `source_type=user_cover` 时，必须传 `scale`
+> 本工具为单次全量上传，无分片机制
 
 #### 调用示例
 
-参数说明（multipart 字段）：
+普通上传（URL）：
 
 ```json
 {
-  "filename": "image.png",
-  "url": "https://example.com/image.png",
-  "local_cover": "url"
+  "file_id": "12345",
+  "filename": "6789.jpg",
+  "url": "https://img.qwps.cn/example.jpg",
+  "Content-Type": "multipart/form-data"
+}
+```
+
+local_cover 上传：
+
+```json
+{
+  "file_id": "12345",
+  "filename": "cover.jpg",
+  "source_type": "local_cover",
+  "cover_id": "xxxxx",
+  "Content-Type": "multipart/form-data"
+}
+```
+
+user_cover 上传并带 map_id：
+
+```json
+{
+  "file_id": "12345",
+  "filename": "avatar.jpg",
+  "source_type": "user_cover",
+  "scale": 80,
+  "map_id": "placeholder-001",
+  "file": "<binary>",
+  "Content-Type": "multipart/form-data"
 }
 ```
 
 
 #### 参数说明
 
-- `filename` (string, 必填): 图片文件名
-- `url` (string, 可选): 图片来源 URL
-- `local_cover` (string, 可选): 来源类型；填 `url` 时配合 `url` 字段使用
+- `file_id` (string, 必填): 文件 ID 或分享 ID
+- `filename` (string, 必填): 附件名
+- `url` (string, 二选一必填: `url` / `file`): 附件 URL，与 `file` 二选一
+- `file` (byte, 二选一必填: `url` / `file`): 附件二进制流，与 `url` 二选一
+- `source_type` (string, 可选): 上传内容类型。可选值：`local_cover` / `user_cover`；默认值：`file`
+- `source` (string, 可选): 来源，例如 `processon`
+- `cover_id` (string, 可选): 封面 ID；当 `source_type=local_cover` 时必填
+- `scale` (integer, 可选): 缩略图压缩比；当 `source_type=user_cover` 时必填
+- `map_id` (string, 可选): 占位图标志位（mapId）
+- `Content-Type` (string, 必填): Header 文件类型，建议 `multipart/form-data`
 
 #### 返回值说明
 
@@ -723,7 +742,7 @@
     "width": 600,
     "height": 400
   },
-  "old_content_type": "image/jpeg",
+  "old_content_type": "image/heic",
   "new_content_type": "image/jpeg"
 }
 
@@ -732,13 +751,15 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `result` | string | 结果状态，成功为 `ok` |
-| `object_id` | string | 图片 uploadId，可用于单元格图片或附件引用 |
+| `object_id` | string | 上传对象 ID |
+| `url` | string | 上传资源 URL（部分场景返回） |
 | `extra_info.width` | integer | 图片宽度 |
 | `extra_info.height` | integer | 图片高度 |
 | `old_content_type` | string | 原始内容类型 |
 | `new_content_type` | string | 转换后内容类型 |
 
-响应中的 `object_id` 即为图片的 `uploadId`，可在单元格图片（`cellPicInfo.uploadId`）或记录附件字段中引用。
+响应中的 `object_id` 可作为上传对象标识用于后续引用。
+在特定场景（如带 `map_id`）下，响应可能额外返回 `url`。
 
 
 ---
