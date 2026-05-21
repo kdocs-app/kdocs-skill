@@ -127,6 +127,7 @@
 
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
+| 读多维表正文 | `read_file`（返回 content_format 为 dbsheet_records，含 schema、records） |
 | 多维表格读结构/数据 | `dbsheet.get_schema` → `dbsheet.list_records` / `dbsheet.get_record` |
 | 多维表格增删改 | `dbsheet.get_schema` → `dbsheet.create_records` / `dbsheet.update_records` / `dbsheet.delete_records`|
 
@@ -146,7 +147,7 @@
 
 | 错误特征 | 原因 | 处理方式 |
 |----------|------|----------|
-| 多维表格读不到结构化数据 | 误用 `read_file_content` 作主读 | 改用 `dbsheet.get_schema`、`dbsheet.list_records` 等，见 `references/dbsheet.md` |
+| 记录不全 / 需全量或分页 | `read_file` 单次返回 records 有上限 | 概览用 `read_file`；全量/分页/条件筛选用 `dbsheet.records_list` / `list_records` / `records_search` |
 
 ---
 

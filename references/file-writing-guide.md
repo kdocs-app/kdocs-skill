@@ -63,7 +63,7 @@
 
 **智能表格**（.ksheet / as）：
 
-- 新建写入：`sheet.create_airsheet_file` → `sheet.update_range_data` 批量写入
+- 新建写入：`create_file` → `sheet.update_range_data` 批量写入
 - 更新：`sheet.update_range_data` 按范围写入
 
 **多维表格**（.dbt / db）：
@@ -74,4 +74,4 @@
 **演示文稿**（.pptx / wpp）：
 
 - 新建：`create_file` 或 `upload_file` 上传本地 pptx
-- AI 生成型 PPT：使用 `aippt.execute`，通过 `skill_type` 路由到主题生成（`theme_ppt`）或文档转 PPT（`doc_ppt`）流水线
+- AI 生成型 PPT：使用 `aippt.execute`，通过 `task_type` 路由到主题生成（`theme_ppt`）或文档转 PPT（`doc_ppt`）流水线

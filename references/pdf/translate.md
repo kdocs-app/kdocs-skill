@@ -58,7 +58,7 @@
 - `password` (string, 可选): 文件密码。**注意：暂不支持加密文件。**
 - `header` (object, 必填): 下游透传 header 参数
 - `body` (object, 必填): 下游透传 body 参数
-- `from_lang` (string, 必填): 源语言。必须先调用read_file_content读取文档内容，根据文档实际内容判断语言：
+- `from_lang` (string, 必填): 源语言。必须先调用 read_file 读取文档内容，根据文档实际内容判断语言：
 1. 分析文档中的文字内容，识别其主要语言
 2. 如果文档主要是中文，则传 "zh"
 3. 如果文档主要是其他语言（如英文、日文等），则传对应的语言代码

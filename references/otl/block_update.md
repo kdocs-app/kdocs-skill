@@ -15,7 +15,7 @@
 - **提示**：节点类型和属性定义可参考 `references/otl/node.md`
 - **提示**：update_attrs 是覆盖操作，不需更新的属性需保持原样传入
 - **提示**：当 blockId 为 `doc` 且 operation 为 `update_content` 时，content 的第一个子节点必须是 title；如仅需更新局部内容，应将 blockId 设为具体子块 ID
-- **提示**：update_attrs 不支持 doc、appComponent、lockBlock 三种块
+- **提示**：update_attrs 不支持 appComponent、lockBlock 两种块
 - **提示**：表格操作中行/列数量需与表格结构对齐
 
 **幂等性**：是
@@ -209,6 +209,44 @@
 }
 ```
 
+设置文档封面图（sourceKey 通过 upload_attachment 获取）：
+
+```json
+{
+  "file_id": "string",
+  "params": [
+    {
+      "operation": "update_attrs",
+      "blockId": "doc",
+      "attrs": {
+        "cover": {
+          "sourceKey": "1234567890",
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
+    }
+  ]
+}
+```
+
+清除文档封面图：
+
+```json
+{
+  "file_id": "string",
+  "params": [
+    {
+      "operation": "update_attrs",
+      "blockId": "doc",
+      "attrs": {
+        "cover": {}
+      }
+    }
+  ]
+}
+```
+
 
 #### 参数说明
 
@@ -234,7 +272,7 @@
 - `blockId`: 目标块 ID
 - `attrs` (object, 必填): 块属性对象，属性定义参考 `references/otl/node.md`
 - 更新属性是覆盖操作，不需更新的属性需保持原样传入
-- 不支持设置 doc、appComponent、lockBlock 的属性；tableCell 的 colSpan/rowSpan 请用表格合并/拆分操作
+- 不支持设置 appComponent、lockBlock 的属性；tableCell 的 colSpan/rowSpan 请用表格合并/拆分操作
 
 **`insert_table_rows`** — 插入表格行（blockId 对应的块必须是 table）
 - `operation`: "insert_table_rows"

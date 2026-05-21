@@ -8,13 +8,13 @@
 
 - 用户粘贴了接龙文本或要求将文字转为表格
 
-**工具链**：`sheet.create_airsheet_file` → `sheet.update_range_data`（表头）→ `sheet.update_range_data`（数据）→ `get_file_link`
+**工具链**：`create_file` → `sheet.update_range_data`（表头）→ `sheet.update_range_data`（数据）→ `get_file_link`
 
 ## 涉及工具
 
 | 工具 | 服务 | 用途 |
 |------|------|------|
-| `sheet.create_airsheet_file` | sheet | 创建智能表格（.ksheet） |
+| `create_file` | drive | 创建智能表格（.ksheet） |
 | `sheet.update_range_data` | sheet | 写入表头数据 |
 | `get_file_link` | drive | 获取表格链接并返回统计信息 |
 
@@ -22,7 +22,7 @@
 
 **步骤 1**：识别接龙场景 → 根据场景信息和接龙信息，推断表格名称(`sheetName`)和表头(`headerList`)字段
 
-**步骤 2**：通过 `sheet.create_airsheet_file` 创建智能表格(.ksheet)，表名为 `sheetName`，通过 `sheet.update_range_data` 写入表头数据
+**步骤 2**：通过 `create_file` 创建智能表格(.ksheet)，表名为 `sheetName`，通过 `sheet.update_range_data` 写入表头数据
 
 **步骤 3**：按照接龙顺序和表头字段，依次提取接龙信息(`infoList`)，通过 `sheet.update_range_data` 写入数据
 

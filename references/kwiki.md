@@ -115,7 +115,7 @@
 2. `curl.exe -L -o "文件名" "签名URL"` 下载
 
 **智能文档（doc_type="o"）**：`wps.export` 不支持直接导出，无特殊情况，默认转换成Markdown格式：
-- **Markdown** → `read_file_content(drive_id, file_id, format="markdown")`（异步，需轮询 task_id），将返回的 markdown 内容保存为 `.md` 文件
+- **Markdown** → `read_file(file_id=...)`（`status=pending` 时用 `task_id` 续读），将 `data.content` 保存为 `.md` 文件
 
 **快捷方式文件（type="shortcut"）**：通过 `search_files` 搜索原始文件名找到源文件，再用源文件的 `link_id` 走上述通用流程。
 
@@ -149,7 +149,7 @@
 4. **返回结果**：按匹配度排序，展示文件名、所在库/路径、修改时间、直达链接；结果过多时提示用户按文件类型或时间范围二次筛选
 5. **展示结果并询问用户** → 展示文件信息 + **主动询问是否下载到本地或打开查看（提供在线链接）用户选择下载时的后续操作**：
 
-- `search_files` 返回的 `file_id` 可直接用于 `read_file_content` 等通用接口
+- `search_files` 返回的 `file_id` 可直接用于 `read_file` 等通用接口
 - 根据文件类型选择下载方式，详见「下载知识库文件到本地」流程
 
 #### 整理分类知识库

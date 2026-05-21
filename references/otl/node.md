@@ -47,6 +47,19 @@
 
 ## Block 节点属性
 
+### doc — 文档块
+
+全局唯一根节点。查询时通过 `otl.block_query`（`params: { blockIds: ["doc"] }`）获取。
+
+| 属性 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `cover` | object | 否 | 文档封面图，无封面时为 `{}`。子字段见下方 |
+| ↳ `sourceKey` | string | **是** | 图片资源 id（为空字符串表示无封面图）；可通过 `upload_attachment` 上传图片获得（返回值 `object_id`） |
+| ↳ `offsetX` | integer | 否 | 封面图 X 轴偏移，范围 `-5000`–`5000`，默认 `0` |
+| ↳ `offsetY` | integer | 否 | 封面图 Y 轴偏移，范围 `-5000`–`5000`，默认 `0` |
+
+设置/清除封面图：通过 `otl.block_update`（`update_attrs`，`blockId` 设为 `"doc"`）。传入 `cover: {}` 清除封面图。
+
 ### title — 文档标题
 
 全文档唯一，必须为 doc 的第一个子块。title中的 text 节点不支持 Inline 通用属性, 不可包含换行符。

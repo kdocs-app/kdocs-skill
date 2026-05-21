@@ -79,57 +79,7 @@
 
 ---
 
-## 2. sheet.create_airsheet_file
-
-#### 功能说明
-
-新建一个智能表格（.ksheet）文件。
-
-`.ksheet` 不能通过通用 `create_file` 创建，应改用本工具。
-
-
-
-**幂等性**：否 — 重复调用会创建多个文件，先确认是否已成功
-
-> 创建完成后，可继续使用 `sheet.get_sheets_info`、`sheet.update_range_data` 等 `sheet.*` 工具操作内容
-
-#### 调用示例
-
-创建智能表格：
-
-```json
-{
-  "type": "ksheet",
-  "tname": "项目任务跟踪表.ksheet"
-}
-```
-
-
-#### 参数说明
-
-- `type` (string, 可选): 文件类型；默认值：`ksheet`，仅允许 `ksheet`。可选值：`ksheet`
-- `tname` (string, 必填): 智能表格文件名，建议带 `.ksheet` 后缀
-
-#### 返回值说明
-
-```json
-{
-  "id": "airsheet_xxx",
-  "name": "项目任务跟踪表.ksheet"
-}
-
-```
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `id` | string | 新建文件 ID |
-| `file_id` | string | 新建文件 ID（部分返回结构可能使用该字段） |
-| `name` | string | 文件名 |
-
-
----
-
-## 3. sheet.add_sheet
+## 2. sheet.add_sheet
 
 #### 功能说明
 
@@ -229,7 +179,7 @@
 
 ---
 
-## 4. sheet.update_sheet
+## 3. sheet.update_sheet
 
 #### 功能说明
 
@@ -281,7 +231,7 @@
 
 ---
 
-## 5. sheet.delete_sheets
+## 4. sheet.delete_sheets
 
 #### 功能说明
 
@@ -334,7 +284,7 @@
 
 ---
 
-## 6. sheet.copy_worksheet
+## 5. sheet.copy_worksheet
 
 #### 功能说明
 
@@ -388,7 +338,7 @@
 
 ---
 
-## 7. sheet.update_worksheet
+## 6. sheet.update_worksheet
 
 #### 功能说明
 

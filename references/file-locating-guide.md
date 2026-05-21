@@ -11,7 +11,7 @@
 | 用户提供 | 定位方式 |
 |---------|---------|
 | 文件名/关键词 | `search_files` → 返回结果中包含 `file_id` 和 `drive_id` |
-| 文档链接 | 从 URL 提取 `link_id`（见下方链接解析）→ `get_share_info(link_id)` → 取 `file_id` 和 `drive_id` |
+| 文档链接 | `read_file(url=链接)` 返回内容与 `file_id`/`drive_id`；不需读内容时用 `get_share_info(link_id)`（见下方链接解析） |
 | 已知 `file_id` | `get_file_info(file_id)` → 补充获取 `drive_id` |
 | 创建文件（指定文件夹） | `search_files` 等查到目标文件夹 → 传 `drive_id` + 该文件夹 `file_id` 作为 `parent_id` |
 | 创建文件（用户未指定文件夹） | `drive_id`、`parent_id` 可不填，直接 `create_file` / `upload_file`（新建） |
@@ -30,4 +30,4 @@
 
 提取后调用 `get_share_info(link_id)` 获取 `file_id` 和 `drive_id`。
 
-> **AIPPT 文档转 PPT 快捷方式**：当用户提供金山文档链接并要求生成 PPT 时，从 URL 提取的 `link_id` 可直接以 `type: "v7_file_id"` 传入 `aippt.execute` 的 `input` 数组，无需先调用 `get_share_info` 获取 `file_id`。
+> **AIPPT 文档转 PPT 快捷方式**：当用户提供金山文档链接并要求生成 PPT 时，从 URL 提取的 `link_id` 可直接以 `type: "link_id"` 传入 `aippt.execute` 的 `input` 数组，无需先调用 `get_share_info` 获取 `file_id`。

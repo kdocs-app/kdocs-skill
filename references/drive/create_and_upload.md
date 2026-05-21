@@ -4,8 +4,8 @@
 
 #### 功能说明
 
-在云盘下新建文件时，文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.pptx`、`.ppt`。
-本工具用于创建**支持后缀**定义类型的云文档文件。创建 PDF 请使用 `upload_file`，创建文件夹请使用 `create_folder`，创建 `.ksheet` 请使用 `sheet.create_airsheet_file`。
+在云盘下新建文件时，文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.ksheet`、`.pptx`、`.ppt`。
+本工具用于创建**支持后缀**定义类型的云文档文件。创建 PDF 请使用 `upload_file`，创建文件夹请使用 `create_folder`。
 
 **`drive_id` / `parent_id`**（非必填）：
 - **用户未说明保存到哪个文件夹**：两参数可省略。
@@ -17,7 +17,7 @@
 #### 操作约束
 
 - **前置检查**：search_files 查重，避免创建同名文件
-- **前置检查**：name 必须带受支持后缀（.doc/.docx/.otl/.dbt/.xlsx/.xls/.pptx/.ppt），否则创建失败
+- **前置检查**：name 必须带受支持后缀（.doc/.docx/.otl/.dbt/.xlsx/.xls/.ksheet/.pptx/.ppt），否则创建失败
 - **后置验证**：get_file_info 确认文件已创建
 - **提示**：后缀不在支持集合时不要重试 create_file，应改走对应分流工具
 - **提示**：.md/.txt 不支持直接创建，请先转换后再创建或上传
@@ -48,6 +48,17 @@
 }
 ```
 
+创建智能表格：
+
+```json
+{
+  "drive_id": "string",
+  "parent_id": "string",
+  "name": "项目任务跟踪表.ksheet",
+  "on_name_conflict": "rename"
+}
+```
+
 仅必填字段（未指定目录时可不传 drive_id、parent_id）：
 
 ```json
@@ -62,7 +73,7 @@
 
 - `drive_id` (string, 可选): 目标云盘 ID，与 `parent_id` 一起指定保存位置
 - `parent_id` (string, 可选): 父目录 ID，根目录为 `"0"`。默认值为 `"0"`
-- `name` (string, 必填): 文件名，如 `方案.docx`、`周报.otl`。必须带文件类型后缀，支持 .doc/.docx/.otl/.dbt/.xlsx/.xls/.pptx/.ppt。`.pdf`、`.form`、`.md`、`.txt` 不支持通过本工具创建
+- `name` (string, 必填): 文件名，如 `方案.docx`、`周报.otl`。必须带文件类型后缀，支持 .doc/.docx/.otl/.dbt/.xlsx/.xls/.ksheet/.pptx/.ppt。`.pdf`、`.form`、`.md`、`.txt` 不支持通过本工具创建
 - `on_name_conflict` (string, 可选): 文件名冲突处理方式。可选值：`fail` / `rename` / `overwrite` / `replace`；默认值：`rename`
 - `parent_path` (array[string], 可选): 相对路径（每段为文件目录名，非 ID），不存在则自动创建
 
@@ -352,8 +363,8 @@
 
 #### 操作约束
 
-- **前置检查**（更新已有文件时）：先 read_file_content 读取现有内容，确认覆盖范围
-- **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file_content 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
+- **前置检查**（更新已有文件时）：先 read_file 读取现有内容，确认覆盖范围
+- **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
 
 **幂等性**：是
 

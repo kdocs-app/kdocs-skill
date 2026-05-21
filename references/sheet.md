@@ -29,12 +29,12 @@
 
 #### 创建智能表格
 
-通过 `sheet.create_airsheet_file` 创建，`.ksheet` 不要再走 `create_file`：
+通过 `create_file` 创建，`name` 须带 `.ksheet` 后缀：
 
 ```json
 {
-  "type": "ksheet",
-  "tname": "项目任务跟踪表.ksheet"
+  "name": "项目任务跟踪表.ksheet",
+  "parent_id": "folder_abc123"
 }
 ```
 
@@ -75,7 +75,7 @@
 - 需要做任务管理/项目跟踪 → 选 **ksheet**
 - 需要做财务报表 → 选 **Excel**
 
-> **注意**：`ksheet` 文件创建需使用 `sheet.create_airsheet_file`；创建完成后，和 Excel 一样继续使用 `sheet.*` 接口做工作表管理与数据操作。
+> **注意**：`ksheet` 文件创建完成后，和 Excel 一样继续使用 `sheet.*` 接口做工作表管理与数据操作。
 
 ### 表格增强能力
 
@@ -98,7 +98,6 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`sheet.get_sheets_info`](sheet/worksheet.md) | 获取工作表列表 | `file_id` |
-| [`sheet.create_airsheet_file`](sheet/worksheet.md) | 新建智能表格文件 | `tname` |
 | [`sheet.add_sheet`](sheet/worksheet.md) | 新增工作表 | `file_id` |
 | [`sheet.update_sheet`](sheet/worksheet.md) | 更新工作表 | `file_id`, `worksheet_id` |
 | [`sheet.delete_sheets`](sheet/worksheet.md) | 删除工作表 | `file_id` |
@@ -193,7 +192,8 @@
 
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
-| 读表格（矩形区域） | `sheet.get_sheets_info` → `sheet.get_range_data` |
+| 表格概览/首读 | `read_file`（可选 `sheet_name`、`sheet_range`） |
+| 读表格（矩形区域，精读/校验） | `sheet.get_sheets_info` → `sheet.get_range_data` |
 | 写表格（批量改单元格） | `sheet.get_range_data`（可选对照）→ `sheet.update_range_data` → `sheet.get_range_data` 验证 |
 | 给某列配置下拉选项 | `sheet.get_data_validations`（可选）→ `sheet.create_data_validations` / `sheet.update_data_validations` |
 | 管理条件格式高亮 | `sheet.get_conditional_format_rules` → `sheet.create_conditional_format_rules` / `sheet.update_conditional_format_rules` / `sheet.delete_conditional_format_rules` |

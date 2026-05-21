@@ -49,7 +49,7 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 
 #### 首选方式：`otl.block_query`（结构化读取）
 
-使用 `otl.block_query` 查询文档块结构与内容，能完整获取文档的层级信息和全部块类型。传入 `blockIds: ["doc"]` 可获取全文：
+使用 `otl.block_query` 查询文档块结构与内容，能完整获取文档的层级信息和全部块类型。传入 `params: { blockIds: ["doc"] }` 可获取全文：
 
 ```json
 {
@@ -58,72 +58,11 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 }
 ```
 
-#### 备选方式：`read_file_content`（Markdown 导出）
+#### 备选方式：`read_file`（Markdown 导出）
 
-> ⚠️ `read_file_content` 对智能文档存在**内容遗漏风险**——部分组件类型（如嵌入表格、附件、特殊块）可能在转换过程中丢失。**仅在需要将文档导出为 Markdown 格式时使用**，日常读取和编辑前的内容确认应优先使用 `otl.block_query`。
+> ⚠️ `read_file` 对智能文档存在**内容遗漏风险**——部分组件类型（如嵌入表格、附件、特殊块）可能在转换过程中丢失。**仅在需要将文档导出为 Markdown 格式时使用**，日常读取和编辑前的内容确认应优先使用 `otl.block_query`。
 
-> **图片导出**：默认导出的 Markdown 不含图片链接。仅当需要获取文档中的图片时，传入 `enable_upload_medias: true`，导出结果中的图片会携带可下载的 URL。**注意：该 URL 有效期约 10 分钟**，导出完成后应立即告知用户图片链接存在有效期限制，并询问是否需要下载；若用户需要下载，须在有效期内及时完成。
-
-##### 步骤 1：提交读取任务
-
-调用参数：
-
-```json
-{
-  "drive_id": "drive_abc123",
-  "file_id": "file_otl_001",
-  "format": "markdown",
-  "include_elements": ["all"],
-  "enable_upload_medias": false
-}
-```
-
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `drive_id` | string | 是 | 文件所在云盘 ID |
-| `file_id` | string | 是 | 文件 ID |
-| `format` | string | 是 | 固定传 `"markdown"` |
-| `include_elements` | array | 是 | 固定传 `["all"]` |
-| `enable_upload_medias` | boolean | 否 | 默认 `false`，图片为空链接；为 `true` 时图片携带临时可下载 URL（有效期约 10 分钟） |
-
-> **⚠️ CLI 调用注意**：`include_elements` 是**数组**，`key=value` 语法无法可靠传递数组。请用 JSON 字符串或 `--file` 传递：
->
-> ```shell
-> kdocs-cli drive read-file-content '{"drive_id":"<DRIVE_ID>","file_id":"<FILE_ID>","format":"markdown","include_elements":["all"]}'
-> ```
->
-> 或使用 `--file` 方式：`kdocs-cli drive read-file-content --file params.json`
-
-##### 步骤 2：轮询获取内容
-
-将步骤 1 返回的 `task_id` 加入参数再次调用：
-
-```json
-{
-  "drive_id": "drive_abc123",
-  "file_id": "file_otl_001",
-  "format": "markdown",
-  "include_elements": ["all"],
-  "enable_upload_medias": false,
-  "task_id": "步骤1返回的task_id"
-}
-```
-
-> **CLI 轮询命令**（替换 `<TASK_ID>` 为步骤 1 返回值）：
->
-> ```shell
-> kdocs-cli drive read-file-content '{"drive_id":"<DRIVE_ID>","file_id":"<FILE_ID>","format":"markdown","include_elements":["all"],"task_id":"<TASK_ID>"}'
-> ```
->
-> 或使用 `--file` 方式（将含 `task_id` 的完整参数写入 JSON 文件）：`kdocs-cli drive read-file-content --file params.json`
-
-> ⚠️ **`include_elements` 必须是数组** `["all"]`，不是字符串 `"all"`。传错类型会导致服务端仅返回段落文本。
->
-> ⚠️ 轮询间隔按文件大小分档：`size` 字段统一使用 `FileInfo.size`（bytes）。优先从 `search_files.items[].file.size` 获取；若当前入口为 `get_share_info`（仅返回 `file_id/drive_id`），先调用 `get_file_info(file_id)` 补齐 `data.size`。推荐策略：
-> - `small`（`<1MB`）：`1s,1s,2s`
-> - `medium`（`1MB~10MB`）：`2s,2s,3s`
-> - `large`（`>=10MB`）：`3s,3s,5s`
-> - `size` 缺失/异常：回退 `2s,2s,3s,5s`
+**图片导出**：默认导出的 Markdown 不含图片链接。需要图片时传 `enable_upload_medias: true`（仅 `format=markdown` 或 `kdc` 时生效），图片 URL **有效期约 10 分钟**——导出完成后须立即告知用户链接有时效限制，并询问是否需要下载。
 
 ---
 
@@ -152,7 +91,10 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
 | 新建文档并写入内容 | `create_file` → `otl.insert_content` |
-| 读取现有文档内容 | `otl.block_query`（`blockIds: ["doc"]` 获取全文） |
-| 导出文档为 Markdown | `read_file_content`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
+| 读取现有文档内容 | `otl.block_query`（`params: { blockIds: ["doc"] }` 获取全文） |
+| 导出文档为 Markdown | `read_file`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
 | 精确修改文档块 | `otl.block_query` → `otl.block_delete` / `otl.block_insert` |
+| 获取文档封面图 | `otl.block_query`（`params: { blockIds: ["doc"] }`）→ 查看返回的 `cover` 属性 |
+| 设置文档封面图 | `upload_attachment`（获取 `object_id`）→ `otl.block_update`（`update_attrs`，`blockId: "doc"`，`attrs.cover.sourceKey` 设为 `object_id`） |
+| 清除文档封面图 | `otl.block_update`（`update_attrs`，`blockId: "doc"`，`attrs: { cover: {} }`） |
 | 外部内容转块后插入 | `otl.convert` → `otl.block_insert` |

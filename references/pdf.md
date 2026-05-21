@@ -17,11 +17,11 @@
 
 ### 读取 PDF 内容
 
-通过 `read_file_content` 读取，系统会自动提取文本并转为 Markdown：
+通过 `read_file` 读取，系统会自动提取文本并转为 Markdown：
 
 ```json
 {
-  "file_id": "file_pdf_001"
+  "file_id": "PRNcAG1Di1MdWZGN2fvY1x5jJvvsWNgaa"
 }
 ```
 
@@ -62,40 +62,11 @@
 
 | 目标 | 推荐工具 |
 |------|------|
-| 只想读取 PDF 文本内容 | `read_file_content` |
+| 只想读取 PDF 文本内容 | `read_file` |
 | 想知道 PDF 一共有多少页 | `pdf.get_pdf_page_count` |
 | 想从 PDF 中抽取部分页面生成新 PDF | `pdf.extract_pdf_pages` |
 | 想把 PDF 转成可编辑文档（docx/xlsx/pptx） | `pdf.convert`（默认付费额度，VIP 不足时降级 `is_free_convert=true` 重试） + `pdf.convert_query` |
 | 想做 PDF 全文翻译并导出（单语/双语） | `pdf.translate_full_file`（必要时 `pdf.get_translate_progress` / `pdf.cancel_translate`） |
-
----
-
-## 一、读取 PDF 内容
-
-### 1. read_file_content
-
-#### 功能说明
-
-读取指定文件的内容，系统会自动提取文本并转为 Markdown 格式。
-
-**适用于**：阅读理解、摘要、信息提取。
-
-#### 调用示例
-
-```json
-{
-  "file_id": "file_pdf_001"
-}
-```
-
-#### 参数说明
-
-- `file_id` (string, 必填): 文件 ID
-
-#### 模型使用建议
-
-- 当用户说"帮我读一下这个 PDF 讲了什么"时，优先使用这个工具
-- 返回内容更适合"阅读理解、摘要、信息提取"，不适合依赖版式精确保真的任务
 
 ---
 
@@ -146,7 +117,7 @@
 
 **读取 PDF 内容**：
 1. `search_files` 或 `get_share_info` 定位文档 → 获取 `file_id`、`drive_id`
-2. `read_file_content(file_id=..., format="markdown")` → 返回 Markdown 文本
+2. `read_file(file_id=...)` → 返回 Markdown 文本
 > 适合摘要、信息提取等场景；复杂排版可能有精度损失
 
 **查询 PDF 页数**：
@@ -193,7 +164,7 @@
 
 ## 常见决策示例
 
-- 用户说"帮我读一下这个 PDF 讲了什么"：用 `read_file_content`
+- 用户说"帮我读一下这个 PDF 讲了什么"：用 `read_file`
 - 用户说"这个 PDF 有多少页"：用 `pdf.get_pdf_page_count`
 - 用户说"把第 2 到 6 页单独导出来"：用 `pdf.extract_pdf_pages`
 - 用户说"把这个 PDF 转成 Word/Excel/PPT"：先用 `pdf.convert`（默认 `is_free_convert=false`），若返回会员不足错误（`code=400100` / `VipLevelNotEnough`）则将 `is_free_convert` 改为 `true` 重试，再用 `pdf.convert_query` 轮询结果
