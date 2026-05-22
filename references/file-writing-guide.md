@@ -75,3 +75,8 @@
 
 - 新建：`create_file` 或 `upload_file` 上传本地 pptx
 - AI 生成型 PPT：使用 `aippt.execute`，通过 `task_type` 路由到主题生成（`theme_ppt`）或文档转 PPT（`doc_ppt`）流水线
+
+**纯文本 / Markdown**（.txt / .md）：
+
+- 新建写入：`upload_file(drive_id, parent_id, name="xxx.txt", content_base64=...)`
+- 内容为 UTF-8 纯文本，Base64 编码后传入 `content_base64`

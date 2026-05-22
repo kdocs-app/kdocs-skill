@@ -347,9 +347,9 @@
 **全量上传写入文件**：服务端完成三步上传。两种用法（二选一）：
 
 1. **更新已有文件**：传 `file_id`（**仅限 docx / pdf 文件**，xlsx/pptx/otl 等不支持覆盖）
-2. **新建并上传本地文件**：传 `name`（必须带后缀 `.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf`）
+2. **新建并上传本地文件**：传 `name`（必须带后缀 `.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf/.md/.txt`）
 
-> **不支持的文件类型**：`.txt`、`.csv`、`.md`、`.json`、`.html`、`.xml`、`.zip`、`.png`、`.jpg` 等均不可直接上传。
+> **不支持的文件类型**：`.csv`、`.json`、`.html`、`.xml`、`.zip`、`.png`、`.jpg` 等均不可直接上传。
 
 **三个必传参数**：`file_id` 或 `name`（二选一）+ `content_base64`（始终必传）。缺少任何一个都会报错。
 
@@ -432,7 +432,7 @@ Markdown 新建文件（未指定目录时可不传 drive_id、parent_id）：
 - `drive_id` (string, 可选): 目标云盘 ID。新建：规则见上文「`drive_id` / `parent_id`」。更新：与目标文件所在盘一致。
 - `parent_id` (string, 可选): 父文件夹 ID；保存到该盘根目录时传 `"0"`。新建：规则见上文。更新：与目标文件父目录一致。
 - `file_id` (string, 二选一必填: `file_id` / `name`): 条件必填（与 name 二选一，不可都不传）：更新模式必填。要覆盖的文件 ID。**仅支持目标文件为 docx 或 pdf**；若目标是 xlsx/pptx/otl 等其他类型，此接口无法更新，请改用对应的编辑接口
-- `name` (string, 二选一必填: `file_id` / `name`): 条件必填（与 file_id 二选一，不可都不传）：新建模式必填。文件名**必须带以下后缀之一**：`.doc` / `.docx` / `.xls` / `.xlsx` / `.ppt` / `.pptx` / `.pdf`。不支持 .txt/.csv/.md/.json/.html/.xml 等非办公格式
+- `name` (string, 二选一必填: `file_id` / `name`): 条件必填（与 file_id 二选一，不可都不传）：新建模式必填。文件名**必须带以下后缀之一**：`.doc` / `.docx` / `.xls` / `.xlsx` / `.ppt` / `.pptx` / `.pdf` / `.md` / `.txt`。不支持 .csv/.json/.html/.xml 等格式
 - `content_base64` (string, 必填): **必填**，不可省略。源文件内容的 Base64 编码字符串。必须先读取文件二进制内容再做 Base64 编码传入；若源内容为 Markdown 文本，需先将 UTF-8 文本做 Base64 编码，并同时传 `content_format=markdown`
 - `content_format` (string, 可选): 源内容格式。省略时按目标文件后缀推断。传 `markdown` 时服务端将 Markdown 转为目标格式后上传（仅支持目标为 docx / pdf）。注意：content_base64 的内容必须与此格式一致，不可将二进制办公文件内容以 `markdown` 格式传入。可选值：`doc` / `docx` / `xls` / `xlsx` / `ppt` / `pptx` / `pdf` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
