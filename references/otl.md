@@ -94,7 +94,8 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 | 读取现有文档内容 | `otl.block_query`（`params: { blockIds: ["doc"] }` 获取全文） |
 | 导出文档为 Markdown | `read_file`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
 | 精确修改文档块 | `otl.block_query` → `otl.block_delete` / `otl.block_insert` |
-| 获取文档封面图 | `otl.block_query`（`params: { blockIds: ["doc"] }`）→ 查看返回的 `cover` 属性 |
+| 下载文档中的图片/附件 | `otl.block_query` → 找到目标块的 `sourceKey` → `download_attachment`（`attachment_id` 为 `sourceKey`） |
+| 获取文档封面图 | `otl.block_query`（`params: { blockIds: ["doc"] }`）→ 查看返回的 `cover.sourceKey`；可通过 `download_attachment` 下载封面图资源 |
 | 设置文档封面图 | `upload_attachment`（获取 `object_id`）→ `otl.block_update`（`update_attrs`，`blockId: "doc"`，`attrs.cover.sourceKey` 设为 `object_id`） |
 | 清除文档封面图 | `otl.block_update`（`update_attrs`，`blockId: "doc"`，`attrs: { cover: {} }`） |
 | 外部内容转块后插入 | `otl.convert` → `otl.block_insert` |

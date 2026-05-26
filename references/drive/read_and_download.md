@@ -164,7 +164,59 @@ file_id：
 
 ---
 
-## 3. read_file
+## 3. download_attachment
+
+#### 功能说明
+
+查询文档附件的下载信息。根据文件 ID 与附件 ID 获取附件下载链接、名称与大小；链接为有效期内可直接下载的 URL。
+
+
+
+> 返回的 url 有时效限制，应在获取后尽快使用
+> attachment_id 来源：`upload_attachment` 返回的 `object_id`
+
+#### 调用示例
+
+获取附件下载信息：
+
+```json
+{
+  "file_id": "string",
+  "attachment_id": "1234567890"
+}
+```
+
+
+#### 参数说明
+
+- `file_id` (string, 必填): 文件 ID
+- `attachment_id` (string, 必填): 附件 ID（通过 `upload_attachment` 返回的 `object_id`）
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "msg": "ok",
+  "data": {
+    "url": "https://cdn.example.com/attachments/abc123?token=xxx",
+    "filename": "设计稿.png",
+    "size": 1048576
+  }
+}
+
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.url` | string | 附件下载地址，有效期内可直接下载 |
+| `data.filename` | string | 附件文件名 |
+| `data.size` | number | 附件大小（字节） |
+
+
+---
+
+## 4. read_file
 
 #### 功能说明
 
@@ -301,7 +353,7 @@ file_id：
 
 ---
 
-## 4. get_file_info
+## 5. get_file_info
 
 #### 功能说明
 
@@ -423,7 +475,7 @@ file_id：
 
 ---
 
-## 5. read_file_content
+## 6. read_file_content
 
 #### 功能说明
 
@@ -478,7 +530,7 @@ file_id：
 - `link_id` (string, 二选一必填: `file_id` / `link_id`): 分享链接 ID。与 `file_id` 二选一传入；通过分享链接访问文件时使用
 - `format` (string, 可选): 文档内容目标格式。可选值：`kdc`（结构化表示）/ `plain`（纯文本）/ `markdown`
 - `include_elements` (array, 可选): 指定抽取元素。默认元素为 `para`（段落），且一定会被导出；其余附加元素根据参数选择性导出。可选值：`para` / `table` / `component` / `textbox` / `all`
-- `enable_upload_medias` (boolean, 可选): 是否将文档中的多媒体附件上传云存储，默认 false；为 true 时抽取结果中附件(比如图片)会返回有效期内可下载的 URL, 只有当format=markdown或者kdc才生效
+- `enable_upload_medias` (boolean, 可选): 是否将文档中的多媒体附件上传云存储，默认 false；为 true 时抽取结果中附件(比如图片)会返回有效期内可下载的 URL, 只有当format=markdown或者kdc才生效。**注意：URL 有效期约 10 分钟**，导出完成后应立即告知用户图片链接存在有效期限制，并询问是否需要下载；若用户需要下载，须在有效期内及时完成
 - `mode` (string, 可选): **仅支持 `async`**，无需传或固定传 `async`
 - `task_id` (string, 可选): 异步任务 ID，用于结果轮询；首次调用不传，后续用返回的 `task_id` 查询直至 `task_status` 为 `success`
 
