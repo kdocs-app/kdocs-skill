@@ -14,14 +14,13 @@
 - 若只是读取正文内容，仍优先使用通用工具 `read_file`
 
 ### 何时使用 `wps.*`
-
 - 需要新建一个空白在线文字文档
 - 需要把在线文字导出为 DOCX、PDF、图片或 AP 文稿
 - 需要对文档执行原子操作：读取/修改指定段落内容、查找替换、设置段落格式、设置字符格式等
 
 ### 何时不要用 `wps.*`
-
-- 创建普通 `.docx` 文件：用 `create_file`
+- 创建空白文档 `.docx` 文件：用 `create_file`
+- 创建并写入，优先用工具 `create_file_with_content`
 - 上传或覆盖本地 docx/pdf 文件：用 `upload_file`
 - 写 Markdown 富文本内容到智能文档：用 `otl.*`
 

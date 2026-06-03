@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.5.6
+version: 2.5.7
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","form","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -22,7 +22,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 
 - 不可逆操作（delete/close 类）执行前必须向用户确认
 - 写操作完成后必须用独立读取请求验证实际结果（不信任 `code: 0`）
-- 创建文档并验证通过后，必须调用 `get_file_link` 获取链接并展示给用户
+- 创建云文档文件并验证通过后，必须向用户展示可访问链接。若响应包含 `data.link_url` 则直接展示；若响应无链接时，调用 `get_file_link` 获取并展示。
 - 调用工具前必须先阅读对应的 `references/` 详细参考文档，禁止仅凭指南（guide）的概要说明直接拼装调用；参数细节（类型、可选值、约束）以工具参考文档为准
 
 ---
@@ -115,12 +115,12 @@ Agent 首先判定用户请求的操作域：
 
 | 操作域 | 触发场景 | 路由 |
 |--------|---------|------|
-| 创建/写入 | 新建文档/编辑内容/上传文件 | **必读** `references/file-writing-guide.md` |
-| 局部更新 | 修改部分内容/块级编辑/更新单元格 | 按文档类型查下方表 → 对应 reference 中的写入/更新类工具 |
+| 创建/写入 | 新建并写入、上传本地文件、新建空白文档 | **见下方「创建/写入」** |
+| 局部更新 | 改块/改段/改单元格，已有目标文档上的修改 | 按「支持的文档类型」→ 对应 reference 中的写入/更新类工具 |
+| 类型专属能力 | 条件格式、导出转换、翻译、PDF 拆分、幻灯片主题、数据校验 | 按「支持的文档类型」→ 对应 reference 中的专属功能章节 | 读取 | 读取/提取/导出文档内容 | `read_file`（传 url 或 file_id，详见 `references/drive/read_and_download.md`）；没有则先「定位文件」 |
 | 读取 | 读取/提取/导出文档内容 | `read_file`（传 url 或 file_id，详见 `references/drive/read_and_download.md`）；没有则先「定位文件」 |
 | 定位文件 | 搜索/按链接找文件/浏览目录 | **必读** `references/file-locating-guide.md` |
 | 文件管理 | 移动/重命名/分享/标签/收藏/回收站 | → `references/drive.md` |
-| 文档专项功能 | 格式/样式/导出/转换/数据校验等 | 按文档类型查下方表 → 对应 reference |
 | AI 生成 | AI 做PPT/生成演示文稿 | → `references/aippt.md` |
 | 知识库 | 知识库空间/导入/整理 | → `references/kwiki.md` |
 
@@ -139,19 +139,18 @@ Agent 首先判定用户请求的操作域：
 
 ### 高频流程指引
 
-#### 创建并写入文档
+#### 创建/写入
 
-执行顺序：
-1) 先按 `references/file-locating-guide.md` 获取目标目录 `drive_id`(可选)、`parent_id`(可选)。
-2) 再按 `references/file-writing-guide.md` 选择文档类型与写入路径。
-字段传递：步骤 1 获取 `drive_id`(可选)、`parent_id`(可选)，作为步骤 2 的输入，执行"新建写入"流程。
+| 用户意图 | 工具 | 适用后缀 |
+|----------|------|----------|
+| 对话中已有要写的内容 | `create_file_with_content` | .otl .docx .pdf .xlsx .ksheet .dbt |
+| 上传本地已有文件 | `upload_file` | .doc .docx .xls .xlsx .ppt .pptx .pdf .md .txt |
+| 新建空白文档（不写内容） | `create_file` | .doc .docx .otl .dbt .xlsx .xls .ksheet .pptx .ppt |
+| AI 生成 PPT | `aippt.execute` | .pptx |
 
-#### 上传本地文件到云盘
+后缀不确定时默认 `.otl`。指定文件夹时先按 `references/file-locating-guide.md` 取 `drive_id`、`parent_id`。
 
-执行顺序：
-1) 先按 `references/file-locating-guide.md` 获取目标目录 `drive_id`(可选)、`parent_id`(可选)、`file_id`(可选)。
-2) 再按 `references/file-writing-guide.md` 的“本地文件上传（upload_file）”路径调用上传能力（新建上传或覆盖更新）。
-字段传递：新建上传使用步骤 1 的 `drive_id`(可选)、`parent_id`(可选) + `name`；覆盖更新使用步骤 1 的 `file_id` 。
+选定工具后，阅读 `references/drive/create_and_upload.md` 对应章节获取参数约束（`aippt.execute` 见 `references/aippt.md`）。
 
 #### 搜索定位文档
 

@@ -13,30 +13,28 @@
 - **Excel（.xlsx）**：传统在线表格
 - **智能表格（.ksheet）**：高级结构化表格
 
-### 创建表格文件
+### 新建并写入
 
-#### 创建 Excel 文件
-
-通过 `create_file` 创建，`name` 须带 `.xlsx` 后缀，`file_type` 设为 `file`：
+新建表格并写入 → `create_file_with_content`：`name` 后缀 `.xlsx` 或 `.ksheet`，传 `rangeData`（单表、≤500 项；参数与失败补写见 `drive/create_file_with_content`）。
 
 ```json
 {
   "name": "销售数据表.xlsx",
-  "file_type": "file",
-  "parent_id": "folder_abc123"
+  "rangeData": [
+    {
+      "row_from": 0,
+      "row_to": 0,
+      "col_from": 0,
+      "col_to": 2,
+      "formula": [["姓名", "部门", "金额"]]
+    }
+  ]
 }
 ```
 
-#### 创建智能表格
+### 写入/更新已有表格
 
-通过 `create_file` 创建，`name` 须带 `.ksheet` 后缀：
-
-```json
-{
-  "name": "项目任务跟踪表.ksheet",
-  "parent_id": "folder_abc123"
-}
-```
+批量改单元格、筛选、条件格式等 → 下文 `sheet.*` 与「工具组合速查」。精读区域用 `sheet.get_range_data`；概览首读可用 `read_file`（可选 `sheet_name`、`sheet_range`）。定位目标文件见 `file-locating-guide`。
 
 ### Excel vs 智能表格（ksheet）对比
 
@@ -192,6 +190,7 @@
 
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
+| 新建表格并写入初稿 | 见 SKILL「创建/写入」 |
 | 表格概览/首读 | `read_file`（可选 `sheet_name`、`sheet_range`） |
 | 读表格（矩形区域，精读/校验） | `sheet.get_sheets_info` → `sheet.get_range_data` |
 | 写表格（批量改单元格） | `sheet.get_range_data`（可选对照）→ `sheet.update_range_data` → `sheet.get_range_data` 验证 |

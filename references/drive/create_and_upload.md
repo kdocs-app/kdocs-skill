@@ -4,13 +4,12 @@
 
 #### 功能说明
 
-在云盘下新建文件时，文档类型通过 `name` 的后缀指定（如 `.otl`、`.docx`）。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.ksheet`、`.pptx`、`.ppt`。
-本工具用于创建**支持后缀**定义类型的云文档文件。创建 PDF 请使用 `upload_file`，创建文件夹请使用 `create_folder`。
+在云盘下新建空白文件，文档类型由 `name` 后缀决定。支持后缀：`.doc`、`.docx`、`.otl`、`.dbt`、`.xlsx`、`.xls`、`.ksheet`、`.pptx`、`.ppt`。
 
-**`drive_id` / `parent_id`**（非必填）：
-- **用户未说明保存到哪个文件夹**：两参数可省略。
-- **用户已说明目标文件夹且已查到**对应的 `drive_id` 与 `parent_id`：必须传入这两项。查不到时先 `search_files` 或请用户说明，勿编造 ID。
-- 如何查询 ID 见 `file-locating-guide`。
+对话里已有要写入的正文/表格/记录 → 用 `create_file_with_content`，勿用本工具代替。
+本地上传整文件、新建 PDF、`.txt`/`.md` → 见 `upload_file`。
+
+已知文件目标存储目录时，必填`drive_id`和`parent_id`指定目录；如何查询 ID 见 `file-locating-guide`。
 
 
 
@@ -222,7 +221,190 @@
 
 ---
 
-## 3. scrape_url
+## 3. create_file_with_content
+
+#### 功能说明
+
+对话中已有要写入的正文、表格数据或多维表记录时，一步完成新建+写入。
+
+
+
+#### 操作约束
+
+- **前置检查**：name 必须含受支持后缀（.otl/.docx/.pdf/.xls/.xlsx/.ksheet/.dbt）
+- **后置验证**：成功时检查 code=0 与 data.file_id，并用 read 类工具验证写入；data.link_url 非空则直接展示
+- **提示**：表格仅单表 rangeData；多表或超 500 项请建空文件后用 sheet.update_range_data 续写
+- **提示**：dbt：records 列名须在 fields 中声明
+
+**幂等性**：否 — 失败且 data 含 file_id 时，按 msg 与 param_detail「失败补写」选用原子工具，勿重试本工具
+
+#### 调用示例
+
+新建智能文档（Markdown 正文）：
+
+```json
+{
+  "name": "Q1区域销售周报.otl",
+  "content": "# Q1 销售周报\n\n## 概述\n\n本季度销售额同比增长 15%。"
+}
+```
+
+新建表格（rangeData + sheet_name）：
+
+```json
+{
+  "name": "三月台账.xlsx",
+  "sheet_name": "三月台账",
+  "rangeData": [
+    {
+      "row_from": 0,
+      "row_to": 0,
+      "col_from": 0,
+      "col_to": 2,
+      "formula": [
+        [
+          "姓名",
+          "部门",
+          "金额"
+        ]
+      ]
+    },
+    {
+      "row_from": 1,
+      "row_to": 1,
+      "col_from": 0,
+      "col_to": 2,
+      "formula": [
+        [
+          "张三",
+          "研发",
+          "1000"
+        ]
+      ]
+    }
+  ]
+}
+```
+
+新建多维表（fields + records + sheet_name）：
+
+```json
+{
+  "name": "活动报名.dbt",
+  "sheet_name": "报名名单",
+  "fields": [
+    {
+      "name": "姓名",
+      "type": "SingleLineText"
+    },
+    {
+      "name": "手机",
+      "type": "SingleLineText"
+    },
+    {
+      "name": "部门",
+      "type": "SingleSelect",
+      "items": [
+        {
+          "value": "市场"
+        },
+        {
+          "value": "研发"
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "fields": {
+        "姓名": "李四",
+        "手机": "13800000000",
+        "部门": "市场"
+      }
+    }
+  ]
+}
+```
+
+
+#### 参数说明
+
+- `name` (string, 必填): 带后缀的文件名，决定分支
+- `content` (string, 可选): 格式为 otl / docx / pdf 时需要填入 UTF-8 正文，语义为 Markdown；不得为文件二进制
+- `rangeData` (array[object], 可选): 格式为 xls / xlsx / ksheet 时需要填入单表单元格数据；项数 ≤ 500；子字段见下
+  - `row_from` / `row_to` / `col_from` / `col_to` (number, 必填): 矩形区域，0 起
+  - `formula` (array, 必填): 二维单元格值；仅写值，格式/合并见建好后 `sheet.update_range_data`（参数名为 camelCase，勿混用）
+- `fields` (array[object], 可选): 格式为 dbt 时需要自定义列；`type` 见 `references/dbsheet/field.md`
+  - `name` (string, 必填): 列名，须与 `records[].fields` 的键一致
+  - `type` (string, 必填): 字段类型（SingleLineText / Number / SingleSelect / DateTime 等），完整枚举见 `references/dbsheet/field.md`
+- `records` (array[object], 可选): 格式为 dbt 时需要填入批量新建记录，条数 ≤ 500
+  - `fields` (object, 必填): `{列名: 值}`；值格式见 `references/dbsheet/record.md`「fields 对象各字段类型填写规范」
+- `sheet_name` (string, 可选): 格式为 xls / xlsx / ksheet / dbt 时设置目标工作表名称（非 sheet_id）；不传则写入首张表（可有 warnings）
+- `drive_id` (string, 可选): 目标云盘 ID
+- `parent_id` (string, 可选): 父文件夹 ID，根目录为 `"0"`
+
+#### 按 `name` 后缀选参数
+
+| 后缀 | 必传 |
+|--------|----------|
+| `.otl` `.docx` `.pdf` | `name` + `content`—UTF-8 Markdown 文本，服务端转为对应格式 |
+| `.xls` `.xlsx` `.ksheet` | `name` + `rangeData`—非空数组，仅单表，≤ 500 项 |
+| `.dbt` | `name` + `fields` + `records`—`fields` 定义列，`records` 填入行数据 |
+
+#### 失败补写（创建成功但写入失败时的恢复路径）
+
+| 后缀 | 建议工具 | 参数要点 |
+|------|----------|----------|
+| `.otl` | `otl.insert_content` | `content`、`format=markdown`、`mode=prepend` |
+| `.docx` `.pdf` | `upload_file` | `file_id` + `content_base64`（本地上传新版本全文覆盖） |
+| `.xls` `.xlsx` `.ksheet` | `sheet.update_range_data` | `file_id` + `sheetId` + `rangeData` |
+| `.dbt` | `dbsheet.create_records`；缺列先 `dbsheet.create_fields` | `file_id` + `sheet_id` + `records` |
+
+
+#### 返回值说明
+
+```json
+// 成功（智能文档）
+{
+  "code": 0,
+  "msg": "ok",
+  "data": {
+    "file_id": "nUaJ8MnXS1MKhbGG1VGdrxGJ7AygCANh",
+    "drive_id": "2101657290",
+    "link_id": "dpjw3VgQkZrm",
+    "name": "Q1区域销售周报.otl",
+    "suffix": ".otl",
+    "link_url": "https://www.kdocs.cn/l/dpjw3VgQkZrm",
+    "bytes_written": 2048,
+    "records_written": 0,
+    "fields_written": 0,
+    "sheets_written": 0,
+    "sheet_id": 0,
+    "warnings": []
+  }
+}
+
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.file_id` | string | 新建文件 ID |
+| `data.drive_id` | string | 云盘 ID |
+| `data.link_id` | string | 分享链接 ID |
+| `data.name` | string | 文件名 |
+| `data.suffix` | string | 文件后缀，如 .docx .otl .dbt |
+| `data.link_url` | string | 可打开链接 |
+| `data.bytes_written` | number | 文本类（.otl/.docx/.pdf 等）本次写入字节数；其余后缀为 0 |
+| `data.records_written` | number | dbt 本次插入条数；其余后缀为 0 |
+| `data.fields_written` | number | dbt 本次建列数；未传 fields 为 0 |
+| `data.sheets_written` | number | 表格类（.xlsx/.ksheet 等）本次写入表数 |
+| `data.sheet_id` | number | 表格/多维表本次写入目标表 ID |
+| `data.warnings` | array | 非致命提示（如未传 sheet_name 时默认首张表）；不表示写入失败 |
+
+
+---
+
+## 4. scrape_url
 
 #### 功能说明
 
@@ -275,7 +457,7 @@
 
 ---
 
-## 4. scrape_progress
+## 5. scrape_progress
 
 #### 功能说明
 
@@ -315,6 +497,7 @@
     "code": 0,
     "data": {
         "scrape_file_id": 501370651020,
+        "link_url": "https://www.kdocs.cn/l/dpjw3VgQkZrm",
         "status": 1,
         "file_name": "［麦理浩径二段精华段+大湾海滩］周四：3月19日 麦径二段12公里徒步，超适合新手小白！.otl",
         "parent_id": 498552876371,
@@ -330,6 +513,7 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `data.scrape_file_id` | number | 剪藏专用文档标识 |
+| `data.link_url` | string | 剪藏内容写入智能文档链接 |
 | `data.status` | number | 任务状态: 1=完成, -1=失败, 其他=进行中 |
 | `data.file_name` | string | 文件名 |
 | `data.parent_id` | number | 父目录ID |
@@ -340,7 +524,7 @@
 
 ---
 
-## 5. upload_file
+## 6. upload_file
 
 #### 功能说明
 
@@ -349,7 +533,7 @@
 1. **更新已有文件**：传 `file_id`（**仅限 docx / pdf 文件**，xlsx/pptx/otl 等不支持覆盖）
 2. **新建并上传本地文件**：传 `name`（必须带后缀 `.doc/.docx/.xls/.xlsx/.ppt/.pptx/.pdf/.md/.txt`）
 
-> **不支持的文件类型**：`.csv`、`.json`、`.html`、`.xml`、`.zip`、`.png`、`.jpg` 等均不可直接上传。
+ > **不支持的文件类型**：`.csv`、`.json`、`.html`、`.xml`、`.zip`、`.png`、`.jpg` 等均不可直接上传。
 
 **三个必传参数**：`file_id` 或 `name`（二选一）+ `content_base64`（始终必传）。缺少任何一个都会报错。
 
@@ -364,6 +548,7 @@
 #### 操作约束
 
 - **前置检查**（更新已有文件时）：先 read_file 读取现有内容，确认覆盖范围
+- **禁止**：勿用于 .otl 智能文档覆盖；智能文档新建用 create_file_with_content，已有文档追加用 otl.insert_content
 - **后置验证**：写入后确认结果：通过接口返回的 size 字段判断，小文件用 read_file 确认写入结果；大文件优先关键段抽样回读或元信息校验（大小/更新时间/版本）
 
 **幂等性**：是
@@ -471,7 +656,7 @@ Markdown 新建文件（未指定目录时可不传 drive_id、parent_id）：
 
 ---
 
-## 6. upload_attachment
+## 7. upload_attachment
 
 #### 功能说明
 

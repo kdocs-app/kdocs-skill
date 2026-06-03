@@ -14,6 +14,7 @@
 |------|------|----------|
 | [`create_file`](drive/create_and_upload.md) | 在云盘下新建文件 | `name` |
 | [`create_folder`](drive/create_and_upload.md) | 在云盘下新建文件夹 | `drive_id`, `parent_id`, `name` |
+| [`create_file_with_content`](drive/create_and_upload.md) | 新建并写入内容 | `name` |
 | [`scrape_url`](drive/create_and_upload.md) | 网页剪藏，抓取网页内容并自动保存为智能文档 | `url` |
 | [`scrape_progress`](drive/create_and_upload.md) | 查询网页剪藏任务进度 | `job_id` |
 | [`upload_file`](drive/create_and_upload.md) | 全量上传写入文件（更新已有 docx/pdf 或新建并上传本地文件） | `file_id`\|`name`, `content_base64` |

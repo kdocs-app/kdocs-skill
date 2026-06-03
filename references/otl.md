@@ -5,22 +5,7 @@
 ---
 
 ## 前置说明（重要）
-当终端为 PowerShell 时，为避免转义问题，推荐使用 `--file` 方式传入 JSON 参数：
-### JSON 参数传递方式
-#### 方式一：`--file`（推荐）
-先将参数写入 JSON 文件，再用 `--file` 传入：
-
-示例
-```powershell
-kdocs-cli otl block-query --file params.json
-```
-#### 方式二：JSON 字符串
-PowerShell 中双引号用 `\"` 转义：
-
-示例
-```powershell
-kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\":[\"doc\"]}}'
-```
+PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`；完整规则见 SKILL.md「调用格式」。otl 示例：`kdocs-cli otl block-query --file params.json`。
 
 ## 通用说明
 
@@ -31,19 +16,18 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 - 适合图文混排、报告撰写、知识文档、会议纪要等场景
 - 是网页剪藏（`scrape_url`）的默认输出格式
 
-### 创建智能文档
+### 新建并写入
 
-通过 `create_file` 创建，`name` 须带 `.otl` 后缀，`file_type` 设为 `file`：
+新建智能文档并写入 → `create_file_with_content`：`name` 后缀 `.otl`，传 `content`（Markdown 正文；参数与失败补写见 `drive/create_file_with_content`）。
+
+`.otl` 不支持 `upload_file` 覆盖；新建用 `create_file_with_content`，已有文档追加用 `otl.insert_content`。
 
 ```json
 {
   "name": "项目周报.otl",
-  "file_type": "file",
-  "parent_id": "folder_abc123"
+  "content": "# 项目周报\n\n## 概述\n\n本季度销售额同比增长 15%。"
 }
 ```
-
-创建完成后用下文 **`otl.insert_content`** 写入 Markdown/HTML。**勿**对 `.otl` 使用 `upload_file`：该工具面向本地文字/表格/演示/PDF 文件上传，不支持 `.otl` 智能文档。
 
 ### 读取智能文档
 
@@ -63,6 +47,10 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 > ⚠️ `read_file` 对智能文档存在**内容遗漏风险**——部分组件类型（如嵌入表格、附件、特殊块）可能在转换过程中丢失。**仅在需要将文档导出为 Markdown 格式时使用**，日常读取和编辑前的内容确认应优先使用 `otl.block_query`。
 
 **图片导出**：默认导出的 Markdown 不含图片链接。需要图片时传 `enable_upload_medias: true`（仅 `format=markdown` 或 `kdc` 时生效），图片 URL **有效期约 10 分钟**——导出完成后须立即告知用户链接有时效限制，并询问是否需要下载。
+
+### 写入/更新已有智能文档
+
+已有文档追加/前置/替换正文 → `otl.insert_content`（`mode` 见 `otl/insert_content.md`）。块级编辑 → `otl.block_query` → `otl.block_delete` / `otl.block_insert` / `otl.block_update`。定位目标文件见 `file-locating-guide`。
 
 ---
 
@@ -90,7 +78,8 @@ kdocs-cli otl block-query '{\"file_id\":\"cqTNWO4EMAn9\",\"params\":{\"blockIds\
 
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
-| 新建文档并写入内容 | `create_file` → `otl.insert_content` |
+| 新建文档并写入内容 | 见上文「新建并写入」 |
+| 向已有文档追加/前置正文 | `otl.insert_content`（`mode=prepend` / `append`；全文替换用 `mode=replace`，见 `otl/insert_content.md`） |
 | 读取现有文档内容 | `otl.block_query`（`params: { blockIds: ["doc"] }` 获取全文） |
 | 导出文档为 Markdown | `read_file`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
 | 精确修改文档块 | `otl.block_query` → `otl.block_delete` / `otl.block_insert` |
