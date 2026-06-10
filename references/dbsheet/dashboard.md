@@ -4,13 +4,12 @@
 
 #### 功能说明
 
-
-**前置条件**：`dashboard_id` 来自 `dbsheet.dashboard_list`。
-
+复制仪表盘
 
 
 #### 操作约束
 
+- **前置检查**：`dashboard_id` 来自 `dbsheet.dashboard_list`。
 - **后置验证**：dashboard_list 确认副本已创建
 
 **幂等性**：否 — 重复调用可能产生多个副本，先确认是否已成功

@@ -4,12 +4,14 @@
 
 #### 功能说明
 
-
-**必填 query**：无。
-
-**前置条件**：`view_id` 必须为 **Form（表单）** 视图；可用 `dbsheet.get_schema` / `dbsheet.views_list` 确认 `type` 为表单。
+列出表单问题
 
 
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id，且视图类型必须为表单视图。
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -27,7 +29,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID（非 Grid 等）
 
 #### 返回值说明
@@ -52,13 +54,12 @@
 
 #### 功能说明
 
-
-**前置条件**：表单视图；`field_id` 来自 list_fields。
-
+更新表单问题
 
 
 #### 操作约束
 
+- **前置检查**：使用该工具前必须先调用 get_schema 和 dbsheet.views_list 确认要操作的数据表 id 和视图 id，不得自行捏造数据表 id 和视图 id，且视图类型必须为表单视图。
 - **后置验证**：可用 dbsheet.form_list_fields 核对
 
 **幂等性**：是
@@ -83,7 +84,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
 - `field_id` (string, 必填): 表单字段 ID
 - `body` (object, 必填): 须含 field 对象
@@ -117,12 +118,14 @@
 
 #### 功能说明
 
-
-**必填 query**：无。
-
-**前置条件**：`view_id` 为表单视图。
+获取表单元数据
 
 
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id，且视图类型必须为表单视图。
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -140,7 +143,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
 
 #### 返回值说明
@@ -165,24 +168,27 @@
 
 #### 功能说明
 
+更新表单元数据
 
-**前置条件**：表单视图。
 
+#### 操作约束
 
+- **前置检查**：使用该工具前必须先调用 get_schema 和 dbsheet.views_list 确认要操作的数据表 id 和视图 id，不得自行捏造数据表 id 和视图 id，且视图类型必须为表单视图。
 
 **幂等性**：是
 
 #### 调用示例
 
-更新 meta：
+更新表单元数据：
 
 ```json
 {
   "file_id": "string",
   "sheet_id": 1,
-  "view_id": "FormViewId",
+  "view_id": "C",
   "body": {
-    "meta": {}
+    "description": "string",
+    "name": "string"
   }
 }
 ```
@@ -191,15 +197,16 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（**必须为整数**，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
-- `body` (object, 必填): JSON 请求体，须含 meta 对象
+- `body` (object, 必填): JSON 请求体，包含表单视图描述与名称
 
-**body 根级必填**
+**body（application/json）**
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `meta` | object | 表单展示配置，子字段以 update-meta 文档 为准 |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `description` | string | 否 | 表单视图描述 |
+| `name` | string | 否 | 表单视图名称 |
 
 
 #### 返回值说明

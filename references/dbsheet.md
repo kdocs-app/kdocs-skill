@@ -11,7 +11,7 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`dbsheet.get_schema`](dbsheet/data_table.md) | 获取文档结构（表/字段/视图） | `file_id` |
-| [`dbsheet.create_sheet`](dbsheet/data_table.md) | 创建数据表 | `file_id`, `name` |
+| [`dbsheet.create_sheet`](dbsheet/data_table.md) | 创建数据表 | `file_id`, `name`, `views`, `fields` |
 | [`dbsheet.update_sheet`](dbsheet/data_table.md) | 修改数据表名称 | `file_id`, `sheet_id` |
 | [`dbsheet.delete_sheet`](dbsheet/data_table.md) | 删除数据表 | `file_id`, `sheet_id` |
 | [`dbsheet.sheet_batch_create`](dbsheet/data_table.md) | 批量创建工作表 | `file_id`, `body` |
@@ -158,7 +158,6 @@
 
 | 类型 | 说明 |
 |------|------|
-| `SingleLineText` | 单行文本 |
 | `MultiLineText` | 多行文本 |
 | `Number` | 数值 |
 | `Currency` | 货币 |

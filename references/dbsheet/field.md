@@ -10,12 +10,14 @@
 
 #### 操作约束
 
-- **前置检查**：阅读 param_detail 中各 type 的专属属性及录入值说明，确认可创建字段类型后再组装 fields 参数；不得自行推断或捏造 type 值
+- **前置检查**：阅读 param_detail 中各 type 的专属属性及录入值说明，确认可创建字段类型后再组装 fields 参数；不得自行推断或捏造 type 值；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **禁止**：创建请求中禁止手填 `id`，`id` 仅由服务端分配
 - **后置验证**：get_schema 确认字段已创建
 
 **幂等性**：否 — 重复调用会创建重复字段，先确认是否已成功
 
+> 调用本工具前，必须先阅读 `param_detail` 中“各 type 的专属属性及录入值说明”，确认可创建字段类型后再生成参数，不可自主创造字段类型。
+> 文本类型相关的字段名称只有 `MultiLineText`（多行文本）；若需要创建“单行文本”，也直接使用 `MultiLineText`，不要创建其他名称的文本字段。
 > 字段专属属性（如 `items`、`numberFormat`、`max` 等）直接平铺在字段对象根级，**不存在 `data` 包装层**。
 > 选项类字段（`SingleSelect`/`MultipleSelect`）的 `items` 直接写在字段根级；响应中 `items[].id` 由服务端分配，创建时只需传 `value`（和可选 `color`）。
 > 身份证字段类型名为 `ID`；部分历史示例写作 `Id`，以平台校验为准。
@@ -82,7 +84,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID（路径参数）
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `fields` (array, 必填): 待创建字段列表；每项为对象，须含 `name`、`type`，类型专属属性直接平铺在字段对象上（无 `data` 包装层），见 param_detail
   - `name` (string, 必填): 字段显示名称
   - `type` (string, 必填): 字段类型枚举（见 param_detail 完整列表）
@@ -119,8 +121,8 @@
 
 **1. `MultiLineText` 多行文本**
 
+文本类型相关的字段名称只有 `MultiLineText`（多行文本）；若需要创建“单行文本”，也直接使用 `MultiLineText`，不要创建其他名称的文本字段。
 无专属创建属性（通用属性 `uniqueValue`、`defaultValue`、`defaultValueType` 适用）。
-
 录入值：`string`。
 
 ---
@@ -491,9 +493,12 @@
 
 - **前置检查**：阅读 param_detail 的字段类型章节，获取所有合法的 type 枚举值及各类型专属属性；不得自行推断或捏造字段类型值
 - **前置检查**：get_schema 确认目标字段存在及当前属性
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 
 **幂等性**：是
 
+> **调用前必须先阅读 `param_detail` 的字段类型章节**，从中获取所有合法的 `type` 枚举值及各类型专属属性；不得自行推断或捏造字段类型值。
+> 文本类型相关的字段名称只有 `MultiLineText`（多行文本）；若需要更新“单行文本”，也直接使用 `MultiLineText`，不要创建其他名称的文本字段。
 > 更新字段时，`id` 为必填项（与创建字段相反，创建时禁止传入 `id`）；可通过 get_schema 获取字段 id。
 > 选项类字段（SingleSelect / MultipleSelect）更新 `items` 时，含 `id` 的项为更新，不含 `id` 的项为新增，未出现的 `id` 对应选项会被删除。
 > 字段专属属性（如 `items`、`numberFormat`、`max` 等）直接平铺在字段对象根级，**不存在 `data` 包装层**。
@@ -564,7 +569,9 @@
 
 **1. `MultiLineText` 多行文本**
 
-无专属更新属性（通用属性 `uniqueValue`、`defaultValue`、`defaultValueType` 适用）。
+文本类型相关的字段名称只有 `MultiLineText`（多行文本）；若需要创建“单行文本”，也直接使用 `MultiLineText`，不要创建其他名称的文本字段。
+无专属创建属性（通用属性 `uniqueValue`、`defaultValue`、`defaultValueType` 适用）。
+录入值：`string`。
 
 ---
 
@@ -864,11 +871,13 @@
 #### 功能说明
 
 批量删除数据表中的指定字段。
+该工具的 fields 参数为对象数组，每个对象包含 id 字段（如 {"id": "C"}），不得自行捏造 id 字段，不得直接传入 ["C", "D"] 等字符串数组。
+
 
 
 #### 操作约束
 
-- **前置检查**：get_schema 核对拟删字段的名称和类型
+- **前置检查**：get_schema 核对拟删字段的名称和类型；使用该工具前必须先调用 get_schema 确认要操作的数据表 id，不得自行捏造数据表 id。
 - **用户确认**：删除字段不可恢复，字段数据将永久丢失，必须向用户确认字段列表
 
 **幂等性**：是

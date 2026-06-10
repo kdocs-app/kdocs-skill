@@ -108,12 +108,12 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `sheetId`, `range` |
-| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `sheetId`, `rangeData` |
+| [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `worksheet_id`, `range` |
 | [`sheet.delete_range_data`](sheet/data.md) | 删除行或列 | `file_id`, `worksheet_id`, `range_data` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `worksheet_id` |
 | [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `file_id`, `worksheet_id`, `range`, `filter` |
 | [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`file`, `Content-Type` |
+| [`sheet.update_range_data`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `file_id`, `worksheet_id`, `range_data` |
 
 ## 三、筛选
 

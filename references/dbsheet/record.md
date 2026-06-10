@@ -11,7 +11,7 @@
 
 #### 操作约束
 
-- **前置检查**：阅读 param_detail 中"fields 对象各字段类型填写规范"章节，按规范构造字段值；不可自行捏造字段名，仅传入数据表实际存在的字段（可通过 dbsheet.get_schema 确认）
+- **前置检查**：调用前必须先阅读 `param_detail` 中"`fields` 对象各字段类型填写规范"章节，按规范构造每个字段的值；不得自行推断字段类型或捏造字段名，数据表中不存在的字段不可传入；仅传入数据表实际存在的字段（可通过 dbsheet.get_schema 确认）；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **后置验证**：调用 list_records 或 get_record 确认记录已创建
 
 **幂等性**：否 — 重复调用会插入重复记录，先确认是否已成功
@@ -81,7 +81,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要创建的记录列表，每个元素含 `fields` 对象（字段名/ID → 值的映射）
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
 - `value_prefer_id` (boolean, 可选): 是否使用选项 ID 作为 选项值，默认为 false
@@ -232,6 +232,7 @@
 
 - **前置检查**：通过 dbsheet.get_schema 获取目标表的字段结构，不得在未获取表格结构的情况下直接调用；同时必须先阅读 param_detail 中"fields 对象各字段类型填写规范"章节，按规范构造字段值；不得自行推断字段类型或捏造字段名，数据表中不存在的字段不可传入
 - **前置检查**：调用 list_records 或 get_record 确认目标记录 ID 存在及当前字段值
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **后置验证**：调用 get_record 确认字段已更新为预期值
 
 **幂等性**：是
@@ -301,7 +302,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要更新的记录列表，每个元素包含 `id`（记录 ID）和 `fields`（序列化 JSON 字符串）
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
 - `value_prefer_id` (boolean, 可选): 是否使用选项 ID 作为 选项值，默认为 false
@@ -416,6 +417,12 @@
 分页遍历数据表中的记录，支持按视图过滤、指定返回字段，以及通过 `filter` 参数实现复杂查询条件（支持 criteria 单层筛选和 filters 递归嵌套条件组）。
 
 
+
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
+
+**幂等性**：是
 
 #### 调用示例
 
@@ -627,6 +634,12 @@
 获取数据表中某条指定记录的完整字段内容。
 
 
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
+
+**幂等性**：是
+
 #### 调用示例
 
 获取单条记录：
@@ -683,12 +696,13 @@
 #### 功能说明
 
 批量删除数据表中的指定记录。`records` 为记录 ID 的对象数组，**不是字符串数组**。
+file_id和sheet_id为必填参数，不允许为空。
 
 
 
 #### 操作约束
 
-- **前置检查**：调用 list_records 或 get_record 核对拟删记录的内容，确认记录 ID 正确
+- **前置检查**：调用 list_records 或 get_record 核对拟删记录的内容，确认记录 ID 正确；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **用户确认**：批量删除记录不可恢复，必须向用户确认记录列表和数量
 - **用户确认**：当 mode=all 时将删除当前数据表全部记录，必须向用户二次确认
 
@@ -721,7 +735,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID（路径参数）
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要删除的记录列表（对象数组）
 - `mode` (string, 可选): 删除模式，默认 `include`；`all` 表示删除所有记录。可选值：`include` / `all`；默认值：`include`
 - `is_batch` (boolean, 可选): 是否批量删除，默认 `false`；默认值：`false`
@@ -738,6 +752,8 @@
 
 ```json
 {
+  "file_id": "你的 file_id",
+  "sheet_id": 3, 
   "mode": "include",
   "is_batch": false,
   "records": [
@@ -781,9 +797,6 @@
 
 #### 功能说明
 
-
-**请求体（均在 JSON 内，无 URL query）**
-
 | 名称 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | fields | array[string] | 是* | 指定返回记录中的字段；*文档写必填，若不填则默认返回全部字段。`prefer_id=true` 时填字段 id，否则填字段名 |
@@ -799,6 +812,12 @@
 | view_id | string | 否 | 指定视图则从该视图取用户可见记录；不填从工作表取 |
 
 
+
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
+
+**幂等性**：是
 
 > filter.criteria 的结构需符合多维表格接口对筛选条件的约定。
 
@@ -843,7 +862,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
 - `fields` (array, 必填): 指定所返回记录中的字段信息，若不填写则默认返回全部字段。prefer_id=true 时须用字段 id，否则用字段名
 - `filter` (object, 可选): 筛选条件
@@ -918,8 +937,6 @@
 #### 功能说明
 
 
-**请求体（均在 JSON 内）**
-
 | 名称 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | records | array[string] | 是 | 记录 id 列表 |
@@ -929,6 +946,12 @@
 | text_value | string | 否 | 返回值类型，不填默认 original；可选 original、text、compound |
 
 
+
+#### 操作约束
+
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
+
+**幂等性**：是
 
 > records 为必填参数，需传入有效的记录 id 列表。
 
@@ -968,7 +991,7 @@
 #### 参数说明
 
 - `file_id` (string, 必填): 多维表格文件 ID
-- `sheet_id` (integer, 必填): 数据表 ID
+- `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
 - `records` (array, 必填): 记录 ID 列表，指定要检索的记录
 - `prefer_id` (boolean, 可选): 是否使用字段 / 选项 ID 而不是字段 / 选项名来标识

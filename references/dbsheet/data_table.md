@@ -49,7 +49,7 @@
         "records_count": 100,
         "record_ids": ["A", "B"],
         "fields": [
-          { "id": "B", "name": "名称", "type": "SingleLineText", "description": "字段备注" },
+          { "id": "B", "name": "名称", "type": "MultiLineText", "description": "字段备注" },
           { "id": "C", "name": "数量", "type": "Number", "description": "字段备注" },
           { "id": "D", "name": "日期", "type": "Date", "description": "字段备注" },
           {
@@ -74,7 +74,7 @@
         "name": "数据表 (2)",
         "primary_field_id": "F",
         "fields": [
-          { "id": "F", "name": "名称", "type": "SingleLineText" },
+          { "id": "F", "name": "名称", "type": "MultiLineText" },
           { "id": "G", "name": "数量", "type": "Number" }
         ],
         "views": [
@@ -98,7 +98,7 @@
 | `detail.sheets[].record_ids` | array | 所有记录 ID（需开启 `include_all_record_ids`） |
 | `detail.sheets[].fields[].id` | string | 字段 ID |
 | `detail.sheets[].fields[].name` | string | 字段名称 |
-| `detail.sheets[].fields[].type` | string | 字段类型（SingleLineText / Number / Date / SingleSelect / MultiSelect 等） |
+| `detail.sheets[].fields[].type` | string | 字段类型（MultiLineText / Number / Date / SingleSelect / MultipleSelect 等） |
 | `detail.sheets[].fields[].description` | string | 字段备注（可选） |
 | `detail.sheets[].fields[].items` | array | 选项列表（仅选择类字段返回，如 SingleSelect / MultiSelect） |
 | `detail.sheets[].fields[].items[].id` | string | 选项 ID |
@@ -119,7 +119,6 @@
 #### 功能说明
 
 在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。传入 `fields` 时，`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）；
-传入 `views` 时，每项必须包含 `name`（视图名称）和 `type`（视图类型），视图专属参数直接平铺在视图对象根级。
 
 
 
@@ -129,7 +128,7 @@
 
 **幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
 
-> 传入 `views` 时每项必须包含 `name` 和 `type`；传入 `fields` 时每项必须包含 `name` 和 `type`，两者均为必填，缺少任一会导致创建失败。
+> 传入 `views` 时每项必须包含 `name` 和 `type`；传入 `fields` 时每项必须包含 `name` 和 `type`，两者均为必填，视图专属参数直接平铺在视图对象根级。
 > 此接口的 `fields[]` 配置不使用 `data` 包装层，所有字段属性（如 `items`、`numberFormat`）直接写在字段对象根级
 > `dbsheet.create_sheet` 与 `dbsheet.create_fields` 在字段参数结构上保持一致：字段专属参数均直接平铺在字段对象根级
 > 视图类型（`views[].type`）请求传入小写（如 `grid`），响应返回首字母大写（如 `Grid`）
@@ -153,7 +152,7 @@
   "fields": [
     {
       "name": "名称",
-      "type": "SingleLineText"
+      "type": "MultiLineText"
     },
     {
       "name": "状态",
@@ -179,10 +178,10 @@
 - `sync_type` (string, 可选): 同步类型；默认值：`None`
 - `after_sheet_id` (integer, 可选): 插入到指定数据表之后
 - `before_sheet_id` (integer, 可选): 插入到指定数据表之前
-- `views` (array, 可选): 初始视图列表（见 param_detail 视图类型枚举）
+- `views` (array, 必填): 初始视图列表（见 param_detail 视图类型枚举）
   - `name` (string, 必填): 视图名称
   - `type` (string, 必填): 视图类型枚举，小写，如 `grid`、`kanban`、`gallery` 等（见 param_detail）
-- `fields` (array, 可选): 初始字段列表（见 param_detail 字段类型枚举与参数明细）；字段配置直接平铺在字段对象根级（无 `data` 包装层）
+- `fields` (array, 必填): 初始字段列表（见 param_detail 字段类型枚举与参数明细）；字段配置直接平铺在字段对象根级（无 `data` 包装层）
   - `name` (string, 必填): 字段显示名称
   - `type` (string, 必填): 字段类型枚举（见 param_detail）
   - `syncField` (boolean, 可选): 是否为同步字段，默认 `false`
@@ -343,7 +342,7 @@
       "name": "sheetName",
       "primaryFieldId": "L",
       "fields": [
-        { "id": "L", "name": "field1", "type": "SingleLineText" },
+        { "id": "L", "name": "field1", "type": "MultiLineText" },
         {
           "id": "M",
           "name": "field2",
@@ -388,12 +387,13 @@
 
 #### 功能说明
 
-修改数据表的名称或主字段设置。
+修改数据表名称
 
 
 #### 操作约束
 
 - **前置检查**：get_schema 确认目标数据表存在
+- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 
 **幂等性**：是
 
@@ -454,7 +454,7 @@
 
 #### 操作约束
 
-- **前置检查**：get_schema 核对拟删数据表的名称和内容
+- **前置检查**：get_schema 核对拟删数据表的名称和内容；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **用户确认**：删除数据表不可恢复，必须向用户确认数据表名称和 ID
 
 **幂等性**：是
@@ -500,13 +500,12 @@
 
 #### 功能说明
 
-
-**前置条件**：有创建数据表权限；单次批量条数与字段结构以文档上限为准。
-
+批量创建工作表
 
 
 #### 操作约束
 
+- **前置检查**：有创建数据表权限；单次批量条数与字段结构以文档上限为准。
 - **后置验证**：建议 dbsheet.get_schema 核对
 
 **幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
@@ -559,14 +558,13 @@
 
 #### 功能说明
 
-
-**前置条件**：确认目标 `sheet_ids` 内数据均可删除；不可逆。
-
+批量删除工作表
 
 
 #### 操作约束
 
 - **前置检查**：get_schema 确认待删数据表名称和内容
+- **前置检查**：确认目标 `sheet_ids` 内数据均可删除；不可逆。
 - **用户确认**：删除后表及记录不可恢复
 
 **幂等性**：否 — 不可恢复操作，禁止自动重试
