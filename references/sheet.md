@@ -32,6 +32,20 @@
 }
 ```
 
+
+## 表格选区更新工具差异
+
+| 对比项 | `sheet.update_range_data` | `sheet.range_data_batch_update` | 选择建议 |
+|--------|---------------------------|----------------------------------|----------|
+| 写入文本/公式 | 支持 | 支持 | 两者均可 |
+| 设置格式/合并单元格 | 支持 | 支持 | 两者均可 |
+| 插入图片 | 不支持 | 支持 | 涉及图片写入时优先使用 `sheet.range_data_batch_update` |
+| 参数风格 | camelCase（如 `rangeData`） | 下划线参数（如 `range_data`） | 与上下游参数风格保持一致 |
+
+> 提示：除图片写入外，两者在选区更新能力上基本一致；只要任务包含图片插入，应优先选择 `sheet.range_data_batch_update`。
+
+---
+
 ### 写入/更新已有表格
 
 批量改单元格、筛选、条件格式等 → 下文 `sheet.*` 与「工具组合速查」。精读区域用 `sheet.get_range_data`；概览首读可用 `read_file`（可选 `sheet_name`、`sheet_range`）。定位目标文件见 `file-locating-guide`。
@@ -109,11 +123,12 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `file_id`, `worksheet_id`, `range` |
+| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `file_id`, `worksheet_id`, `rangeData` |
 | [`sheet.delete_range_data`](sheet/data.md) | 删除行或列 | `file_id`, `worksheet_id`, `range_data` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `file_id`, `worksheet_id` |
 | [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `file_id`, `worksheet_id`, `range`, `filter` |
 | [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`file`, `Content-Type` |
-| [`sheet.update_range_data`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `file_id`, `worksheet_id`, `range_data` |
+| [`sheet.range_data_batch_update`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `file_id`, `worksheet_id`, `range_data` |
 
 ## 三、筛选
 

@@ -43,6 +43,7 @@
 | [`rename_file`](drive/organize.md) | 重命名文件（夹） | `file_id`, `dst_name` |
 | [`copy_file`](drive/organize.md) | 复制文件到指定目录（可跨盘） | `file_id`, `dst_drive_id`, `dst_parent_id` |
 | [`check_file_name`](drive/organize.md) | 检查目录下文件名是否已存在 | `drive_id`, `parent_id`, `name` |
+| [`save_as_file`](drive/organize.md) | 文件另存为到指定目录 | `file_id`, `dst_drive_id`, `dst_parent_id` |
 
 ## 四、分享
 
@@ -98,6 +99,34 @@
 | [`list_latest_items`](drive/recent_and_recycle.md) | 获取最近访问文档列表 | `page_size` |
 | [`list_deleted_files`](drive/recent_and_recycle.md) | 获取回收站文件列表 | `page_size` |
 | [`restore_deleted_file`](drive/recent_and_recycle.md) | 将回收站文件还原到原位置 | `file_id` |
+
+## 九、评论
+
+> 创建与查询评论
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`list_document_comments`](drive/comment.md) | 获取文档全文评论列表 | `file_id`, `origin_id` |
+| [`create_document_comment`](drive/comment.md) | 发表全文评论或回复 | `file_id`, `content` |
+| [`get_file_inline_comments`](drive/comment.md) | 获取文档正文划选批注列表 | `file_id` |
+
+## 十、团队文档库
+
+> 枚举团队文档库列表、获取单个文档库详情
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`list_doclibs`](drive/doclib.md) | 获取团队文档库列表 |  |
+| [`get_doclib_meta`](drive/doclib.md) | 获取单个团队文档库详情 | `drive_id` |
+
+## 十一、文件历史版本
+
+> 查询文件历史版本列表、获取指定版本下载信息
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`list_file_versions`](drive/versions.md) | 获取文件历史版本列表 | `file_id` |
+| [`get_file_version_download`](drive/versions.md) | 获取文件历史版本的下载信息 | `file_id`, `version_num` |
 
 ## 附录
 

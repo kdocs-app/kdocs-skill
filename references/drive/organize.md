@@ -230,3 +230,89 @@ file_id：
 
 ---
 
+## 5. save_as_file
+
+#### 功能说明
+
+将源文件复制到目标云盘目录，生成新文件；源文件保留不变。支持指定目标文件名及重名处理策略。
+
+**`drive_id`**（非必填）：
+
+- **有明确的 drive_id** 必传。
+- **没有**：不传。
+
+与相关工具的区别：`copy_file` 不支持指定目标文件名；`move_file` 源位置不保留；`rename_file` 原地重命名。
+
+
+
+**幂等性**：否 — 重复调用会创建多个副本，先确认是否已成功
+
+> 团队文档库的 dst_drive_id 可先通过 list_doclibs 获取
+> 成功后从 data.id 取新 file_id 供后续操作使用
+
+#### 调用示例
+
+另存为到同盘根目录，自动加后缀避免重名：
+
+```json
+{
+  "drive_id": "src_drive_id",
+  "file_id": "src_file_id",
+  "dst_drive_id": "src_drive_id",
+  "dst_parent_id": "0",
+  "name": "副本.docx",
+  "on_name_conflict": "rename"
+}
+```
+
+另存为到团队文档库根目录（不指定文件名）：
+
+```json
+{
+  "drive_id": "src_drive_id",
+  "file_id": "src_file_id",
+  "dst_drive_id": "team_drive_id",
+  "dst_parent_id": "0"
+}
+```
+
+
+#### 参数说明
+
+- `drive_id` (string, 可选): 源文件所在云盘 ID
+- `file_id` (string, 必填): 源文件 ID
+- `dst_drive_id` (string, 必填): 目标云盘 ID
+- `dst_parent_id` (string, 必填): 目标父目录 ID，根目录为 "0"
+- `name` (string, 可选): 目标文件名；建议含后缀（如 "副本.docx"）以避免与同名文件冲突
+- `on_name_conflict` (string, 可选): 目标目录已有同名文件时的处理策略；默认 rename（自动加序号后缀），fail=报错中止（需明确不允许覆盖时用）。可选值：`fail` / `rename`
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "id": "new_file_id",
+    "name": "副本.docx",
+    "drive_id": "dst_drive_id",
+    "parent_id": "0",
+    "link_id": "link_id_xxx",
+    "link_url": "https://www.kdocs.cn/l/xxx"
+  }
+}
+
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.id` | string | 新文件的 file_id |
+| `data.name` | string | 新文件名称 |
+| `data.drive_id` | string | 新文件所在云盘 ID |
+| `data.parent_id` | string | 新文件父目录 ID |
+| `data.link_id` | string | 分享 link_id（若有） |
+| `data.link_url` | string | 文档打开链接（若有） |
+
+
+---
+

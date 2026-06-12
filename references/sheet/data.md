@@ -109,7 +109,283 @@
 
 ---
 
-## 2. sheet.delete_range_data
+## 2. sheet.update_range_data
+
+#### 功能说明
+
+批量更新单元格选区数据，支持写值/公式、设置格式、合并单元格、写入图片。
+每项操作必须包含 `opType` 和四个坐标字段（`rowFrom`/`rowTo`/`colFrom`/`colTo`）。
+**`rangeData` 必须为对象数组（`array[object]`），即使只操作一个单元格也必须包裹在数组中传入，不可传单个对象。**
+
+
+
+#### 操作约束
+
+- **前置检查**：调用 sheet.get_range_data 读取目标区域现有数据，确认覆盖范围
+- **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
+- **提示**：每项必须包含 rowFrom/rowTo/colFrom/colTo 四个坐标；opType 必须使用 formula/format/merge/picture
+
+**幂等性**：是
+
+> 参数名使用 camelCase（如 `opType`、`rowFrom`、`alcH`、`cellPicInfo`）
+> merge 操作的 `type` 使用 `MergeCenter`、`MergeContent`、`MergeSame`、`MergeColumns`
+> picture 操作的 `cellPicInfo.tag` 使用 `local` / `attachment` / `url`，并按 tag 传 `uploadId` / `attachmentId` / `url`
+> 该工具暂不支持写入在线图片，请使用 `sheet.range_data_batch_update` 工具。
+
+#### 调用示例
+
+写入值/公式：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "worksheet_id": 3,
+  "rangeData": [
+    {
+      "opType": "formula",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 0,
+      "colTo": 0,
+      "formula": "Hello"
+    }
+  ]
+}
+```
+
+设置格式（加粗、居中、背景色）：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "worksheet_id": 3,
+  "rangeData": [
+    {
+      "opType": "format",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 0,
+      "colTo": 5,
+      "xf": {
+        "font": {
+          "name": "微软雅黑",
+          "dyHeight": 220,
+          "bls": true,
+          "color": {
+            "type": 2,
+            "value": 16777215
+          }
+        },
+        "alcH": 2,
+        "alcV": 1,
+        "wrap": true,
+        "fill": {
+          "type": 1,
+          "back": {
+            "type": 2,
+            "value": 4294901760
+          },
+          "fore": {
+            "type": 255,
+            "value": 0,
+            "tint": 0
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+合并单元格：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "worksheet_id": 3,
+  "rangeData": [
+    {
+      "opType": "merge",
+      "rowFrom": 2,
+      "rowTo": 3,
+      "colFrom": 0,
+      "colTo": 3,
+      "type": "MergeCenter"
+    }
+  ]
+}
+```
+
+写入在线图片：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "worksheet_id": 3,
+  "rangeData": [
+    {
+      "opType": "picture",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 1,
+      "colTo": 1,
+      "cellPicInfo": {
+        "tag": "url",
+        "url": "https://example.com/image.png",
+        "width": 200,
+        "height": 150
+      }
+    }
+  ]
+}
+```
+
+
+#### 参数说明
+
+- `file_id` (string, 必填): 文件 ID
+- `worksheet_id` (integer, 必填): 工作表 ID
+- `rangeData` (array[object], 必填): 单元格操作数组（必须为数组，即使只有一项操作也不可传单个对象），每项必须包含 `opType` 和坐标字段，详见 param_detail
+
+**rangeData 每项字段：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `opType` | string | 是 | 操作类型（枚举值见下表） |
+| `rowFrom` | integer | 是 | 起始行（0-based） |
+| `rowTo` | integer | 是 | 结束行 |
+| `colFrom` | integer | 是 | 起始列（0-based） |
+| `colTo` | integer | 是 | 结束列 |
+| `formula` | string | 否 | 单元格公式或内容（`opType=formula` 时使用） |
+| `xf` | object | 否 | 格式对象（`opType=format` 时使用，见下方 xf 说明） |
+| `type` | string | 否 | 合并类型（`opType=merge` 时使用） |
+| `cellPicInfo` | object | 否 | 图片信息（`opType=picture` 时使用） |
+
+---
+
+**opType 枚举值：**
+
+| 枚举值 | 说明 | 需要的额外字段 |
+|--------|------|--------------|
+| `formula` | 写值/公式 | `formula` |
+| `format` | 设置格式 | `xf` |
+| `merge` | 合并单元格 | `type` |
+| `picture` | 写入图片 | `cellPicInfo` |
+
+---
+
+**type 枚举值（opType = merge）：**
+
+| 枚举值 | 说明 |
+|--------|------|
+| `MergeCenter` | 合并居中 |
+| `MergeContent` | 内容合并 |
+| `MergeSame` | 相同内容合并 |
+| `MergeColumns` | 按列合并 |
+
+---
+
+**cellPicInfo 字段（opType = picture）：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `width` | integer | 是 | 图片宽度；`-1` 表示自适应 |
+| `height` | integer | 是 | 图片高度；`-1` 表示自适应 |
+| `tag` | string | 是 | 图片来源：`local` / `attachment` / `url` 三选一 |
+| `uploadId` | string | 否 | 本地文件（`tag=local`）时必填 |
+| `attachmentId` | string | 否 | 附件（`tag=attachment`）时必填 |
+| `url` | string | 否 | 在线 URL（`tag=url`）时必填 |
+
+---
+
+**xf 字段（opType = format）：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `alcH` | integer | 否 | 水平对齐：1=左，2=居中，3=右，4=填充，5=两端，6=跨列，7=分散 |
+| `alcV` | integer | 否 | 垂直对齐：0=上，1=中，2=下，3=两端，4=分散 |
+| `wrap` | boolean | 否 | 自动换行 |
+| `shrinkToFit` | boolean | 否 | 缩小字体填充 |
+| `locked` | boolean | 否 | 锁定单元格 |
+| `hidden` | boolean | 否 | 隐藏公式 |
+| `indent` | integer | 否 | 缩进 |
+| `readingOrder` | integer | 否 | 文字方向 |
+| `trot` | integer | 否 | 文字旋转角度 |
+| `numfmt` | string | 否 | 数字格式串，如 `"G/通用格式"`、`"yyyy-mm-dd"`、`"0.00%"` |
+| `mask_cats` | integer | 否 | 掩码 |
+| `mask_catsFont` | integer | 否 | 掩码字体 |
+| `font` | object | 否 | 字体，见下方 font 字段表 |
+| `fill` | object | 否 | 填充，见下方 fill 字段表 |
+| `dgLeft` | integer | 否 | 左边框线型 |
+| `dgRight` | integer | 否 | 右边框线型 |
+| `dgTop` | integer | 否 | 上边框线型 |
+| `dgBottom` | integer | 否 | 下边框线型 |
+| `dgDiagDown` | integer | 否 | 向下斜线边框线型 |
+| `dgDiagUp` | integer | 否 | 向上斜线边框线型 |
+| `dgInsideHorz` | integer | 否 | 内框横线线型 |
+| `dgInsideVert` | integer | 否 | 内框竖线线型 |
+| `clrLeft` | object | 否 | 左边框颜色（颜色对象，见下方颜色说明） |
+| `clrRight` | object | 否 | 右边框颜色 |
+| `clrTop` | object | 否 | 上边框颜色 |
+| `clrBottom` | object | 否 | 下边框颜色 |
+| `clrDiagDown` | object | 否 | 向下斜线边框颜色 |
+| `clrDiagUp` | object | 否 | 向上斜线边框颜色 |
+| `clrInsideHorz` | object | 否 | 内框横线颜色 |
+| `clrInsideVert` | object | 否 | 内框竖线颜色 |
+
+边框线型枚举：0=无，1=细线，2=中等，3=虚线，4=点线，5=粗线，6=双线，7=细虚线
+
+**xf.font 字段：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 否 | 字体名称，如 `"微软雅黑"` |
+| `dyHeight` | integer | 否 | 字体高度（单位 Twip，1pt=20Twip，如 11pt=220） |
+| `charSet` | integer | 否 | 字符集 |
+| `bls` | boolean | 否 | 粗体 |
+| `italic` | boolean | 否 | 斜体 |
+| `strikeout` | boolean | 否 | 删除线 |
+| `uls` | integer | 否 | 下划线类型 |
+| `sss` | integer | 否 | 上下标类型 |
+| `themeFont` | integer | 否 | 字体类型 |
+| `color` | object | 否 | 字体颜色（颜色对象，见下方颜色说明） |
+
+**xf.fill 字段：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | integer | 是 | 填充类型 |
+| `back` | object | 是 | 背景色（颜色对象） |
+| `fore` | object | 是 | 前景色（颜色对象） |
+
+**颜色对象（color / clr_* / fill.back / fill.fore）：**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `type` | integer | 是 | 颜色类型：0=ICV，1=THEME 主题色，2=ARGB，254=无颜色（背景透明），255=自动色（字体/边框默认） |
+| `value` | integer | 是 | ARGB 整数值（type=2 时有效），如纯红 `0xFFFF0000` = `4294901760` |
+| `tint` | integer | 是 | 透明度，调节颜色深浅 |
+
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "msg": ""
+}
+
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 0 表示成功，非 0 表示失败 |
+| `msg` | string | 错误描述，code 非 0 时返回失败原因 |
+
+
+---
+
+## 3. sheet.delete_range_data
 
 #### 功能说明
 
@@ -172,7 +448,7 @@
 
 ---
 
-## 3. sheet.add_row
+## 4. sheet.add_row
 
 #### 功能说明
 
@@ -248,7 +524,7 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 
 ---
 
-## 4. sheet.find_range_data
+## 5. sheet.find_range_data
 
 #### 功能说明
 
@@ -405,7 +681,7 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 
 ---
 
-## 5. sheet.get_attachment_url
+## 6. sheet.get_attachment_url
 
 #### 功能说明
 
@@ -507,7 +783,7 @@ user_cover 上传并带 map_id：
 
 ---
 
-## 6. sheet.update_range_data
+## 7. sheet.range_data_batch_update
 
 #### 功能说明
 
@@ -520,9 +796,17 @@ user_cover 上传并带 map_id：
 
 - **前置检查**：建议先读取目标区域数据，确认覆盖范围与格式影响
 - **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
-- **提示**：每项操作都必须提供 row_from/row_to/col_from/col_to 与 op_type
 
 **幂等性**：是
+
+> `formula` 仅在 `op_type = cell_operation_type_formula` 时使用。
+> `merge_type` 仅在 `op_type = cell_operation_type_merge` 时使用。
+> `xf` 仅在 `op_type = cell_operation_type_format` 时使用。
+> `cell_pic_info` 仅在 `op_type = cell_operation_type_picture` 时使用。
+> 每项操作都必须提供 `row_from` / `row_to` / `col_from` / `col_to` 与 `op_type`。
+> 与 `sheet.update_range_data` 相比：两者在文本/公式写入、格式设置、合并单元格等能力上基本一致；本工具额外支持图片写入，而 `sheet.update_range_data` 不支持图片写入。
+> 若任务包含图片插入，请优先使用 `sheet.range_data_batch_update`；不涉及图片时`sheet.range_data_batch_update`和`sheet.update_range_data`工具均可使用。
+> 使用该工具写入数据后，读取数据优先使用'sheet.find_range_data'工具。
 
 #### 调用示例
 
@@ -592,13 +876,6 @@ user_cover 上传并带 map_id：
   - `sheet_pic_type_local`
   - `sheet_pic_type_attachment`
   - `sheet_pic_type_url`
-
-**说明：**
-
-- `formula` 仅在 `op_type = cell_operation_type_formula` 时使用。
-- `merge_type` 仅在 `op_type = cell_operation_type_merge` 时使用。
-- `xf` 仅在 `op_type = cell_operation_type_format` 时使用。
-- `cell_pic_info` 仅在 `op_type = cell_operation_type_picture` 时使用。
 
 
 #### 返回值说明
