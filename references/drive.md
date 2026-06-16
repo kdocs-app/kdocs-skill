@@ -31,7 +31,6 @@
 | [`download_attachment`](drive/read_and_download.md) | 获取文档附件的下载信息 | `file_id`, `attachment_id` |
 | [`read_file`](drive/read_and_download.md) | 读取文档内容为 Markdown/结构化数据 | `url`\|`link_id`\|`file_id` |
 | [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `file_id` |
-| [`read_file_content`](drive/read_and_download.md) | 文档内容抽取为 Markdown/纯文本（旧版，推荐 read_file） | `drive_id`, `file_id`\|`link_id` |
 
 ## 三、文件组织
 
