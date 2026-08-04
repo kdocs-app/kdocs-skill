@@ -53,7 +53,9 @@
 
 - `async_mode` (integer, 可选): 映射下游 `_m` 参数；默认 0；默认值：`0`
 - `file_type` (string, 可选): 文件类型，传 `doc` 走文字内核；默认 PDF 内核
-- `file_id` (string, 必填): 待导出文件 ID，可传空字符串（表示当前文件）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 待导出文件的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 待导出文件的分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 待导出文件 ID
 - `file_source` (object, 必填): 文档来源信息，包含 `origin`、`s3_params`、`s3_file_info` 等，必须包含 origin: kdocs.cn
 - `password` (string, 可选): 文件密码。**注意：暂不支持加密文件。**
 - `header` (object, 必填): 下游透传 header 参数
@@ -313,7 +315,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `task_id` (string, 必填): 全文翻译任务 ID
 - `file_type` (string, 可选): 文件类型。传 `doc` 拉起文字内核；不传默认 PDF 内核
 
@@ -386,7 +390,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 被取消全文翻译的文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 被取消全文翻译的文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 被取消全文翻译的分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 被取消全文翻译的文件 ID
 
 #### 返回值说明
 

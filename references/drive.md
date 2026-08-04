@@ -12,12 +12,13 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`create_file`](drive/create_and_upload.md) | 在云盘下新建文件 | `name` |
+| [`create_empty_file`](drive/create_and_upload.md) | 新建空白在线文档 | `name`, `file_extension` |
 | [`create_folder`](drive/create_and_upload.md) | 在云盘下新建文件夹 | `drive_id`, `parent_id`, `name` |
-| [`create_file_with_content`](drive/create_and_upload.md) | 新建并写入内容 | `name` |
+| [`create_file_with_content`](drive/create_and_upload.md) | 新建并写入内容 | `name`, `file_extension` |
 | [`scrape_url`](drive/create_and_upload.md) | 网页剪藏，抓取网页内容并自动保存为智能文档 | `url` |
 | [`scrape_progress`](drive/create_and_upload.md) | 查询网页剪藏任务进度 | `job_id` |
-| [`upload_file`](drive/create_and_upload.md) | 全量上传写入文件（更新已有 docx/pdf 或新建并上传本地文件） | `file_id`\|`name`, `content_base64` |
+| [`upload_new_file`](drive/create_and_upload.md) | 上传本地文件新建云文档 | `name`, `content_base64` |
+| [`upload_replace_file`](drive/create_and_upload.md) | 通过上传本地文件全量覆盖已有云文档 | `file_id`, `content_base64` |
 | [`upload_attachment`](drive/create_and_upload.md) | 向已有文档上传附件，支持 URL 或 Base64 | `file_id`, `filename`, `url`\|`content_base64` |
 
 ## 二、文档读取与下载
@@ -26,11 +27,12 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`list_files`](drive/read_and_download.md) | 获取指定文件夹下的子文件列表 | `drive_id`, `parent_id`, `page_size` |
-| [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `file_id` |
-| [`download_attachment`](drive/read_and_download.md) | 获取文档附件的下载信息 | `file_id`, `attachment_id` |
+| [`list_my_files`](drive/read_and_download.md) | 浏览我的云文档根目录 |  |
+| [`list_files`](drive/read_and_download.md) | 获取指定文件夹下的子文件列表 | `drive_id`, `parent_id` |
+| [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `url`\|`link_id`\|`file_id` |
+| [`download_attachment`](drive/read_and_download.md) | 获取文档附件的下载信息 | `url`\|`link_id`\|`file_id`, `attachment_id` |
 | [`read_file`](drive/read_and_download.md) | 读取文档内容为 Markdown/结构化数据 | `url`\|`link_id`\|`file_id` |
-| [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `file_id` |
+| [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `url`\|`link_id`\|`file_id` |
 
 ## 三、文件组织
 
@@ -40,21 +42,26 @@
 |------|------|----------|
 | [`move_file`](drive/organize.md) | 批量移动文件(夹) | `drive_id`, `file_ids`, `dst_drive_id`, `dst_parent_id` |
 | [`rename_file`](drive/organize.md) | 重命名文件（夹） | `file_id`, `dst_name` |
-| [`copy_file`](drive/organize.md) | 复制文件到指定目录（可跨盘） | `file_id`, `dst_drive_id`, `dst_parent_id` |
+| [`copy_file`](drive/organize.md) | 复制文件到指定目录（可跨盘） | `url`\|`link_id`\|`file_id`, `dst_drive_id`, `dst_parent_id` |
 | [`check_file_name`](drive/organize.md) | 检查目录下文件名是否已存在 | `drive_id`, `parent_id`, `name` |
-| [`save_as_file`](drive/organize.md) | 文件另存为到指定目录 | `file_id`, `dst_drive_id`, `dst_parent_id` |
+| [`save_as_file`](drive/organize.md) | 文件另存为到指定目录 | `url`\|`link_id`\|`file_id`, `dst_drive_id`, `dst_parent_id` |
 
 ## 四、分享
 
-> 分享链接的开启、权限设置、取消、查询与在线访问
+> 分享链接开启/权限/取消/查询，以及协作者查询与授权管理
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`share_file`](drive/share.md) | 开启文件分享 | `file_id`, `scope` |
-| [`set_share_permission`](drive/share.md) | 修改分享链接属性 | `link_id` |
-| [`cancel_share`](drive/share.md) | 取消文件分享 | `file_id` |
-| [`get_share_info`](drive/share.md) | 获取分享链接信息 | `link_id` |
-| [`get_file_link`](drive/share.md) | 获取文件的云文档在线访问链接 | `file_id` |
+| [`share_file`](drive/share.md) | 开启文件分享 | `url`\|`link_id`\|`file_id`, `scope` |
+| [`set_share_permission`](drive/share.md) | 修改分享链接属性 | `url`\|`link_id`\|`file_id` |
+| [`cancel_share`](drive/share.md) | 取消文件分享 | `url`\|`link_id`\|`file_id` |
+| [`get_share_info`](drive/share.md) | 获取分享链接信息 | `url`\|`link_id`\|`file_id` |
+| [`list_drive_roles`](drive/share.md) | 获取文档权限角色列表 | `drive_id` |
+| [`list_document_collaborators`](drive/share.md) | 获取文档最近协作成员 | `file_id`, `limit` |
+| [`search_document_collaborators`](drive/share.md) | 搜索文档协作者 | `drive_id`, `file_id`, `key` |
+| [`get_file_link`](drive/share.md) | 获取文件的云文档在线访问链接 | `url`\|`link_id`\|`file_id` |
+| [`set_collaborator_permissions`](drive/share.md) | 批量设置协作者权限 | `drive_id`, `link_id`, `role_id`, `subjects` |
+| [`cancel_collaborator_permissions`](drive/share.md) | 批量取消协作者授权 | `drive_id`, `link_id`, `subjects` |
 
 ## 五、搜索
 
@@ -62,7 +69,7 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`search_files`](drive/search.md) | 文件（夹）搜索 | `type`, `page_size` |
+| [`search_files`](drive/search.md) | 按关键词搜索云文档（文件/文件夹） | `page_size` |
 
 ## 六、标签
 
@@ -97,7 +104,7 @@
 |------|------|----------|
 | [`list_latest_items`](drive/recent_and_recycle.md) | 获取最近访问文档列表 | `page_size` |
 | [`list_deleted_files`](drive/recent_and_recycle.md) | 获取回收站文件列表 | `page_size` |
-| [`restore_deleted_file`](drive/recent_and_recycle.md) | 将回收站文件还原到原位置 | `file_id` |
+| [`restore_deleted_file`](drive/recent_and_recycle.md) | 将回收站文件还原到原位置 | `url`\|`link_id`\|`file_id` |
 
 ## 九、评论
 
@@ -105,9 +112,9 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`list_document_comments`](drive/comment.md) | 获取文档全文评论列表 | `file_id`, `origin_id` |
-| [`create_document_comment`](drive/comment.md) | 发表全文评论或回复 | `file_id`, `content` |
-| [`get_file_inline_comments`](drive/comment.md) | 获取文档正文划选批注列表 | `file_id` |
+| [`list_document_comments`](drive/comment.md) | 获取文档全文评论列表 | `url`\|`link_id`\|`file_id`, `origin_id` |
+| [`create_document_comment`](drive/comment.md) | 发表全文评论或回复 | `url`\|`link_id`\|`file_id`, `content` |
+| [`get_file_inline_comments`](drive/comment.md) | 获取文档正文划选批注列表 | `url`\|`link_id`\|`file_id` |
 
 ## 十、团队文档库
 
@@ -124,14 +131,14 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`list_file_versions`](drive/versions.md) | 获取文件历史版本列表 | `file_id` |
-| [`get_file_version_download`](drive/versions.md) | 获取文件历史版本的下载信息 | `file_id`, `version_num` |
+| [`list_file_versions`](drive/versions.md) | 获取文件历史版本列表 | `url`\|`link_id`\|`file_id` |
+| [`get_file_version_download`](drive/versions.md) | 获取文件历史版本的下载信息 | `url`\|`link_id`\|`file_id`, `version_num` |
 
 ## 附录
 
 ### A. 通用文件信息结构（FileInfo）
 
-`create_file`、`upload_file`（步骤三）、`rename_file`、`list_files` 等接口返回的文件信息共用以下结构。响应字段表中 `array[FileInfo]` 即引用此结构：
+`create_empty_file`、`upload_new_file`、`upload_replace_file`（步骤三）、`rename_file`、`list_files` 等接口返回的文件信息共用以下结构。响应字段表中 `array[FileInfo]` 即引用此结构：
 
 | 字段 | 类型 | 说明 |
 |------|------|------|

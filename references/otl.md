@@ -18,9 +18,10 @@ PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`�
 
 ### 新建并写入
 
+新建空白智能文档 → `create_empty_file`：后缀 `.otl`。
 新建智能文档并写入 → `create_file_with_content`：`name` 后缀 `.otl`，传 `content`（Markdown 正文；参数与失败补写见 `drive/create_file_with_content`）。
 
-`.otl` 不支持 `upload_file` 覆盖；新建用 `create_file_with_content`，已有文档追加用 `otl.insert_content`。
+`.otl` 不支持 `upload_replace_file` 覆盖；新建并写入内容用 `create_file_with_content`，已有文档追加用 `otl.insert_content`。
 
 ```json
 {
@@ -60,8 +61,8 @@ PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`�
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`otl.insert_content`](otl/insert_content.md) | 向智能文档插入 Markdown/HTML 内容 | `file_id`, `content` |
-| [`otl.convert`](otl/convert.md) | 将 HTML/Markdown 转换为智能文档块结构 | `file_id`, `params` |
+| [`otl.insert_content`](otl/insert_content.md) | 向智能文档插入 Markdown/HTML 内容 | `url`\|`link_id`\|`file_id`, `content` |
+| [`otl.convert`](otl/convert.md) | 将 HTML/Markdown 转换为智能文档块结构 | `url`\|`link_id`\|`file_id`, `params` |
 
 ## 二、块级操作
 
@@ -69,10 +70,10 @@ PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`�
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`otl.block_insert`](otl/block_insert.md) | 向智能文档插入一个或多个块 | `file_id`, `params` |
-| [`otl.block_delete`](otl/block_delete.md) | 删除智能文档中一个或多个块区间 | `file_id`, `params` |
-| [`otl.block_query`](otl/block_query.md) | 查询智能文档指定块的结构与内容 | `file_id`, `params` |
-| [`otl.block_update`](otl/block_update.md) | 更新智能文档指定块的内容或属性 | `file_id`, `params` |
+| [`otl.block_insert`](otl/block_insert.md) | 向智能文档插入一个或多个块 | `url`\|`link_id`\|`file_id`, `params` |
+| [`otl.block_delete`](otl/block_delete.md) | 删除智能文档中一个或多个块区间 | `url`\|`link_id`\|`file_id`, `params` |
+| [`otl.block_query`](otl/block_query.md) | 查询智能文档指定块的结构与内容 | `url`\|`link_id`\|`file_id`, `params` |
+| [`otl.block_update`](otl/block_update.md) | 更新智能文档指定块的内容或属性 | `url`\|`link_id`\|`file_id`, `params` |
 
 ## 工具组合速查
 

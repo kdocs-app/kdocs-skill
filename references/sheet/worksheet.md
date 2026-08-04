@@ -23,7 +23,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 
 #### 返回值说明
 
@@ -131,7 +133,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID（路径参数 `{file_id}`）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `before` (object, 可选): 插入到指定工作表之前；与 `after`、`end` 三选一
 - `after` (object, 可选): 插入到指定工作表之后；与 `before`、`end` 三选一
 - `end` (boolean, 可选): 是否插入到末尾；与 `before`、`after` 三选一
@@ -209,7 +213,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `move_sheet_id` (integer, 可选): 移动时参照的工作表 ID
 - `move_type` (string, 可选): 需要移动的位置，若不传则不移动位置。可选值：`sheet_move_type_before` / `sheet_move_type_after`
@@ -267,7 +273,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_ids` (array[integer], 可选): 需要删除的工作表 ID 列表；`worksheet_ids` 必须是数字数组（如 `[0, 1]`），不能传对象数组（如 `[{ "id": 0 }]`）
 
 #### 返回值说明
@@ -318,7 +326,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `copy_first_sheet` (boolean, 可选): 是否复制第一个工作表,若要复制第一个工作表必须带该参数且设置为 true
 
@@ -381,7 +391,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `name` (string, 可选): 新工作表名称
 - `move_sheet_id` (integer, 可选): 参照工作表 ID

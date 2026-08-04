@@ -61,7 +61,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档文件 ID
 - `params` (object, 必填): 删除操作配置
   - `blockId` (string, 常用): 目标父块 ID；`doc` 表示删除文档根节点的子节点
   - `startIndex` (integer, 常用): 删除开始位置（包含该位置），且 `startIndex < endIndex`

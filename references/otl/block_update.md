@@ -250,7 +250,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档文件 ID
 - `params` (array, 必填): 更新操作列表，每项为一个更新块对象。所有操作必须包含 `operation` 和 `blockId`，其余字段由 `operation` 决定，详见下方各操作说明
   - `operation` (string, 必填): 操作类型
   - `blockId` (string, 必填): 目标块 ID

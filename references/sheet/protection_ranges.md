@@ -29,7 +29,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 
 #### 返回值说明
@@ -116,7 +118,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheets_protection_infos` (array[object], 必填): 工作表区域权限详细信息列表
 
 **sheets_protection_infos 说明：**
@@ -242,7 +246,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheets_protection_infos` (array[object], 必填): 区域权限更新配置列表
 
 **sheets_protection_infos 说明：**
@@ -351,7 +357,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheets_protection_infos` (array[object], 必填): 待删除的区域权限配置列表
 
 **sheets_protection_infos 说明：**

@@ -27,7 +27,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): PDF 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 的分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 文件 ID
 
 #### 返回值说明
 

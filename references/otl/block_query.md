@@ -41,7 +41,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 ID
 - `params` (object, 必填): 查询参数对象
   - `blockIds` (array, 常用): 要查询的块 ID 列表
 

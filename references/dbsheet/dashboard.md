@@ -31,7 +31,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `dashboard_id` (integer, 必填): 源仪表盘 ID
 - `body` (object, 必填): JSON 请求体，须含 name（新仪表盘名称）
 
@@ -84,7 +86,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 
 #### 返回值说明
 

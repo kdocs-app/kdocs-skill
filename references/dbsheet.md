@@ -10,12 +10,12 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.get_schema`](dbsheet/data_table.md) | 获取文档结构（表/字段/视图） | `file_id` |
-| [`dbsheet.create_sheet`](dbsheet/data_table.md) | 创建数据表 | `file_id`, `name`, `views`, `fields` |
-| [`dbsheet.update_sheet`](dbsheet/data_table.md) | 修改数据表名称 | `file_id`, `sheet_id` |
-| [`dbsheet.delete_sheet`](dbsheet/data_table.md) | 删除数据表 | `file_id`, `sheet_id` |
-| [`dbsheet.sheet_batch_create`](dbsheet/data_table.md) | 批量创建工作表 | `file_id`, `body` |
-| [`dbsheet.sheet_batch_delete`](dbsheet/data_table.md) | 批量删除工作表 | `file_id`, `body` |
+| [`dbsheet.get_schema`](dbsheet/data_table.md) | 获取文档结构（表/字段/视图） | `url`\|`link_id`\|`file_id` |
+| [`dbsheet.create_sheet`](dbsheet/data_table.md) | 创建数据表 | `url`\|`link_id`\|`file_id`, `name`, `views`, `fields` |
+| [`dbsheet.update_sheet`](dbsheet/data_table.md) | 修改数据表名称 | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.delete_sheet`](dbsheet/data_table.md) | 删除数据表 | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.sheet_batch_create`](dbsheet/data_table.md) | 批量创建工作表 | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.sheet_batch_delete`](dbsheet/data_table.md) | 批量删除工作表 | `url`\|`link_id`\|`file_id`, `body` |
 
 ## 二、视图管理
 
@@ -23,11 +23,11 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.create_view`](dbsheet/view.md) | 创建视图 | `file_id`, `sheet_id`, `name`, `type` |
-| [`dbsheet.update_view`](dbsheet/view.md) | 更新视图配置 | `file_id`, `sheet_id`, `view_id` |
-| [`dbsheet.delete_view`](dbsheet/view.md) | 删除视图 | `file_id`, `sheet_id`, `view_id` |
-| [`dbsheet.views_list`](dbsheet/view.md) | 列出视图 | `file_id`, `sheet_id` |
-| [`dbsheet.views_get`](dbsheet/view.md) | 获取单个视图 | `file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.create_view`](dbsheet/view.md) | 创建视图 | `url`\|`link_id`\|`file_id`, `sheet_id`, `name`, `type` |
+| [`dbsheet.update_view`](dbsheet/view.md) | 更新视图配置 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.delete_view`](dbsheet/view.md) | 删除视图 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.views_list`](dbsheet/view.md) | 列出视图 | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.views_get`](dbsheet/view.md) | 获取单个视图 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
 
 ## 三、字段管理
 
@@ -35,9 +35,9 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.create_fields`](dbsheet/field.md) | 批量创建字段 | `file_id`, `sheet_id`, `fields` |
-| [`dbsheet.update_fields`](dbsheet/field.md) | 批量更新字段 | `file_id`, `sheet_id`, `fields` |
-| [`dbsheet.delete_fields`](dbsheet/field.md) | 批量删除字段 | `file_id`, `sheet_id`, `fields` |
+| [`dbsheet.create_fields`](dbsheet/field.md) | 批量创建字段 | `url`\|`link_id`\|`file_id`, `sheet_id`, `fields` |
+| [`dbsheet.update_fields`](dbsheet/field.md) | 批量更新字段 | `url`\|`link_id`\|`file_id`, `sheet_id`, `fields` |
+| [`dbsheet.delete_fields`](dbsheet/field.md) | 批量删除字段 | `url`\|`link_id`\|`file_id`, `sheet_id`, `fields` |
 
 ## 四、记录操作
 
@@ -45,13 +45,13 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.create_records`](dbsheet/record.md) | 批量创建记录 | `file_id`, `sheet_id`, `records` |
-| [`dbsheet.update_records`](dbsheet/record.md) | 批量更新记录 | `file_id`, `sheet_id`, `records` |
-| [`dbsheet.list_records`](dbsheet/record.md) | 分页遍历记录（支持筛选） | `file_id`, `sheet_id` |
-| [`dbsheet.get_record`](dbsheet/record.md) | 获取单条记录 | `file_id`, `sheet_id`, `record_id` |
-| [`dbsheet.delete_records`](dbsheet/record.md) | 批量删除记录 | `file_id`, `sheet_id`, `records` |
-| [`dbsheet.records_list`](dbsheet/record.md) | 列举记录 | `file_id`, `sheet_id`, `fields` |
-| [`dbsheet.records_search`](dbsheet/record.md) | 检索多条记录 | `file_id`, `sheet_id`, `records` |
+| [`dbsheet.create_records`](dbsheet/record.md) | 批量创建记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `records` |
+| [`dbsheet.update_records`](dbsheet/record.md) | 批量更新记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `records` |
+| [`dbsheet.list_records`](dbsheet/record.md) | 分页遍历记录（支持筛选） | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.get_record`](dbsheet/record.md) | 获取单条记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `record_id` |
+| [`dbsheet.delete_records`](dbsheet/record.md) | 批量删除记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `records` |
+| [`dbsheet.records_list`](dbsheet/record.md) | 列举记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `fields` |
+| [`dbsheet.records_search`](dbsheet/record.md) | 检索多条记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `records` |
 
 ## 五、表单视图
 
@@ -59,10 +59,10 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.form_list_fields`](dbsheet/form.md) | 列出表单问题 | `file_id`, `sheet_id`, `view_id` |
-| [`dbsheet.form_update_field`](dbsheet/form.md) | 更新表单问题 | `file_id`, `sheet_id`, `view_id`, `field_id`, `body` |
-| [`dbsheet.form_get_meta`](dbsheet/form.md) | 获取表单元数据 | `file_id`, `sheet_id`, `view_id` |
-| [`dbsheet.form_update_meta`](dbsheet/form.md) | 更新表单元数据 | `file_id`, `sheet_id`, `view_id`, `body` |
+| [`dbsheet.form_list_fields`](dbsheet/form.md) | 列出表单问题 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.form_update_field`](dbsheet/form.md) | 更新表单问题 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `field_id`, `body` |
+| [`dbsheet.form_get_meta`](dbsheet/form.md) | 获取表单元数据 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.form_update_meta`](dbsheet/form.md) | 更新表单元数据 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `body` |
 
 ## 六、父子记录
 
@@ -70,12 +70,12 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.parent_disable`](dbsheet/parent_child.md) | 禁用父子关系（仅前端） | `file_id`, `sheet_id` |
-| [`dbsheet.parent_enable`](dbsheet/parent_child.md) | 启用父子关系（仅前端） | `file_id`, `sheet_id` |
-| [`dbsheet.parent_status`](dbsheet/parent_child.md) | 查询父子关系是否禁用 | `file_id`, `sheet_id` |
-| [`dbsheet.parent_bind_children`](dbsheet/parent_child.md) | 绑定父子记录 | `file_id`, `sheet_id`, `parent_id`, `body` |
-| [`dbsheet.parent_list_children`](dbsheet/parent_child.md) | 查询子记录列表 | `file_id`, `sheet_id`, `parent_id` |
-| [`dbsheet.parent_unbind_children`](dbsheet/parent_child.md) | 解绑父子记录 | `file_id`, `sheet_id`, `parent_id`, `body` |
+| [`dbsheet.parent_disable`](dbsheet/parent_child.md) | 禁用父子关系（仅前端） | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.parent_enable`](dbsheet/parent_child.md) | 启用父子关系（仅前端） | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.parent_status`](dbsheet/parent_child.md) | 查询父子关系是否禁用 | `url`\|`link_id`\|`file_id`, `sheet_id` |
+| [`dbsheet.parent_bind_children`](dbsheet/parent_child.md) | 绑定父子记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `parent_id`, `body` |
+| [`dbsheet.parent_list_children`](dbsheet/parent_child.md) | 查询子记录列表 | `url`\|`link_id`\|`file_id`, `sheet_id`, `parent_id` |
+| [`dbsheet.parent_unbind_children`](dbsheet/parent_child.md) | 解绑父子记录 | `url`\|`link_id`\|`file_id`, `sheet_id`, `parent_id`, `body` |
 
 ## 七、分享视图
 
@@ -83,13 +83,13 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.share_open_view`](dbsheet/share.md) | 打开分享视图 | `file_id`, `sheet_id`, `view_id`, `body` |
-| [`dbsheet.share_view_status`](dbsheet/share.md) | 查询视图是否已开启分享 | `file_id`, `sheet_id`, `view_id` |
-| [`dbsheet.share_get_link_info`](dbsheet/share.md) | 查询分享链接信息 | `file_id`, `sheet_id`, `view_id`, `share_id` |
-| [`dbsheet.share_close_view`](dbsheet/share.md) | 关闭分享视图 | `file_id`, `sheet_id`, `view_id`, `share_id` |
-| [`dbsheet.share_get_repeatable`](dbsheet/share.md) | 查询表单是否可重复提交 | `file_id`, `sheet_id`, `view_id`, `share_id` |
-| [`dbsheet.share_set_repeatable`](dbsheet/share.md) | 设置表单是否可重复提交 | `file_id`, `sheet_id`, `view_id`, `share_id`, `body` |
-| [`dbsheet.share_update_permission`](dbsheet/share.md) | 修改分享权限 | `file_id`, `sheet_id`, `view_id`, `share_id`, `body` |
+| [`dbsheet.share_open_view`](dbsheet/share.md) | 打开分享视图 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `body` |
+| [`dbsheet.share_view_status`](dbsheet/share.md) | 查询视图是否已开启分享 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id` |
+| [`dbsheet.share_get_link_info`](dbsheet/share.md) | 查询分享链接信息 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `share_id` |
+| [`dbsheet.share_close_view`](dbsheet/share.md) | 关闭分享视图 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `share_id` |
+| [`dbsheet.share_get_repeatable`](dbsheet/share.md) | 查询表单是否可重复提交 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `share_id` |
+| [`dbsheet.share_set_repeatable`](dbsheet/share.md) | 设置表单是否可重复提交 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `share_id`, `body` |
+| [`dbsheet.share_update_permission`](dbsheet/share.md) | 修改分享权限 | `url`\|`link_id`\|`file_id`, `sheet_id`, `view_id`, `share_id`, `body` |
 
 ## 八、高级权限
 
@@ -97,12 +97,12 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.permission_list_roles`](dbsheet/permission.md) | 列举自定义角色 | `file_id` |
-| [`dbsheet.permission_query_task`](dbsheet/permission.md) | 获取异步任务结果 | `file_id`, `task_id`, `task_type` |
-| [`dbsheet.permission_create_roles_async`](dbsheet/permission.md) | 新增自定义角色（异步） | `file_id`, `body` |
-| [`dbsheet.permission_update_roles_async`](dbsheet/permission.md) | 更新自定义角色（异步） | `file_id`, `body` |
-| [`dbsheet.permission_delete_roles_async`](dbsheet/permission.md) | 删除自定义角色（异步） | `file_id`, `body` |
-| [`dbsheet.permission_list_subjects`](dbsheet/permission.md) | 列举成员（内容权限） | `file_id`, `cloud_permission_id`, `permission_type` |
+| [`dbsheet.permission_list_roles`](dbsheet/permission.md) | 列举自定义角色 | `url`\|`link_id`\|`file_id` |
+| [`dbsheet.permission_query_task`](dbsheet/permission.md) | 获取异步任务结果 | `url`\|`link_id`\|`file_id`, `task_id` |
+| [`dbsheet.permission_create_roles_async`](dbsheet/permission.md) | 新增自定义角色（异步） | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.permission_update_roles_async`](dbsheet/permission.md) | 更新自定义角色（异步） | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.permission_delete_roles_async`](dbsheet/permission.md) | 删除自定义角色（异步） | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.permission_list_subjects`](dbsheet/permission.md) | 列举成员（内容权限） | `url`\|`link_id`\|`file_id`, `cloud_permission_id`, `permission_type` |
 
 ## 九、仪表盘
 
@@ -110,8 +110,8 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.dashboard_copy`](dbsheet/dashboard.md) | 复制仪表盘 | `file_id`, `dashboard_id`, `body` |
-| [`dbsheet.dashboard_list`](dbsheet/dashboard.md) | 列出仪表盘 | `file_id` |
+| [`dbsheet.dashboard_copy`](dbsheet/dashboard.md) | 复制仪表盘 | `url`\|`link_id`\|`file_id`, `dashboard_id`, `body` |
+| [`dbsheet.dashboard_list`](dbsheet/dashboard.md) | 列出仪表盘 | `url`\|`link_id`\|`file_id` |
 
 ## 十、Webhook 与开放协作
 
@@ -119,9 +119,9 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`dbsheet.list_webhooks`](dbsheet/webhook.md) | 查询全部 Hook 订阅 | `file_id` |
-| [`dbsheet.create_webhook`](dbsheet/webhook.md) | 创建 Hook 订阅 | `file_id`, `body` |
-| [`dbsheet.delete_webhook`](dbsheet/webhook.md) | 取消 Hook 订阅 | `file_id`, `hook_id` |
+| [`dbsheet.list_webhooks`](dbsheet/webhook.md) | 查询全部 Hook 订阅 | `url`\|`link_id`\|`file_id` |
+| [`dbsheet.create_webhook`](dbsheet/webhook.md) | 创建 Hook 订阅 | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.delete_webhook`](dbsheet/webhook.md) | 取消 Hook 订阅 | `url`\|`link_id`\|`file_id`, `hook_id` |
 
 ## 工具组合速查
 
@@ -147,6 +147,8 @@
 
 | 错误特征 | 原因 | 处理方式 |
 |----------|------|----------|
+| `400100` Unknown enum / 参数值不被识别 | 凭直觉猜测 type 等枚举值，未查文档 | 打开 `references/dbsheet/field.md` 对应工具的参数说明，从 description 中的对照表取正确枚举值，修正后重试一次 |
+| `400001` 参数缺失 / 格式错误 | 未确认必填参数或参数类型 | 打开 `references/dbsheet/field.md` 对应工具的参数表，确认参数名、类型、必填性，补齐后重试 |
 | 记录不全 / 需全量或分页 | `read_file` 单次返回 records 有上限 | 概览用 `read_file`；全量/分页/条件筛选用 `dbsheet.records_list` / `list_records` / `records_search` |
 | `conflict` / `lock` / 写入冲突 | 并发写入同一数据表的多条记录导致锁竞争 | 指数退避重试（2s → 4s → 8s，最多 3 次）；批量写入时改为串行逐条 `dbsheet.update_records` / `dbsheet.create_records` |
 

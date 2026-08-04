@@ -8,14 +8,13 @@
 
 - 用户需要新建表格用来收集或统计信息
 
-**工具链**：AI 设计表头 → 用户确认 → `create_file` → `sheet.update_range_data` → `get_file_link`
+**工具链**：AI 设计表头 → 用户确认 → `create_file_with_content` → `get_file_link`
 
 ## 涉及工具
 
 | 工具 | 服务 | 用途 |
 |------|------|------|
-| `create_file` | drive | 创建智能表格（.ksheet） |
-| `sheet.update_range_data` | sheet | 写入表头数据 |
+| `create_file_with_content` | drive | 新建智能表格（.ksheet）并写入表头 |
 | `get_file_link` | drive | 返回表格分享链接 |
 
 ## 执行流程
@@ -26,6 +25,6 @@
 "已为你设计好 {{sheetName}} 表，表头为 {{headerList}}，确认生成？回复'确认'或告诉我需要调整的字段"
 → 用户回复需要调整则继续调整，回复确认则进入下一步
 
-**步骤 3**：`create_file` 创建智能表格(.ksheet)，`sheet.update_range_data` 写入表头
+**步骤 3**：`create_file_with_content` 新建智能表格（`name` 带 `.ksheet`，传 `file_extension=ksheet` 与表头 `rangeData`）
 
 **步骤 4**：返回表格分享链接

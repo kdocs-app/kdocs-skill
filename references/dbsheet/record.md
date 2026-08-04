@@ -80,7 +80,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要创建的记录列表，每个元素含 `fields` 对象（字段名/ID → 值的映射）
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
@@ -132,7 +134,7 @@
 | 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
 | 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 | 
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
+| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | 需先上传获得 `uploadId`；`source` 取 `upload_ks3`（上传附件）或 `Cloud`（云文档引用），dbsheet 渲染需用 `upload_ks3`；`linkUrl`、`imgSize` 选填 |
 | 关联（Link） | string[] | `["record_id_1","record_id_2"]` | 关联记录 id 数组 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
@@ -183,7 +185,7 @@
 | `等级` | Rating | 不超过字段 `max` /`max_value` 的整数 |
 | `进度条` | Complete | `0.5` | 进度值 0.0–1.0 |
 | `联系人` | Contact | `[{"id":"uid","nickname":"昵称","avatar_url":"…"}]` |
-| `附件` | Attachment | `[{"uploadId":"…","fileName":"…","size":0,"source":"Cloud","type":"image/png"}]` |
+| `附件` | Attachment | `[{"uploadId":"…","fileName":"…","size":0,"source":"upload_ks3","type":"image/png"}]` |
 | `关联` | Link | `["record_id_1","record_id_2"]` |
 | `富文本` | Note | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 12:00:00"}` |
 | `地址` | Address | `{"districts":["广东省","珠海市","香洲区"],"detail":"…"}` |
@@ -222,6 +224,9 @@
 ## 2. dbsheet.update_records
 
 #### 功能说明
+
+⚠️ **`file_id`、`sheet_id`、`records` 三个顶层参数全部必填。**
+各字段类型（Date、Phone、Contact 等）的值格式要求参见 `dbsheet.create_fields` 的字段类型说明，格式错误会导致 `Failed due to field`。
 
 批量更新数据表中已有记录的字段值。每条记录必须提供 `id`（记录 ID）和 `fields`
 （对象结构，内容为字段名或字段 ID 到新值的映射）。
@@ -301,7 +306,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要更新的记录列表，每个元素包含 `id`（记录 ID）和 `fields`（序列化 JSON 字符串）
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key；默认 false（使用字段名），为 `true` 时 `fields` 内部的 key 应为字段 ID
@@ -536,7 +543,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `page_size` (integer, 可选): 每页记录数，默认 100，取值范围 1-1000
 - `offset` (string, 可选): 翻页游标，首次请求传空字符串，后续传响应中的 `offset` 值
@@ -655,7 +664,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `record_id` (string, 必填): 记录 ID
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 和选项 ID 标识
@@ -734,7 +745,9 @@ file_id和sheet_id为必填参数，不允许为空。
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID（路径参数）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `records` (array[object], 必填): 要删除的记录列表（对象数组）
 - `mode` (string, 可选): 删除模式，默认 `include`；`all` 表示删除所有记录。可选值：`include` / `all`；默认值：`include`
@@ -861,7 +874,9 @@ file_id和sheet_id为必填参数，不允许为空。
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
 - `fields` (array, 必填): 指定所返回记录中的字段信息，若不填写则默认返回全部字段。prefer_id=true 时须用字段 id，否则用字段名
@@ -936,6 +951,9 @@ file_id和sheet_id为必填参数，不允许为空。
 
 #### 功能说明
 
+⚠️ **`records` 必须为 JSON 字符串数组，从 `dbsheet.list_records` 或 `dbsheet.records_list` 获取记录 ID。** `file_id`、`sheet_id`、`records` 三个全部必填。
+✅ 正确：`records: ["rec_xxx", "rec_yyy"]`
+❌ 错误：`records: "(array, 3 items)"`（字符串）、`records: true`（布尔值）、`records: {_keys:[...]}`（对象）
 
 | 名称 | 类型 | 必填 | 说明 |
 |------|------|------|------|
@@ -990,10 +1008,12 @@ file_id和sheet_id为必填参数，不允许为空。
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): 可选整包请求体；与顶层字段混用时同键以顶层为准
-- `records` (array, 必填): 记录 ID 列表，指定要检索的记录
+- `records` (array, 必填): ⚠️ 记录 ID 列表（字符串数组，如 `["rec123"]`），不可传布尔值、对象或字符串
 - `prefer_id` (boolean, 可选): 是否使用字段 / 选项 ID 而不是字段 / 选项名来标识
 - `show_fields_info` (boolean, 可选): 是否返回 fields 结构体展示字段信息。为 true 时，若指定了 fields 则返回指定字段；未指定 fields 时，根据是否指定 view_id 决定返回视图可见字段或全部字段
 - `show_record_extra_info` (boolean, 可选): 是否返回创建者、创建时间、最后修改者、最后修改时间信息（与是否有对应字段无关）

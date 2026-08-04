@@ -33,7 +33,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `col_from` (integer, 必填): 起始列索引
 - `col_to` (integer, 必填): 结束列索引
@@ -122,7 +124,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `args` (object, 必填): 数据校验参数
 - `field_type` (string, 必填): 字段类型，ET 目前仅支持 `List`（下拉列表）
@@ -229,7 +233,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `args` (object, 必填): 数据校验参数
 - `field_type` (string, 必填): 字段类型，ET 目前仅支持 `List`（下拉列表）
@@ -317,7 +323,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 - `range` (object, 必填): 目标区域范围
 

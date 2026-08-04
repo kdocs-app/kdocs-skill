@@ -44,7 +44,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `params` (object, 必填): 转换参数对象
   - `format` (string, 必填): 源数据格式，支持 `"html"` 或 `"markdown"`
   - `content` (string, 必填): 待转换的源数据内容

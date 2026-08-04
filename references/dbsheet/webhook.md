@@ -26,7 +26,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 
 #### 返回值说明
 
@@ -81,7 +83,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `body` (object, 必填): JSON 请求体，包含 command、data、callback_url
 
 **请求体（`body`）字段**
@@ -189,7 +193,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `hook_id` (string, 必填): Hook 订阅 ID
 - `body` (object, 可选): JSON 请求体，补充附加字段；可省略或传 {}
 

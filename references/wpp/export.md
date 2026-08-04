@@ -35,7 +35,9 @@
 
 #### 参数说明
 
-- `link_id` (string, 必填): 演示文稿的分享链接 ID（从分享链接 URL 中提取）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `format` (string, 必填): 导出图片格式。可选值：`png` / `jpeg`
 - `dpi` (integer, 可选): 图片 DPI。可选值：`96` / `150` / `300`；默认值：`96`
 - `water_mark` (boolean, 可选): 是否含水印；默认值：`true`
@@ -120,7 +122,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 演示文稿文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `format` (string, 必填): 固定 `pdf`
 - `task_id` (string, 可选): 任务 ID，步骤一返回，轮询时必填
 - `task_type` (string, 可选): 任务类型，固定 `normal_export`（轮询时必填）

@@ -26,7 +26,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 演示文稿文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `font_theme` (string, 可选): 预设字体主题名；未传或不在列表内则默认经典黑体
 
 #### 返回值说明
@@ -78,7 +80,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 演示文稿文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `slide_idx` (integer, 必填): 目标幻灯片序号，从 0 开始
 - `font_theme` (string, 可选): 预设字体主题名；未传或不在列表内则默认经典黑体
 
@@ -130,7 +134,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 演示文稿文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `color_theme` (string, 可选): 预设配色主题名；未传或未命中则默认配色
 
 #### 返回值说明
@@ -182,7 +188,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 演示文稿文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `slide_idx` (integer, 必填): 目标幻灯片序号，从 0 开始
 - `color_theme` (string, 可选): 预设配色主题名；未传或未命中则默认配色
 - `theme_color_mode` (integer, 必填): 主题颜色模式，值必须与 `color_theme` 对应。`0` 恢复默认配色；`1` 浅色系配色（落日红、蜜橘橙、琥珀黄、嫩芽绿、湖水青、晴空蓝、丁香紫）；`3` 深色系配色（朱砂赤、南瓜橙、深麦黄、深松绿、深墨青、深海蓝、葡萄紫、胭脂红）。具体映射见附录「配色主题详表」

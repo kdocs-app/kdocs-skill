@@ -4,7 +4,7 @@
 
 **适用场景**：在特定目录批量搜索文档，逐一读取分析，汇总到新文档
 
-**工具链**：`search_files`（定位目录）→ `search_files`（精确搜索）→ `read_file`（批量）→ AI 分析 → `create_file` + `upload_file`
+**工具链**：`search_files`（定位目录）→ `search_files`（精确搜索）→ `read_file`（批量）→ AI 分析 → `create_file_with_content` → `get_file_link`
 
 ## 涉及工具
 
@@ -12,8 +12,8 @@
 |------|------|------|
 | `search_files` | drive | 定位目录 |
 | `read_file` | drive | 逐一读取文档正文 |
-| `create_file` | drive | 创建汇总文档 |
-| `upload_file` | drive | 写入汇总内容 |
+| `create_file_with_content` | drive | 创建新文档并写入报告内容 |
+| `get_file_link` | drive | 获取文档链接 |
 
 ## 执行流程
 
@@ -25,7 +25,7 @@
    逐一读取文档正文
 4. **AI 分析**
    分析内容
-5. **create_file**
-   创建汇总文档
-6. **upload_file**
-   写入汇总内容
+5. **create_file_with_content**
+   创建新文档并写入报告内容
+6. **get_file_link**
+   获取文档链接

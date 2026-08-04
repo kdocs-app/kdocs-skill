@@ -4,19 +4,32 @@
 
 #### 功能说明
 
-支持按文件名、内容全文搜索，可按时间、创建者、文件类型等条件过滤。
+按关键词跨盘/跨目录搜索云文档，结果可包含文件与文件夹。
+支持按文件名、内容全文或全局检索（type 默认 all），并可按时间、创建者、后缀等条件过滤。
+若只要文件夹或只要文件，请用 file_type；勿将 folder/file 填入 type。
+
 
 
 > 新建文件后搜索可能无法立即命中，需等待索引更新
 
 #### 调用示例
 
-搜索文档：
+搜索文档（仅关键词，type 默认 all）：
 
 ```json
 {
   "keyword": "区域周报告",
-  "type": "all",
+  "file_type": "file",
+  "page_size": 20
+}
+```
+
+按文件名搜索：
+
+```json
+{
+  "keyword": "区域周报告",
+  "type": "file_name",
   "file_type": "file",
   "parent_ids": [
     "string"
@@ -32,7 +45,10 @@
 #### 参数说明
 
 - `keyword` (string, 可选): 搜索关键字
-- `type` (string, 必填): 搜索类型。可选值：`file_name`表示搜索文件名，`content`表示搜索文件内容，`all`表示全局搜索。
+- `type` (string, 可选): 搜索维度，默认 all（全局搜索）。
+file_name 仅搜文件名，content 仅搜文件内容，all 文件名+内容。
+筛选文件夹/文件类型请用 file_type，勿将 folder/file 填入 type。
+。可选值：`file_name` / `content` / `all`；默认值：`all`
 - `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0），传 0 表示按 50
 - `page_token` (string, 可选): 翻页 token
 - `file_type` (string, 可选): 文件类型筛选。可选值：`folder` / `file`

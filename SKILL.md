@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.5.12
+version: 2.5.29
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","form","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -31,7 +31,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown action` 或 `unknown service` 错误**。
 
 1. **CLI 版本**：`kdocs-cli version` — 若命令不存在则按下方「工具安装与认证」安装；若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
-2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=2.5.12 skill_name=kdocs`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接，下载解压替换当前 Skill 目录
+2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=2.5.29 skill_name=kdocs`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接，下载解压替换当前 Skill 目录
 
 若 upgrade 和 rollback 均失败，在本 Skill 目录下重新运行安装脚本（`bash setup.sh` / `powershell setup.ps1` / `node setup.cjs`，脚本位于 `scripts/`）可从 CDN 重新安装。若仍无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
 
@@ -103,7 +103,7 @@ kdocs-cli <service> <action> [参数]
 
 以下工具不可逆，调用前必须向用户确认（详细约束见各工具参考文档的「操作约束」区）：
 
-`otl.block_delete`、`dbsheet.delete_sheet`、`kwiki.close_knowledge_view`、`sheet.delete_sheets`、`sheet.delete_range_data`、`dbsheet.delete_view`、`dbsheet.delete_fields`、`cancel_share`、`kwiki.delete_item`、`sheet.delete_protection_ranges`、`dbsheet.delete_records`、`sheet.delete_data_validations`、`sheet.delete_conditional_format_rules`、`sheet.delete_float_images`、`sheet.delete_filters`、`dbsheet.sheet_batch_delete`、`dbsheet.permission_delete_roles_async`
+`otl.block_delete`、`dbsheet.delete_sheet`、`kwiki.close_knowledge_view`、`sheet.delete_sheets`、`sheet.delete_range_data`、`dbsheet.delete_view`、`dbsheet.delete_fields`、`cancel_share`、`kwiki.delete_item`、`sheet.delete_protection_ranges`、`dbsheet.delete_records`、`sheet.delete_data_validations`、`cancel_collaborator_permissions`、`sheet.delete_conditional_format_rules`、`sheet.delete_float_images`、`sheet.delete_filters`、`dbsheet.sheet_batch_delete`、`sheet.delete_pivot_table`、`dbsheet.permission_delete_roles_async`
 
 ---
 
@@ -113,13 +113,15 @@ kdocs-cli <service> <action> [参数]
 
 Agent 首先判定用户请求的操作域：
 
+> 进入「局部更新」「类型专属能力」且后缀/类型未知时：先按 `references/file-locating-guide.md` 确认类型，再打开对应类型 reference；勿猜测调用。读取/创建/文件管理不必先调。
+
 | 操作域 | 触发场景 | 路由 |
 |--------|---------|------|
 | 创建/写入 | 新建并写入、上传本地文件、新建空白文档 | **见下方「创建/写入」** |
 | 局部更新 | 改块/改段/改单元格，已有目标文档上的修改 | 按「支持的文档类型」→ 对应 reference 中的写入/更新类工具 |
-| 类型专属能力 | 条件格式、导出转换、翻译、PDF 拆分、幻灯片主题、数据校验 | 按「支持的文档类型」→ 对应 reference 中的专属功能章节 | 读取 | 读取/提取/导出文档内容 | `read_file`（传 url 或 file_id，详见 `references/drive/read_and_download.md`）；没有则先「定位文件」 |
-| 读取 | 读取/提取/导出文档内容 | `read_file`（传 url 或 file_id，详见 `references/drive/read_and_download.md`）；没有则先「定位文件」 |
-| 定位文件 | 搜索/按链接找文件/浏览目录 | **必读** `references/file-locating-guide.md` |
+| 类型专属能力 | 条件格式、导出转换、翻译、PDF 拆分、幻灯片主题、数据校验 | 按「支持的文档类型」→ 对应 reference 中的专属功能章节 |
+| 读取 | 读取/提取/导出文档内容 | `read_file`（有链接优先 `url`，亦可 `link_id` / `file_id`，详见 `references/drive/read_and_download.md`）；否则按「定位文件」 |
+| 定位文件 | 搜索/按链接查文件标识或属性/浏览目录 | 详见 `references/file-locating-guide.md`；看我的云盘 → `references/drive/read_and_download.md`（`drive.list_my_files`） |
 | 文件管理 | 移动/重命名/分享/标签/收藏/回收站/评论/文档库/历史版本/另存为 | → `references/drive.md` |
 | AI 生成 | AI 做PPT/生成演示文稿 | → `references/aippt.md` |
 | 知识库 | 知识库空间/导入/整理 | → `references/kwiki.md` |
@@ -143,9 +145,9 @@ Agent 首先判定用户请求的操作域：
 
 | 用户意图 | 工具 | 适用后缀 |
 |----------|------|----------|
-| 对话中已有要写的内容 | `create_file_with_content` | .otl .docx .pdf .xlsx .ksheet .dbt |
-| 上传本地已有文件 | `upload_file` | .doc .docx .xls .xlsx .ppt .pptx .pdf .md .txt |
-| 新建空白文档（不写内容） | `create_file` | .doc .docx .otl .dbt .xlsx .xls .ksheet .pptx .ppt |
+| 仅需空白文档 | `create_empty_file` | .doc .docx .otl .dbt .xlsx .xls .ksheet .pptx .ppt |
+| 已有正文或表格数据要写入 | `create_file_with_content` | .otl .docx .pdf .xlsx .ksheet .dbt |
+| 通过上传本地文件新建云文档 | `upload_new_file` | .doc .docx .xls .xlsx .ppt .pptx .pdf .md .txt .html .zip .png .jpg .jpeg .csv .json .dps .et .wps .gif |
 | AI 生成 PPT | `aippt.execute` | .pptx |
 
 后缀不确定时默认 `.otl`。指定文件夹时先按 `references/file-locating-guide.md` 取 `drive_id`、`parent_id`。
@@ -154,7 +156,8 @@ Agent 首先判定用户请求的操作域：
 
 #### 搜索定位文档
 
-工具说明：`search_files(keyword="关键词", type="all", page_size=20)`，获取 `file_id`、`drive_id` 供后续链路使用。
+工具说明：`search_files(keyword="关键词")` 即可搜索（`type` 可省略，默认 `all`）；获取 `file_id`、`drive_id` 供后续链路使用。
+`type` 为搜索维度（file_name/content/all），筛选文件夹/文件请用 `file_type`。
 详细参数与返回结构见 `references/drive/search.md`。
 
 ### 更多操作流程

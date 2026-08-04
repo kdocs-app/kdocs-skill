@@ -64,7 +64,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档文件 ID
 - `params` (object, 必填): 插入操作配置
   - `blockId` (string, 常用): 目标父块 ID，例如 `doc`
   - `index` (integer, 常用): 插入位置索引（从 0 开始）

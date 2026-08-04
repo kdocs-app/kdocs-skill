@@ -35,7 +35,9 @@
 #### 参数说明
 
 - `drive_id` (string, 可选): 目标云盘 ID
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `page_size` (integer, 可选): 每页版本条数，范围 1–500；默认值：`50`
 - `page_token` (string, 可选): 分页 token，首次不传，后续传上次返回的 `next_page_token`
 - `with_comment` (boolean, 可选): 是否返回版本备注
@@ -123,7 +125,9 @@
 #### 参数说明
 
 - `drive_id` (string, 可选): 目标云盘 ID
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `version_num` (integer, 必填): 版本号（来自 list_file_versions 返回的 items[].version）
 
 #### 返回值说明

@@ -12,6 +12,8 @@
 
 **在线演示（WPP）** 提供幻灯片操作（添加/删除/复制）、形状插入、主题字体/配色设置、导出图片或 PDF 等能力，通过本文 **`wpp.*`** 工具描述；
 
+- 若只是读取幻灯片正文/结构，优先使用 `read_file`（返回 `content_format=kdc` 的结构化数据）
+
 ### 使用场景
 
 | 场景 | 说明 |
@@ -42,8 +44,8 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`wpp.insert_slide`](wpp/slide.md) | 在已有演示中插入空白页 | `file_id`, `slide_idx` |
-| [`wpp.import_slides`](wpp/slide.md) | 将外部 PPTX 的指定页面导入到已有演示文稿 | `link_id`, `object_url`, `slide_idx`, `source_idxs` |
+| [`wpp.insert_slide`](wpp/slide.md) | 在已有演示中插入空白页 | `url`\|`link_id`\|`file_id`, `slide_idx` |
+| [`wpp.import_slides`](wpp/slide.md) | 将外部 PPTX 的指定页面导入到已有演示文稿 | `url`\|`link_id`\|`file_id`, `object_url`, `slide_idx`, `source_idxs` |
 
 ## 二、主题（字体与配色）
 
@@ -51,10 +53,10 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`wpp.set_font_presentation`](wpp/theme.md) | 全文更换字体 | `file_id` |
-| [`wpp.set_font_slide`](wpp/theme.md) | 单页更换字体 | `file_id`, `slide_idx` |
-| [`wpp.set_color_presentation`](wpp/theme.md) | 全文更换配色 | `file_id` |
-| [`wpp.set_color_slide`](wpp/theme.md) | 单页更换配色 | `file_id`, `slide_idx`, `theme_color_mode`, `color_scheme_id` |
+| [`wpp.set_font_presentation`](wpp/theme.md) | 全文更换字体 | `url`\|`link_id`\|`file_id` |
+| [`wpp.set_font_slide`](wpp/theme.md) | 单页更换字体 | `url`\|`link_id`\|`file_id`, `slide_idx` |
+| [`wpp.set_color_presentation`](wpp/theme.md) | 全文更换配色 | `url`\|`link_id`\|`file_id` |
+| [`wpp.set_color_slide`](wpp/theme.md) | 单页更换配色 | `url`\|`link_id`\|`file_id`, `slide_idx`, `theme_color_mode`, `color_scheme_id` |
 
 ### 字体与配色约束
 
@@ -93,8 +95,8 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`wpp.export_image`](wpp/export.md) | 导出为图片 | `link_id`, `format` |
-| [`wpp.export_pdf`](wpp/export.md) | 异步导出 PDF | `file_id`, `format` |
+| [`wpp.export_image`](wpp/export.md) | 导出为图片 | `url`\|`link_id`\|`file_id`, `format` |
+| [`wpp.export_pdf`](wpp/export.md) | 异步导出 PDF | `url`\|`link_id`\|`file_id`, `format` |
 
 ## 四、原子操作
 
@@ -102,7 +104,7 @@
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
-| [`wpp.execute`](wpp/execute.md) | 透传执行演示文稿 JSAPI | `file_id`, `command` |
+| [`wpp.execute`](wpp/execute.md) | 透传执行演示文稿 JSAPI | `url`\|`link_id`\|`file_id`, `command` |
 
 ## 常用工作流
 

@@ -29,7 +29,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): JSON 请求体，补充附加参数；无需附加则传空对象
 
@@ -79,7 +81,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `body` (object, 可选): JSON 请求体，补充附加参数；无需附加则传空对象
 
@@ -128,7 +132,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 
 #### 返回值说明
@@ -184,7 +190,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `parent_id` (string, 必填): 父记录 ID
 - `body` (object, 必填): JSON 请求体，包含 child_ids
@@ -243,7 +251,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `parent_id` (string, 必填): 父记录 ID
 
@@ -300,7 +310,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `parent_id` (string, 必填): 父记录 ID
 - `body` (object, 必填): JSON 请求体，包含 child_ids

@@ -30,7 +30,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 可选): 指定数据表 ID，不填则返回所有表
 - `reserve_no_permission_sheet` (boolean, 可选): 是否保留无权限的表；默认值：`false`
 - `show_very_hidden` (boolean, 可选): 是否显示深度隐藏的表；默认值：`true`
@@ -118,6 +120,8 @@
 
 #### 功能说明
 
+⚠️ **`views` 和 `fields` 必须为非空数组，至少传一个元素。** `file_id`、`name`、`fields`、`views` 四个顶层参数全部必填。只传 `name` 不传 `fields` 会报 `Required parameter missing`，不传 `views` 会报 `Views are empty`。
+
 在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。传入 `fields` 时，`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）；
 
 
@@ -173,7 +177,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID（路径参数）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `name` (string, 必填): 数据表名称
 - `sync_type` (string, 可选): 同步类型；默认值：`None`
 - `after_sheet_id` (integer, 可选): 插入到指定数据表之后
@@ -412,7 +418,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 目标数据表 ID
 - `name` (string, 可选): 新名称
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 作为 key
@@ -473,7 +481,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 要删除的数据表 ID
 
 #### 返回值说明
@@ -526,7 +536,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `body` (object, 必填): JSON 请求体，须含 sheets 数组，数组元素描述待建数据表
 
 **body 根级必填**
@@ -588,7 +600,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `body` (object, 必填): JSON 请求体，须含 sheet_ids 字段，数组元素为待删除数据表 ID
 
 **body 根级必填**

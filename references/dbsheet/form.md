@@ -28,7 +28,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID（非 Grid 等）
 
@@ -83,7 +85,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
 - `field_id` (string, 必填): 表单字段 ID
@@ -142,7 +146,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（整数，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
 
@@ -196,7 +202,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 多维表格文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `sheet_id` (integer, 必填): 数据表 ID（**必须为整数**，不可传字符串）
 - `view_id` (string, 必填): 表单视图 ID
 - `body` (object, 必填): JSON 请求体，包含表单视图描述与名称

@@ -30,7 +30,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 
 #### 返回值说明
@@ -117,7 +119,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID（路径参数）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID（路径参数）
 - `expand_filter_range` (boolean, 必填): 是否开启将空行后面的数据纳入筛选；仅当选区为单个单元格时生效
 - `range` (object, 必填): 矩形筛选区域。若选区为单个单元格，将开启所有列的筛选。
@@ -230,7 +234,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID（路径参数）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID（路径参数）
 - `col` (integer, 必填): 要筛选的列号索引，从 0 开始
 - `condition` (object, 必填): 筛选条件。可包含 `operator`、`param1`、`param2`。
@@ -325,7 +331,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
 
 #### 返回值说明

@@ -22,8 +22,6 @@
 | 用户给出主题/描述，无文档 | `theme_ppt` | `[{type:"text", content:"用户主题"}]` |
 | 用户提供了文档链接 | `doc_ppt` | `[{type:"text", content:"根据文档生成PPT"}, {type:"link_id", content:"<link_id>"}]` |
 
-> `link_id`：从金山文档链接路径末尾提取 link_id（如 `https://365.kdocs.cn/l/xxxxx` 中的 `xxxxx`），无需先调用 get_share_info。
-
 #### 2. mode（向用户确认）
 
 | mode | 名称（展示给用户） | 调用次数 | 说明 |

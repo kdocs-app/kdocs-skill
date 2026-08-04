@@ -140,7 +140,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 回收站中的文件 ID（由 `list_deleted_files` 返回）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 
 #### 返回值说明
 

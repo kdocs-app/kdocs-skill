@@ -20,7 +20,7 @@
         → finish_reason: stop
 
 步骤 2: wpp.import_slides(link_id=<目标PPT的link_id>, object_url=<步骤1返回的merged_file_url>, slide_idx=<插入位置>, source_idxs=[0])
-        → 从目标PPT的金山文档链接路径末尾提取 link_id，无需先调 `get_share_info`
+        → 从目标PPT的金山文档链接路径末尾提取 link_id
         → 将生成的 PPTX 导入到已有演示文稿的指定位置
 
 步骤 3: 展示结果给用户

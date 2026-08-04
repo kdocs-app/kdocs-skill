@@ -36,7 +36,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `origin_id` (string, 必填): `"0"` 返回根评论列表（每条附带最多 2 条子评论预览 `sub_comments.items`）；
 传根评论 ID 返回该根下全部子评论。
 `sub_comments.total` 大于预览条数时需再次调用并传根评论 ID。
@@ -162,7 +164,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `content` (string, 必填): 评论正文，1–5000 字符
 - `origin_id` (string, 可选): 根评论 ID；回复时必填，始终填根评论 ID（不是子评论 ID），与 reply_id 成对使用
 - `reply_id` (string, 可选): 被回复的评论 ID；回复根评论时与 origin_id 相同，回复子评论时为该子评论 ID；不可单独省略
@@ -234,7 +238,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 云文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `drive_id` (string, 可选): 云盘 ID
 
 #### 返回值说明

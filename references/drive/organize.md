@@ -150,7 +150,9 @@ file_id：
 #### 参数说明
 
 - `drive_id` (string, 可选): 源文件所在云盘 ID
-- `file_id` (string, 必填): 源文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `dst_drive_id` (string, 必填): 目标云盘 ID
 - `dst_parent_id` (string, 必填): 目标父目录 ID，根目录为 "0"
 
@@ -280,7 +282,9 @@ file_id：
 #### 参数说明
 
 - `drive_id` (string, 可选): 源文件所在云盘 ID
-- `file_id` (string, 必填): 源文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `dst_drive_id` (string, 必填): 目标云盘 ID
 - `dst_parent_id` (string, 必填): 目标父目录 ID，根目录为 "0"
 - `name` (string, 可选): 目标文件名；建议含后缀（如 "副本.docx"）以避免与同名文件冲突

@@ -74,7 +74,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 智能文档文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 智能文档文件 ID
 - `title` (string, 可选): 文档标题
 - `content` (string, 必填): 写入内容，支持 Markdown 或 HTML
 - `format` (string, 可选): content 字段的格式，markdown 或 html；当不传 pos 时必填，且需与 mode 同时传入。可选值：`markdown` / `html`

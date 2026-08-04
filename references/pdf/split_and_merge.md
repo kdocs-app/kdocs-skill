@@ -50,7 +50,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 原始 PDF 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 文件 ID
 - `ranges` (array, 必填): 要提取的页码范围列表，每项含 from 和 to（1-based）
   - `from` (integer, 必填): 起始页，1-based，且包含该页
   - `to` (integer, 必填): 结束页，1-based，且包含该页
@@ -135,7 +137,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): 待拆分的 PDF 文件 ID（支持 V7 unique_id 或数字 file_id）
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 待拆分的 PDF 的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 待拆分的 PDF 的分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 待拆分的 PDF 文件 ID
 - `dc_interval` (number, 必填): 拆分间隔：每 N 页拆分一次，须为正整数。例如 dc_interval=5 表示每 5 页生成一个子文件
 - `file_name` (string, 可选): 输出文件名前缀（不含扩展名），默认 document。实际文件名可能带序号，如 document_001.pdf；默认值：`document`
 - `open_password` (string, 可选): PDF 打开密码（有密码保护时填写）

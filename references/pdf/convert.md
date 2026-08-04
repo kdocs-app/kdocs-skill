@@ -38,7 +38,9 @@
 
 #### 参数说明
 
-- `file_id` (string, 必填): PDF 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): PDF 文件 ID
 - `to_format` (string, 必填): 目标格式，仅支持 docx、xlsx、pptx
 - `file_name` (string, 可选): 转换后文件的文件名（不含扩展名，如原文件为"报告.pdf"则默认输出"报告"）；默认值：`自动取原 PDF 文件名（去掉 .pdf 后缀）`
 - `page_range_from` (integer, 可选): 起始页码（1-based）；默认值：`1`
@@ -130,8 +132,8 @@
 
 ```json
 {
-  "jobid": "69d47281d3e451001f1be3a8wl",
   "file_id": "file_pdf_001",
+  "jobid": "69d47281d3e451001f1be3a8wl",
   "fname": "contract.pdf"
 }
 ```
@@ -140,7 +142,9 @@
 #### 参数说明
 
 - `jobid` (string, 必填): 转换任务 ID，来自 `pdf.convert` 返回值
-- `file_id` (string, 必填): 源 PDF 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 源 PDF 的 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 源 PDF 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 源 PDF 文件 ID
 - `fname` (string, 可选): 源 PDF 文件名（含 .pdf 后缀）；默认值：`document.pdf`
 
 #### 返回值说明
