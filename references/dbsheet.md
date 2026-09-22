@@ -16,6 +16,7 @@
 | [`dbsheet.delete_sheet`](dbsheet/data_table.md) | 删除数据表 | `url`\|`link_id`\|`file_id`, `sheet_id` |
 | [`dbsheet.sheet_batch_create`](dbsheet/data_table.md) | 批量创建工作表 | `url`\|`link_id`\|`file_id`, `body` |
 | [`dbsheet.sheet_batch_delete`](dbsheet/data_table.md) | 批量删除工作表 | `url`\|`link_id`\|`file_id`, `body` |
+| [`dbsheet.get_schema_detail`](dbsheet/data_table.md) | 获取完整 Schema（含侧边栏智能文档和富文本字段的 content_id） | `url`\|`link_id`\|`file_id` |
 
 ## 二、视图管理
 
@@ -123,13 +124,66 @@
 | [`dbsheet.create_webhook`](dbsheet/webhook.md) | 创建 Hook 订阅 | `url`\|`link_id`\|`file_id`, `body` |
 | [`dbsheet.delete_webhook`](dbsheet/webhook.md) | 取消 Hook 订阅 | `url`\|`link_id`\|`file_id`, `hook_id` |
 
+## 十一、智能文档/富文本字段块操作
+
+> 多维表格智能文档（FlexPaper sheet）与富文本字段内的文档块增删改查与格式转换
+
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| [`dbsheet.create_innerdoc_flexpaper`](dbsheet/innerdoc_block.md) | 在多维表格文件中新建一个智能文档（FlexPaper sheet） | `url`\|`link_id`\|`file_id`, `name` |
+| [`dbsheet.innerdoc_block_create`](dbsheet/innerdoc_block.md) | 创建侧边栏智能文档/富文本字段内的文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_query`](dbsheet/innerdoc_block.md) | 查询侧边栏智能文档/富文本字段内的单个文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_list`](dbsheet/innerdoc_block.md) | 批量查询侧边栏智能文档/富文本字段内的文档块列表 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_update`](dbsheet/innerdoc_block.md) | 更新侧边栏智能文档/富文本字段内的单个文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_batch_update`](dbsheet/innerdoc_block.md) | 批量更新侧边栏智能文档/富文本字段内的多个文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_delete`](dbsheet/innerdoc_block.md) | 删除侧边栏智能文档/富文本字段内的单个文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_batch_delete`](dbsheet/innerdoc_block.md) | 批量删除侧边栏智能文档/富文本字段内的多个文档块 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+| [`dbsheet.innerdoc_block_convert`](dbsheet/innerdoc_block.md) | 将 HTML/Markdown 转换为侧边栏智能文档/富文本字段内的文档块结构 | `url`\|`link_id`\|`file_id`, `attachment_id`, `arg` |
+
 ## 工具组合速查
 
 | 用户需求 | 推荐工具组合 |
 |----------|-------------|
+| 新建多维表 | 自定义列 → `create_file_with_content`（`dbt` + `fields` + `records`）；接受默认列 → `create_empty_file`（`dbt`）→ `get_file_link`（参数与禁令见各工具 reference） |
+| 已有 .dbt 内新增数据表 | `dbsheet.create_sheet`（`views` + `fields` 均非空） |
 | 读多维表正文 | `read_file`（返回 content_format 为 dbsheet_records，含 schema、records） |
 | 多维表格读结构/数据 | `dbsheet.get_schema` → `dbsheet.list_records` / `dbsheet.get_record` |
-| 多维表格增删改 | `dbsheet.get_schema` → `dbsheet.create_records` / `dbsheet.update_records` / `dbsheet.delete_records`|
+| 多维表格增删改记录 | 见「写入前字段映射」+「新增记录与全空记录复用」→ `dbsheet.update_records` / `dbsheet.create_records`；用户明确要求删除时 `dbsheet.delete_records` |
+| 本地图片/文件写入附件字段 | `upload_attachment`（`file_id` 为目标 `.dbt`）→ `dbsheet.update_records`（`uploadId`=返回的 `object_id`，`source`=`upload_ks3`；勿用 `Cloud`） |
+| 智能文档/表格内容转新建 dbt | `read_file` 源文档 → `create_file_with_content`（`name` 只写文件名，`file_extension=dbt`，`fields`+`records`）；选项列见下节 |
+
+### 单选/多选建列（create_fields / create_file_with_content）
+
+向 `.dbt` 预置 `SingleSelect`/`MultipleSelect` 选项时：
+
+1. **扁平 `items`**：写在 `fields[].items`，**禁止** `fields[].data.items`（可 200 但 `items: null`）。
+2. 创建后 **`dbsheet.get_schema`** 确认该列 `items` 非空，再 `create_records`/`update_records`。
+3. 录入选项 **value** 字符串须与 `items[].value` 一致（或开启 `autoAddItem`）。
+
+`create_file_with_content` 建 dbt 时 `fields[]` 规则相同；详见 `references/dbsheet/field.md` 中 `dbsheet.create_fields`。
+
+### 写入前字段映射
+
+向已有表增/改记录时：
+
+1. **必须先** `dbsheet.get_schema` 确认 `sheet_id` 与字段名；禁止用 `read_file` 探 `sheet_id` 或字段结构。
+2. 用户口述的字段名对照 schema **现有列**：**列名完全一致则直接用**。无同名列时 **禁止 Agent 自行语义映射**，须 `askUserQuestion` 让用户选择：写入哪个现有列 / 新建该列 / 跳过；`fields` 的 key 必须用用户确认后的表中真实列名。禁止新建与已有列同义的列。
+3. 无等价列且确需新列 → **须 `askUserQuestion` 确认**（新建列 / 跳过该字段 / 写入其他列）后再 `dbsheet.create_fields`；禁止先 `create_records` 写入不存在的列碰运气，`Field not found` 失败后再建列**不算**已告知用户。
+4. 映射完成后按「新增记录与全空记录复用」选择 `update_records` / `create_records`；**必须**用 `list_records` 或 `get_record` 回读验证，禁止仅凭 `result: ok` 宣称成功。
+5. 回复用户时说明口述字段与表中真实列名的对应关系（如「任务名→文本」「状态→单选项」）；若新建了列须一并说明。
+
+### 新增记录与全空记录复用
+
+向已有表**新增** N 条记录时（用户未明确要求追加到表尾）：
+
+1. `list_records` 按默认顺序盘点记录。
+2. **全空记录**：`fields` 为 `{}`，或除 `AutoNumber`/`CreatedTime`/`CreatedBy`/`LastModifiedBy`/`LastModifiedTime`/`Formula`/`Lookup` 外所有字段均为空；任一业务字段有值则**跳过**。
+3. 从列表头部依次取前 min(N, 全空记录数) 条 → `update_records`（每条须带 `id`）。
+4. 仍有剩余 (N−K) 条 → `create_records` 追加（API 只能在表尾创建，无「插入到第几行」参数）。
+5. **禁止**用 `delete_records`（含 `mode=all`）清理全空记录；**禁止**覆盖含用户数据的记录。
+6. 不要求连续全空记录；全空记录不足时剩余追加到表尾，须在回复中说明。
+
+用户明确说「在末尾/最后追加」时，可跳过步骤 2–3，直接 `create_records`。
 
 ---
 
@@ -150,7 +204,10 @@
 | `400100` Unknown enum / 参数值不被识别 | 凭直觉猜测 type 等枚举值，未查文档 | 打开 `references/dbsheet/field.md` 对应工具的参数说明，从 description 中的对照表取正确枚举值，修正后重试一次 |
 | `400001` 参数缺失 / 格式错误 | 未确认必填参数或参数类型 | 打开 `references/dbsheet/field.md` 对应工具的参数表，确认参数名、类型、必填性，补齐后重试 |
 | 记录不全 / 需全量或分页 | `read_file` 单次返回 records 有上限 | 概览用 `read_file`；全量/分页/条件筛选用 `dbsheet.records_list` / `list_records` / `records_search` |
+| `Field not found` / 字段不存在 | `create_records` 传了 schema 中不存在的列名 | 先 `get_schema`；无同名列须 `askUserQuestion` 确认映射或缺列方案，禁止撞错后静默建列 |
+| `SingleSelect`/`MultipleSelect` 响应 `items: null` | 误用 `fields[].data.items` 包装 | 改为扁平 `fields[].items`；`get_schema` 验证选项非空 |
 | `conflict` / `lock` / 写入冲突 | 并发写入同一数据表的多条记录导致锁竞争 | 指数退避重试（2s → 4s → 8s，最多 3 次）；批量写入时改为串行逐条 `dbsheet.update_records` / `dbsheet.create_records` |
+| 新增记录落到表尾很后面 | 表内已有全空记录，直接 `create_records` 只会追加到末尾 | 先 `list_records` 复用全空记录 `update_records`，不足再 `create_records`；见「新增记录与全空记录复用」 |
 
 ---
 

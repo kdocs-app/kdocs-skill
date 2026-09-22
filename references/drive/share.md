@@ -4,18 +4,14 @@
 
 #### 功能说明
 
-开启文件分享，可设置权限范围、访问密码、过期时间、链接角色等。
+开启文件分享，必须传入 `scope` 指定分享范围（`anyone` / `company` / `users`），缺少会报错。
+可设置访问密码、过期时间、链接角色等。
 
-**`drive_id`**（非必填）：
-
-- **有明确的 drive_id** 必传。
-- **没有**：不传。
+**`drive_id`**：源文件所在云盘 ID。不传则按 `file_id` 解析。
 
 **`role_id`**（可选）：须传 `list_drive_roles` 返回的 `items[].id`；不可传预设 `code`；不支持仅查看（`view_only`）与可管理（`manageable`）。按文件类型的可用角色见 `list_drive_roles`。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：指定 role_id 时先 list_drive_roles 取 items[].id，并按文件类型核对白名单（见 list_drive_roles）
 - **禁止**：未经用户明确要求，禁止调用此工具
@@ -52,14 +48,13 @@
 }
 ```
 
-
 #### 参数说明
 
-- `drive_id` (string, 可选): 目标云盘 ID
+- `drive_id` (string, 可选): 源文件所在云盘 ID。不传则按 file_id 解析
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
-- `scope` (string, 必填): 链接权限范围。可选值：`anyone`（所有人）/ `company`（仅企业）/ `users`（指定用户）
+- `scope` (string, 必填): 链接权限范围。可选值：`anyone`（所有人可访问）/ `company`（仅企业内可访问）/ `users`（仅指定用户可访问）。未明确要求时建议使用 `anyone`
 - `role_id` (string, 可选): 须传 `list_drive_roles` 返回的 `items[].id`；不可传预设 code；不支持仅查看与可管理；须落在当前文件类型白名单内
 - `opts` (object, 可选): 链接设置
   - `allow_perm_apply` (boolean, 可选): 允许申请权限
@@ -128,9 +123,7 @@
 
 **`role_id`**（可选）：须传 `list_drive_roles` 返回的 `items[].id`；不可传预设 `code`；不支持仅查看（`view_only`）与可管理（`manageable`）。按文件类型的可用角色见 `list_drive_roles`。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：指定 role_id 时先 list_drive_roles 取 items[].id，并按文件类型核对白名单（见 list_drive_roles）
 - **禁止**：未经用户明确要求，禁止修改分享权限
@@ -167,7 +160,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -201,21 +193,17 @@
 
 取消文件分享。
 
-**`drive_id`**（非必填）：
+**`drive_id`**：源文件所在云盘 ID。不传则按 `file_id` 解析。
 
-- **有明确的 drive_id** 必传。
-- **没有**：不传。
-
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：get_share_info 确认当前分享状态与模式
 - **用户确认**（mode=delete）：永久删除分享链接，不可恢复，必须向用户确认
 - **后置验证**：get_share_info 确认分享状态已变更
-- **提示**：建议优先使用 mode=pause（可恢复）
 
 **幂等性**：否 — pause 可重试；delete 禁止重试
+
+> 建议优先使用 mode=pause（可恢复）
 
 #### 调用示例
 
@@ -238,10 +226,9 @@ file_id：
 }
 ```
 
-
 #### 参数说明
 
-- `drive_id` (string, 可选): 云盘 ID
+- `drive_id` (string, 可选): 源文件所在云盘 ID。不传则按 file_id 解析
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
@@ -266,7 +253,6 @@ file_id：
 
 获取分享链接信息与属性。
 
-
 #### 调用示例
 
 查询分享信息：
@@ -276,7 +262,6 @@ file_id：
   "link_id": "string"
 }
 ```
-
 
 #### 参数说明
 
@@ -347,8 +332,6 @@ file_id：
 - `set_collaborator_permissions`：预设权限可用 `items[].code`（也可使用 `items[].id`）；非预设权限须用 `items[].id`
 - `share_file` / `set_share_permission`：仅可用 `items[].id`，且不支持仅查看与可管理
 
-
-
 #### 调用示例
 
 获取文档权限角色列表：
@@ -358,7 +341,6 @@ file_id：
   "drive_id": "drv-1"
 }
 ```
-
 
 #### 参数说明
 
@@ -432,8 +414,6 @@ file_id：
 
 本工具返回**最近访问/协作访客**列表，不是权限判定依据。用户未出现在本列表中，不能据此认定无访问权限（例如：已授权但尚未打开文档；或 `scope=anyone` 持链即可访问等）。判断是否有访问权限时，须结合 `get_share_info`（分享范围）与 `search_document_collaborators`（是否被显式加入协作者）；二者亦不能单独等同于「有/无权限」的完整结论。
 
-
-
 > `users` 可含 offline；`total` 不等于 `users.length`
 
 #### 调用示例
@@ -447,10 +427,11 @@ file_id：
 }
 ```
 
-
 #### 参数说明
 
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID；与 url、file_id 三选一
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID；与 url、link_id 三选一
 - `limit` (number, 必填): 返回条数上限，最大 1000
 - `disable_sticky` (boolean, 可选): 是否禁用创建者置顶
 - `exclude_online` (boolean, 可选): 是否排除在线用户
@@ -532,8 +513,6 @@ file_id：
 
 本工具搜索结果用来判断**是否被显式加入协作者**，不是「能否打开文档」的唯一判断依据。搜索无结果或不在 `joined`，不能单独认定无访问权限（例如分享范围为 `anyone` 时持链可访）。判断是否有访问权限时须同时看 `get_share_info` 的 scope，并视需要结合本工具的 `joined` / `not_join`；勿仅用 `list_document_collaborators`（仅含访问过的访客）。
 
-
-
 > `joined` 为已添加协作者；`not_join` 为未添加的个人联系人、企业成员，也可能含团队
 > 团队条目看 `group_members` 取 `user_id`；操作用户主体用 `id`（`subject_type=user`），团队主体用 `id`（`subject_type=group`）
 
@@ -549,11 +528,12 @@ file_id：
 }
 ```
 
-
 #### 参数说明
 
-- `drive_id` (string, 必填): 云盘 ID
-- `file_id` (string, 必填): 文件 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID；与 url、file_id 三选一
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID；与 url、link_id 三选一
+- `drive_id` (string, 可选): 云盘 ID；传 url/link_id/file_id 时可省略（由定位解析）
 - `key` (string, 必填): 搜索关键词，1-255 字符
 - `corp_id` (string, 可选): 企业 ID，支持逗号分隔
 - `count` (number, 可选): 最大返回数量，最大 10000
@@ -648,7 +628,6 @@ file_id：
 
 获取文件的在线访问链接。
 
-
 #### 调用示例
 
 获取文件链接：
@@ -658,7 +637,6 @@ file_id：
   "file_id": "string"
 }
 ```
-
 
 #### 参数说明
 
@@ -671,7 +649,7 @@ file_id：
 ```json
 {
   "file_id": "string",
-  "file_url": "https://kdocs.cn/l/xxxxx",
+  "link_url": "https://kdocs.cn/l/xxxxx",
   "name": "Q1销售报告"
 }
 
@@ -680,7 +658,7 @@ file_id：
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `file_id` | string | 文件 ID |
-| `file_url` | string | 在线访问链接 |
+| `link_url` | string | 在线访问链接 |
 | `name` | string | 文件名 |
 
 
@@ -694,9 +672,7 @@ file_id：
 
 **`link_id`：** 分享链接 ID，来自 `share_file` / `get_share_info` 返回的 `id`。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：先确认 link_id（share_file / get_share_info），并用 list_drive_roles 核对角色（类型白名单 + view_only/manageable）
 - **禁止**：未经用户明确要求，禁止调用此工具
@@ -724,11 +700,12 @@ file_id：
 }
 ```
 
-
 #### 参数说明
 
-- `drive_id` (string, 必填): 云盘 ID
-- `link_id` (string, 必填): 分享链接 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID；与 url、file_id 三选一
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID；与 url、link_id 三选一
+- `drive_id` (string, 可选): 云盘 ID；传 url/link_id/file_id 时可省略（由定位解析）
 - `role_id` (string, 必填): 授权角色。可传 list_drive_roles 的 items[].code（viewable/view_only/editable/commentable/manageable），或自定义角色的 items[].id。可用范围见 list_drive_roles（文件类型分享白名单 ∪ {view_only, manageable}）
 - `subjects` (array[object], 必填): 授权主体对象列表
   - `subject_type` (string, 必填): 授权主体对象类型：`user`（用户）/ `dept`（部门）/ `company`（企业）/ `group`（团队）
@@ -759,16 +736,15 @@ file_id：
 
 若文件分享范围为「所有人」（`scope=anyone`），取消某用户的协作者授权后，该用户仍可通过分享链接访问；应询问用户是否将分享范围改为「指定人」（`scope=users`，可用 `set_share_permission`）。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：先确认 link_id，并用 list/search_document_collaborators 确认待取消授权主体对象；用 get_share_info 确认当前 scope
 - **用户确认**：取消协作者授权会影响他人访问，执行前必须向用户确认
 - **后置验证**：用 search_document_collaborators 确认目标已不在 joined（显式协作者已移除）；勿用 list_document_collaborators 验权。若 scope=anyone，取消协作者后仍可能持链访问（见上条 note）
-- **提示**：scope=anyone 时取消授权后用户仍可通过链接访问，须询问是否改为 scope=users（set_share_permission）
 
 **幂等性**：否 — 取消授权不可自动重试；失败后向用户确认再决定是否重试
+
+> scope=anyone 时取消授权后用户仍可通过链接访问，须询问是否改为 scope=users（set_share_permission）
 
 #### 调用示例
 
@@ -787,11 +763,12 @@ file_id：
 }
 ```
 
-
 #### 参数说明
 
-- `drive_id` (string, 必填): 云盘 ID
-- `link_id` (string, 必填): 分享链接 ID
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID；与 url、file_id 三选一
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID；与 url、link_id 三选一
+- `drive_id` (string, 可选): 云盘 ID；传 url/link_id/file_id 时可省略（由定位解析）
 - `subjects` (array[object], 必填): 待取消授权的授权主体对象列表
   - `subject_type` (string, 必填): 授权主体对象类型：`user`（用户）/ `dept`（部门）/ `company`（企业）/ `group`（团队）
   - `subject_id` (string, 必填): 授权主体对象 ID（用户场景即 user_id）
@@ -806,7 +783,3 @@ file_id：
 }
 
 ```
-
-
----
-

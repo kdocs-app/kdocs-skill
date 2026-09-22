@@ -27,6 +27,6 @@
 当 `kdocs-cli auth login` 因环境问题执行失败时，引导用户手动获取：
 
 1. 用户在浏览器访问 https://www.kdocs.cn/latest（需已登录 WPS 个人账号）
-2. 点击页面右上角个人头像旁的主菜单 → 选择「金山文档Skill」入口→ 复制 Token
+2. 点击页面右上角个人头像旁的主菜单 → 选择「金山文档Skill」入口 → 复制 Token
 3. 用户将 Token 提供给 Agent
 4. Agent 保存到密钥链：`kdocs-cli auth set-token "<TOKEN>"`

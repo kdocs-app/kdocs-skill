@@ -6,8 +6,7 @@
 
 复制仪表盘
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：`dashboard_id` 来自 `dbsheet.dashboard_list`。
 - **后置验证**：dashboard_list 确认副本已创建
@@ -28,7 +27,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -44,7 +42,6 @@
 | `name` | string | 新仪表盘名称 |
 
 其它可选字段见 copy-dashboard 文档。
-
 
 #### 返回值说明
 
@@ -68,10 +65,7 @@
 
 #### 功能说明
 
-
 **必填 query**：无。
-
-
 
 #### 调用示例
 
@@ -82,7 +76,6 @@
   "file_id": "string"
 }
 ```
-
 
 #### 参数说明
 
@@ -104,7 +97,3 @@
 |------|------|------|
 | `result` | string | ok 表示成功 |
 | `detail` | object | dashboards 数组 |
-
-
----
-

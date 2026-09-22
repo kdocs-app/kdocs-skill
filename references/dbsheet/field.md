@@ -28,14 +28,21 @@
 
 在指定数据表中批量创建字段。请求体为 JSON：`fields[]` 每项含 `name`、`type` 及类型特有属性（直接平铺在字段根级，**无 `data` 包装层**）；详见 param_detail 中各字段类型定义。创建成功后由服务端分配字段 `id`。
 
+#### 工具选择
 
+- **适用**：get_schema 后确认无等价列可复用，且用户同意新增列
+- **适用**：新建 `SingleSelect`/`MultipleSelect` 且须预置选项列表
+- **勿用**（改用 `dbsheet.get_schema`）：尚未 get_schema
 
-#### 操作约束
+#### 调用约束
 
-- **前置检查**：使用该工具前必须先调用 get_schema 确认要操作的数据表 id，不得自行捏造数据表 id。
+- **前置检查**：须先 get_schema；无同义列可复用；规则见 references/dbsheet.md「写入前字段映射」
+- **用户确认**：新建列前须用户确认（新建该列 / 写入现有列 / 跳过）
 - **禁止**：禁止凭直觉猜测 `type` 值。`Text`、`DateTime`、`MultiSelect`、`single_select`、`Percent`、`Reference`、`User`、`Rollup` 等均为非法枚举，正确值见 description.detail 对照表。传入非法 type 会直接报 Unknown enum。
+- **禁止**：禁止把 create_records 的 Field not found 当作建列信号；须先按 references/dbsheet.md「写入前字段映射」完成 get_schema、列名映射与用户确认，再决定是否 create_fields
 - **禁止**：创建请求中禁止手填 `id`，`id` 仅由服务端分配
-- **后置验证**：get_schema 确认字段已创建
+- **禁止**：禁止将 `items` 包在 `data` 下（如 `fields[].data.items`）；须 `fields[].items` 扁平写在字段根级。误用可 HTTP 200 但响应 `items: null`
+- **后置验证**：get_schema 确认字段已创建；`SingleSelect`/`MultipleSelect` 须见 `items` 非空，否则按 param_detail 修正参数重试
 
 **幂等性**：否 — 重复调用会创建重复字段，先确认是否已成功
 
@@ -103,7 +110,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -118,7 +124,6 @@
   - 类型专属属性直接平铺（如 `items`、`numberFormat`、`max` 等），**无 `data` 包装层**
   - **禁止**在创建请求中传入 `id`：`id` 仅创建成功后由服务端返回
 - `prefer_id` (boolean, 可选): 默认 `false`（以字段**名称**解析关联）。为 `true` 时，**Lookup** 的 `linkField`/`lookupField`、**LastModifiedBy**/**LastModifiedTime** 的 `watchedField` 等须传**字段 id**
-
 
 **请求体根级**
 
@@ -254,6 +259,9 @@
 
 录入值：`string`。
 
+❌ `{"type":"SingleSelect","data":{"items":[{"value":"高"}]}}` — HTTP 200 但响应 `items: null`，选项静默丢失
+✅ `{"type":"SingleSelect","items":[{"value":"高"},{"value":"中"}]}`
+
 ---
 
 **13. `MultipleSelect` 多选项**
@@ -295,6 +303,13 @@
 无专属创建属性。
 
 录入值：`[{ uploadId, fileName, size, source, type, linkUrl, imgSize }]`。
+
+| 字段 | 说明 |
+|------|------|
+| `uploadId` | 附件对象 ID；本地上传时取 `upload_attachment` 返回的 `object_id` |
+| `source` | `upload_ks3`（本地上传）或 `Cloud`（云文档引用，须同时传 `linkUrl`）；本地上传误标 `Cloud` 时 API 可成功但前端不渲染 |
+| `type` | MIME 类型；图片建议用 `upload_attachment` 返回的 `new_content_type` |
+| `imgSize` | 选填；图片可传 `{"width":1920,"height":1080}`（取自 `extra_info`） |
 
 ---
 
@@ -470,7 +485,6 @@
 }
 ```
 
-
 #### 返回值说明
 
 ```json
@@ -533,9 +547,7 @@
 
 批量更新数据表中已有字段的名称、选项等属性。请求体中 `fields[]` 每项必须包含 `id`（通过 `dbsheet.get_schema` 获取，禁止凭空捏造），类型专属属性直接平铺在字段对象根级（无 `data` 包装层）。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：阅读 param_detail 的字段类型章节，获取所有合法的 type 枚举值及各类型专属属性；不得自行推断或捏造字段类型值
 - **前置检查**：get_schema 确认目标字段存在及当前属性
@@ -572,7 +584,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -588,7 +599,6 @@
   - 类型专属属性直接平铺（如 `items`、`numberFormat`、`max` 等），**无 `data` 包装层**
 - `prefer_id` (boolean, 可选): 是否使用字段 ID 标识字段和选项，默认 `false`。为 `true` 时，Lookup 的 `linkField`/`lookupField`、LastModifiedBy/LastModifiedTime 的 `watchedField` 等须传字段 id；默认值：`false`
 - `omit_failure` (boolean, 可选): 是否忽略单个字段写入错误并继续后续字段，默认 `false`；默认值：`false`
-
 
 **请求体根级**
 
@@ -881,7 +891,6 @@
 }
 ```
 
-
 #### 返回值说明
 
 ```json
@@ -921,9 +930,7 @@
 批量删除数据表中的指定字段。
 该工具的 fields 参数为对象数组，每个对象包含 id 字段（如 {"id": "C"}），不得自行捏造 id 字段，不得直接传入 ["C", "D"] 等字符串数组。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：get_schema 核对拟删字段的名称和类型；使用该工具前必须先调用 get_schema 确认要操作的数据表 id，不得自行捏造数据表 id。
 - **用户确认**：删除字段不可恢复，字段数据将永久丢失，必须向用户确认字段列表
@@ -948,7 +955,6 @@
   ]
 }
 ```
-
 
 #### 参数说明
 
@@ -977,7 +983,3 @@
 |------|------|------|
 | `detail.fields` | array | 删除结果列表，每项包含 `id` 和 `deleted` |
 | `result` | string | ok 表示成功 |
-
-
----
-

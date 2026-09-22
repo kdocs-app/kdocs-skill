@@ -36,7 +36,10 @@
 **步骤 2**：读取表格结构和数据
 ```
 sheet.get_sheets_info(file_id) → 获取 sheetId、数据区域 rowTo/colTo
-sheet.get_range_data(file_id, worksheet_id=sheetId, row_from=0, row_to=rowTo, col_from=0, col_to=colTo) → 读取全部数据
+sheet.get_range_data(file_id, worksheet_id=sheetId, range={
+  "rowFrom": 0, "rowTo": rowTo,
+  "colFrom": 0, "colTo": colTo
+}) → 读取全部数据（四个坐标写在 range 对象内，行列索引从 0 开始）
 ```
 
 **步骤 3**：AI 分析数据问题，识别列类型，生成美化与规范方案

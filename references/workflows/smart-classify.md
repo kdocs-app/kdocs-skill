@@ -24,8 +24,8 @@
 
 ```
 步骤 1: 定位目标目录
-        - 指定文件夹 → search_files(keyword="文件夹名", file_type="folder", type="file_name")
-        - 根目录 → search_files(file_type="folder", type="all", scope="personal_drive", page_size=1) 获取 drive_id
+        - 指定文件夹 → search_files(keyword="文件夹名", file_type="folder", type="file_name", page_size=10)
+        - 根目录 → search_files(file_type="folder", type="all", scope=["personal_drive"], page_size=1) 获取 drive_id
 
 步骤 2: list_files(drive_id, parent_id, page_size=500)
         → 收集所有文件（有 next_page_token 时翻页继续）

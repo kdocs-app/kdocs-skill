@@ -6,7 +6,6 @@
 
 获取云文档底部留言（全文评论）的分页列表。支持两级结构：根评论 + 子评论（回复）。
 
-
 > 解析评论字段时先读 items[].comment，部分响应可能直接将字段平铺在 items[] 上
 > 根评论按 id 倒序；子评论按 id 正序
 > next_page_token 不存在或为空时表示已到末页
@@ -32,7 +31,6 @@
   "page_size": 100
 }
 ```
-
 
 #### 参数说明
 
@@ -120,9 +118,7 @@
 `origin_id` 始终为根评论 ID，回复子评论时不要改成子评论 ID。
 `origin_id` 与 `reply_id` 必须同时传或同时不传；不传表示根留言。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **后置验证**：创建成功后调用 list_document_comments（origin_id=根评论ID）查子评论列表，新条目出现才算回复成功
 
@@ -160,7 +156,6 @@
   "reply_id": "1002"
 }
 ```
-
 
 #### 参数说明
 
@@ -210,8 +205,6 @@
 与 `list_document_comments`（底部留言面板）是两套独立数据，勿混用：
 本工具读正文中**划选/锚定**的批注，`list_document_comments` 读底部**留言面板**的评论。
 
-
-
 > 主要支持文字文档（.docx、.doc、.wps 等），表格、演示等类型可能返回空数组 `[]`
 > doc.comments 路径不存在时视为无批注，返回 `[]` 不报错
 > 需同时获取两类评论时，分别调用本工具和 `list_document_comments`，展示时注明来源
@@ -234,7 +227,6 @@
   "drive_id": "d_xyz456"
 }
 ```
-
 
 #### 参数说明
 
@@ -269,7 +261,3 @@
 | `data.inline_comments[].content` | string | 批注内容 |
 | `data.inline_comments[].author` | object | 批注作者信息 |
 | `data.inline_comments[].ctime` | string | 批注创建时间（ISO 8601） |
-
-
----
-

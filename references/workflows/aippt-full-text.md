@@ -22,28 +22,58 @@
 | 用户给出主题/描述，无文档 | `theme_ppt` | `[{type:"text", content:"用户主题"}]` |
 | 用户提供了文档链接 | `doc_ppt` | `[{type:"text", content:"根据文档生成PPT"}, {type:"link_id", content:"<link_id>"}]` |
 
-#### 2. mode（向用户确认）
+#### 2. 确定 mode（生成模式）
 
 | mode | 名称（展示给用户） | 调用次数 | 说明 |
 |---|---|---|---|
-| `html` | 智能布局模式 | 两次 | 网页智能布局，有 follow_up 问卷交互 |
-| `basic` | 经典简约模式 | 一次 | Skill 做风格分类，无 follow_up，一次调用完成全链路 |
+| `html` | **专业模式** / 智能布局 | 两次 + follow_up | 支持多文档；有问卷交互 |
+| `basic` | **快速模式** / 经典模式 | 一次 | 经典简约；**须传 `scene_tags`/`style_tags` 各 1 个**；**不支持多文档** |
 
-向用户展示模式供选择时**仅使用"名称"列的文案**（不要把 `html`/`basic` 这类参数值暴露给用户）。
-用户选择后再在内部将其映射回对应的 mode 值。用户未明确指定时默认 `html`。
+> 单页生成（`task_type=single_page`）固定 `mode=html`，不走本节路由。详见 `references/workflows/aippt-single-page.md`。
+
+执行原则：**自上而下依次匹配，命中任一规则立即执行、终止后续判断（短路）**。
+
+**优先级 1：全局强制约束（最高，不可绕过）**
+
+- **条件**：用户上传 **≥2 份文档**（多个本地文件、多个云文档链接、`<referenced_files>` 含多个文件）
+- **执行**：强制 `mode=html`（专业模式）；须告知用户多文档场景需使用专业模式
+- 底层限制：快速模式（`basic`）不支持多文档输入
+
+**优先级 2：用户显式意图硬路由（无强制约束时）**
+
+2.1 直接路由【快速模式】`mode=basic`（满足任一即生效，**跳过模式确认弹窗**）：
+
+1. 用户明确表达快速生成诉求，命中任一关键词：快点生成、快速生成、赶紧做、一键生成、2分钟生成、越快越好、不要问卷、快速模式、经典模式
+2. 当前对话历史中用户**已选定快速模式**
+
+2.2 直接路由【专业模式】`mode=html`（满足任一即生效，**跳过模式确认弹窗**）：
+
+1. 用户明确提及：专业模式、专业一点、精细可控、智能布局、自定义大纲、详细偏好、5分钟精美PPT
+2. 当前对话历史中用户**已选定专业模式**
+
+**优先级 3：兜底（未命中以上规则）**
+
+触发场景（满足其一）：用户仅下发简单指令（生成PPT / 做PPT / 文档转PPT 等）**无显式模式偏好**；或快速、专业两类关键词**意图冲突**无法判定。
+
+**执行**：弹出模式选择（AskQuestion），**仅使用用户侧文案**，不暴露 `html` / `basic`：
+
+| 选项 | 内部映射 |
+|------|----------|
+| 专业模式（智能布局，可问卷定制，适合精细控制） | `mode=html` |
+| 快速模式（经典简约，一次生成完成） | `mode=basic` |
+
+用户选定后，本会话后续同任务沿用该选择（快速模式归入 2.1 第 2 条，专业模式归入 2.2 第 2 条）。
+
+向用户展示模式时**仅使用"名称"列文案**，不暴露 `html`/`basic`。确定 `mode` 后按下文 **执行流程 A** 或 **执行流程 B** 继续。
 
 ---
 
-### 执行流程 A：html 模式（两次调用）
+### 执行流程 A：html / 专业模式（两次调用）
+
+> 前提：`mode` 已确定为 `html`（见上文 **#### 2**）。
 
 ```
-步骤 0: 向用户确认生成模式（AskQuestion）
-        展示文案（不要暴露参数名）：
-        → 选项A「智能布局模式」：网页智能布局，适用于数据汇报
-        → 选项B「经典简约模式」：经典简约风格，一次生成完成
-        用户选择后内部映射：智能布局模式 → mode="html"；经典简约模式 → 走流程 B
-
-步骤 1: aippt.execute(task_type=<场景对应值>, mode=<用户选择的模式>, input=<场景对应input>)
+步骤 1: aippt.execute(task_type=<场景对应值>, mode="html", input=<场景对应input>)
         → SSE 推进到 get_questions.done（need_interaction=true）
         → 从 payload 提取 interaction_type="follow_up"
         → 记录 session_id、checkpoint_id、interrupt_id（恢复调用必须原样回传）
@@ -71,18 +101,26 @@
 
 ---
 
-### 执行流程 B：basic 经典简约模式（一次调用）
+### 执行流程 B：basic / 快速模式（一次调用）
 
-> `basic` 模式无需 follow_up 交互，Skill 端先做风格/场景分类，一次调用完成全链路。
-> `basic` 模式的 `text` 类型 input 项可额外携带 `scene_tags` 和 `style_tags`。
+> 前提：`mode` 已确定为 `basic`（见上文 **#### 2**）。
 
-#### 风格/场景分类（可选）
+#### 风格/场景分类（必填）
 
-Skill 用大模型从固定标签列表中分类，一次请求输出 `{"scene": "xxx", "style": "xxx"}`，分别传入 `scene_tags` 和 `style_tags`。不传时后端也能返回通用推荐，只是精准度降低。
+调用前须为 `text` 类型 input 项填入 `scene_tags`、`style_tags` 各恰好 1 个；`doc_ppt` 的 `options.generate_type` 按用户意图选填。预置列表与分类规则见 `references/aippt.md` → `aippt.execute` → **param_detail**（`mode=basic` 经典模式约束）。
 
-**可选场景标签**：财务系统、生产管理、教学课件、毕业答辩、培训课件、企业招聘、企业宣传、企业文化、企业培训、党政党建、政府报告、商业计划书、活动策划、营销计划、行业报告、产品发布会、竞聘述职、通用PPT、总结汇报 等 49 类
+**自动选择参考**（用户未指定 scene/style 时，内部映射，不向用户确认）：
 
-**可选风格标签**：简约风、商务风、渐变风、中国风、小清新、可爱卡通、科技风
+| 主题特征 | 推荐 scene | 推荐 style |
+|---|---|---|
+| 工作总结、复盘、汇报 | 总结汇报 | 商务风 |
+| 行业分析、调研报告 | 行业报告 | 简约风 |
+| 产品发布、新品介绍 | 产品发布会 | 科技风 |
+| 培训、课件、学习 | 培训课件 / 教学课件 | 简约风 |
+| 答辩、毕业相关 | 毕业答辩 | 简约风 |
+| 党建、政务 | 党政党建 / 政府报告 | 中国风 |
+| 营销、活动 | 营销计划 / 活动策划 | 渐变风 |
+| 无法归类 | 通用PPT | 商务风 |
 
 #### SSE 事件序列（basic）
 
@@ -96,9 +134,9 @@ Skill 用大模型从固定标签列表中分类，一次请求输出 `{"scene":
 | `done` | 流程结束，`finish_reason: "stop"` |
 
 ```
-步骤 0: Skill 风格/场景分类（可选）
-        → 用大模型匹配 scene_tags 和 style_tags
-        → 如 {"scene": "总结汇报", "style": "商务风"}
+步骤 0: 内部完成场景/风格分类（不向用户确认）
+        → 确定 scene_tags、style_tags 各 1 个
+        → doc_ppt 时按意图决定是否传 options.generate_type
 
 步骤 1a（主题场景）: aippt.execute(task_type="theme_ppt", mode="basic", input=[{
           type: "text",
@@ -106,13 +144,19 @@ Skill 用大模型从固定标签列表中分类，一次请求输出 `{"scene":
           scene_tags: ["总结汇报"],
           style_tags: ["商务风"]
         }])
-        → auth_check → gen_outline（~15-20s）→ get_templates → gen_ppt（~20-30s）→ upload_cloud → done
+        → auth_check → gen_outline → get_templates → gen_ppt → upload_cloud → done
 
-步骤 1b（文档场景）: aippt.execute(task_type="doc_ppt", mode="basic", input=[
-          {type: "text", content: "根据文档生成PPT", scene_tags: ["总结汇报"], style_tags: ["商务风"]},
-          {type: "link_id", content: "<link_id>"}
-        ])
-        → auth_check → gen_outline（~30-40s，需解析文档）→ get_templates → gen_ppt（页数取决于文档长度，~60-90s）→ upload_cloud → done
+步骤 1b（文档场景，默认润色改写）: aippt.execute(
+          task_type="doc_ppt",
+          mode="basic",
+          options: { generate_type: 3 },
+          input=[
+            {type: "text", content: "根据文档生成PPT", scene_tags: ["总结汇报"], style_tags: ["商务风"]},
+            {type: "link_id", content: "<link_id>"}
+          ])
+        → auth_check → gen_outline → get_templates → gen_ppt → upload_cloud → done
+
+步骤 1c（文档场景，保持原文）: 同上，options: { generate_type: 2 }
 
 步骤 2: 从 upload_cloud.done payload 提取 link_url，展示给用户
 ```

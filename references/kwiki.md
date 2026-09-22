@@ -113,7 +113,7 @@
 2. `curl.exe -L -o "文件名" "签名URL"` 下载
 
 **智能文档（doc_type="o"）**：`wps.export` 不支持直接导出，无特殊情况，默认转换成Markdown格式：
-- **Markdown** → `read_file(file_id=...)`（`status=pending` 时用 `task_id` 续读），将 `data.content` 保存为 `.md` 文件
+- **Markdown** → `read_file(file_id=...)`；`status=pending` 时用本次响应的 `task_id` 和原参数获取结果，返回完整内容后，将 `data.content` 保存为 `.md` 文件
 
 **快捷方式文件（type="shortcut"）**：通过 `search_files` 搜索原始文件名找到源文件，再用源文件的 `link_id` 走上述通用流程。
 
@@ -183,7 +183,7 @@
 1. 主流程：scrape_url → scrape_progress(status=1) → move_file → get_file_link
 2. 降级流程（scrape_url 失败/status=-1，如公众号等 JS 渲染页面）：
    browser 抓取正文
-   → create_file_with_content(name="标题.docx", content=<抓取 Markdown 明文>)
+   → create_file_with_content(name="标题", file_extension="docx", content=<抓取 Markdown 明文>)
    → move_file → get_file_link
 
 | 注意 | 说明 |

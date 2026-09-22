@@ -1,4 +1,4 @@
-# kdocs-cli installer for Windows — downloads the platform-specific binary to a global location.
+# kdocs-cli installer for Windows - downloads the platform-specific binary to a global location.
 # No Node.js or Go required.
 #
 # Usage:
@@ -6,9 +6,9 @@
 #   irm https://cdn.example.com/setup.ps1 | iex
 #
 # Environment variables (all optional):
-#   KDOCS_CLI_VERSION   — version to install (default: read from SKILL.md or "latest")
-#   KDOCS_CLI_CDN       — CDN base URL override
-#   KDOCS_CLI_DIR       — install directory override (default: %LOCALAPPDATA%\kdocs-cli)
+#   KDOCS_CLI_VERSION   - version to install (default: read from SKILL.md or "latest")
+#   KDOCS_CLI_CDN       - CDN base URL override
+#   KDOCS_CLI_DIR       - install directory override (default: %LOCALAPPDATA%\kdocs-cli)
 
 $ErrorActionPreference = "Stop"
 
@@ -17,7 +17,7 @@ $BinName = "kdocs-cli"
 $DefaultInstallDir = Join-Path $env:LOCALAPPDATA "kdocs-cli"
 $InstallDir = if ($env:KDOCS_CLI_DIR) { $env:KDOCS_CLI_DIR } else { $DefaultInstallDir }
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# --- Helpers ---
 
 function Write-Say  { param([string]$Message) Write-Host "  $Message" }
 function Write-Err  { param([string]$Message) Write-Host "  [ERROR] $Message" -ForegroundColor Red; exit 1 }
@@ -107,7 +107,7 @@ function Test-ExistingInstall {
     }
 }
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# --- Main ---
 
 $Arch = Get-Arch
 $Version = Resolve-SkillVersion

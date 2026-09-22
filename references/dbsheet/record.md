@@ -7,12 +7,20 @@
 在指定数据表中批量创建记录。每条记录通过 `fields` 字段传入一个**序列化的 JSON 字符串**，
 字符串内部为字段名（或字段 ID）到值的映射。
 
+#### 工具选择
 
+- **适用**：向已有数据表批量新增记录，且 fields 的 key 已对照 get_schema 的现有列名
+- **适用**：全空记录复用后仍有剩余条数须追加到表尾
+- **适用**：用户明确要求在表尾/末尾追加记录
+- **勿用**（改用 `dbsheet.get_schema`）：尚未 get_schema
+- **勿用**：get_schema 后仍有字段无法映射到现有列（含尚未确认是否新建列） — 先读 references/dbsheet.md「写入前字段映射」；未确认禁止 create_fields
+- **勿用**（改用 `dbsheet.update_records`）：尚未 list_records 盘点可复用全空记录，且用户意图为新增记录（非明确追加到表尾） — create_records 仅追加到表尾；须先按 references/dbsheet.md「新增记录与全空记录复用」复用全空记录
 
-#### 操作约束
+#### 调用约束
 
-- **前置检查**：调用前必须先阅读 `param_detail` 中"`fields` 对象各字段类型填写规范"章节，按规范构造每个字段的值；不得自行推断字段类型或捏造字段名，数据表中不存在的字段不可传入；仅传入数据表实际存在的字段（可通过 dbsheet.get_schema 确认）；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
-- **后置验证**：调用 list_records 或 get_record 确认记录已创建
+- **前置检查**：须先 get_schema 并阅读 param_detail 字段值规范；fields 的 key 须全部存在于 schema
+- **前置检查**：新增记录前须 list_records 并按 references/dbsheet.md「新增记录与全空记录复用」优先 update_records 复用全空记录；禁止 delete_records 清理全空记录
+- **后置验证**：必须 list_records 或 get_record 回读验证；禁止仅凭 result ok 宣称成功
 
 **幂等性**：否 — 重复调用会插入重复记录，先确认是否已成功
 
@@ -77,7 +85,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -132,9 +139,9 @@
 | 单选项（SingleSelect） | string | `"选项1"` | 已有选项的 `value`；`bAddSelectItem=true` 时可传新选项 |
 | 多选项（MultipleSelect） | string[] | `["选项1","选项2"]` | 已有选项 `value` 的字符串数组 |
 | 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
-| 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 | 
+| 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | 需先上传获得 `uploadId`；`source` 取 `upload_ks3`（上传附件）或 `Cloud`（云文档引用），dbsheet 渲染需用 `upload_ks3`；`linkUrl`、`imgSize` 选填 |
+| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；格式见 `dbsheet.create_fields` Attachment 节 |
 | 关联（Link） | string[] | `["record_id_1","record_id_2"]` | 关联记录 id 数组 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
@@ -193,7 +200,6 @@
 
 > `Formula`、`AutoNumber`、`CreatedTime`、`CreatedBy`、`LastModifiedBy`、`Lookup` 为系统自动字段，**无需传入**。
 
-
 #### 返回值说明
 
 ```json
@@ -231,14 +237,11 @@
 批量更新数据表中已有记录的字段值。每条记录必须提供 `id`（记录 ID）和 `fields`
 （对象结构，内容为字段名或字段 ID 到新值的映射）。
 
+#### 调用约束
 
-
-#### 操作约束
-
-- **前置检查**：通过 dbsheet.get_schema 获取目标表的字段结构，不得在未获取表格结构的情况下直接调用；同时必须先阅读 param_detail 中"fields 对象各字段类型填写规范"章节，按规范构造字段值；不得自行推断字段类型或捏造字段名，数据表中不存在的字段不可传入
-- **前置检查**：调用 list_records 或 get_record 确认目标记录 ID 存在及当前字段值
-- **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
-- **后置验证**：调用 get_record 确认字段已更新为预期值
+- **前置检查**：须 get_schema 确认 sheet_id 与字段结构，且 fields 的 key 已映射到现有列；规则见 references/dbsheet.md「写入前字段映射」
+- **前置检查**：调用 list_records 确认目标记录 ID 存在；向表新增记录时按 references/dbsheet.md「新增记录与全空记录复用」仅更新全空记录（合法改已有行不在此限）
+- **后置验证**：必须 get_record 或 list_records 回读验证；禁止仅凭 result ok 宣称成功
 
 **幂等性**：是
 
@@ -303,7 +306,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -354,9 +356,9 @@
 | 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
 | 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]` | 需先上传获得 `uploadId`；`linkUrl`、`imgSize` 选填 |
+| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；格式见 `dbsheet.create_fields` Attachment 节 |
 | 关联（Link） | string[] | `["I","G"]` | 关联记录 id 数组 |
-| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
+| 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | 仅可更新 summary 等元数据；**正文内容须用 `get_schema_detail` 获取 content_id 后通过 `innerdoc_block_*` 工具链读写，不可通过 update_records 写入正文内容** |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
 | 级联（Cascade） | object | `{"districts":["一级选项","二级选项"]}` | 各级选中值数组 |
 | 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
@@ -382,7 +384,6 @@
   ]
 }
 ```
-
 
 #### 返回值说明
 
@@ -423,9 +424,7 @@
 
 分页遍历数据表中的记录，支持按视图过滤、指定返回字段，以及通过 `filter` 参数实现复杂查询条件（支持 criteria 单层筛选和 filters 递归嵌套条件组）。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 
@@ -540,7 +539,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -609,7 +607,6 @@
 
 **筛选注意事项**：filter 非结构体、criterion 未指定 field、op/values 不合法、values 元素超限等情形，整个请求将直接失败。
 
-
 #### 返回值说明
 
 ```json
@@ -642,8 +639,7 @@
 
 获取数据表中某条指定记录的完整字段内容。
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 
@@ -660,7 +656,6 @@
   "record_id": "B"
 }
 ```
-
 
 #### 参数说明
 
@@ -709,9 +704,7 @@
 批量删除数据表中的指定记录。`records` 为记录 ID 的对象数组，**不是字符串数组**。
 file_id和sheet_id为必填参数，不允许为空。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：调用 list_records 或 get_record 核对拟删记录的内容，确认记录 ID 正确；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **用户确认**：批量删除记录不可恢复，必须向用户确认记录列表和数量
@@ -742,7 +735,6 @@ file_id和sheet_id为必填参数，不允许为空。
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -766,7 +758,7 @@ file_id和sheet_id为必填参数，不允许为空。
 ```json
 {
   "file_id": "你的 file_id",
-  "sheet_id": 3, 
+  "sheet_id": 3,
   "mode": "include",
   "is_batch": false,
   "records": [
@@ -778,7 +770,6 @@ file_id和sheet_id为必填参数，不允许为空。
 ```
 
 > 记录 ID 可通过 `dbsheet.list_records` 或 `dbsheet.get_record` 获取。
-
 
 #### 返回值说明
 
@@ -824,9 +815,7 @@ file_id和sheet_id为必填参数，不允许为空。
 | text_value | string | 否 | 不填默认 original；可选 original、text、compound |
 | view_id | string | 否 | 指定视图则从该视图取用户可见记录；不填从工作表取 |
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 
@@ -871,7 +860,6 @@ file_id和sheet_id为必填参数，不允许为空。
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -898,7 +886,6 @@ file_id和sheet_id为必填参数，不允许为空。
 所有列举参数均在 **POST JSON 请求体** 中，不拼 URL query。
 
 若同时传 `body` 与顶层字段，同键以 **顶层** 为准。
-
 
 #### 返回值说明
 
@@ -963,9 +950,7 @@ file_id和sheet_id为必填参数，不允许为空。
 | show_record_extra_info | boolean | 否 | 为 true 时额外显示创建者、创建时间、最后修改者、最后修改时间（与是否有对应字段无关） |
 | text_value | string | 否 | 返回值类型，不填默认 original；可选 original、text、compound |
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 
@@ -1004,7 +989,6 @@ file_id和sheet_id为必填参数，不允许为空。
   "show_record_extra_info": true
 }
 ```
-
 
 #### 参数说明
 
@@ -1047,7 +1031,3 @@ file_id和sheet_id为必填参数，不允许为空。
 | `msg` | string | 响应信息 |
 | `data` | object | 响应数据 |
 | `more` | object | 更多的错误信息 |
-
-
----
-

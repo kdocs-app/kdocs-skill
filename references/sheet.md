@@ -4,6 +4,27 @@
 
 **适用范围**：本文档中的所有 `sheet.*` 工具同时适用于 Excel（.xlsx）和智能表格（.ksheet）。
 
+### 区域读取参数示例
+
+调用 `sheet.get_range_data` 前，先读取 [详细参数与返回值](sheet/data.md)。`worksheet_id` 使用 `sheet.get_sheets_info` 返回的 `sheetId`；四个坐标写在 `range` 对象内，字段名为 `rowFrom`、`rowTo`、`colFrom`、`colTo`，索引从 0 开始。
+
+使用 worksheet_id 和 range 对象读取 A1:F11 区域（前 11 行、前 6 列）：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "worksheet_id": 3,
+  "range": {
+    "rowFrom": 0,
+    "rowTo": 10,
+    "colFrom": 0,
+    "colTo": 5
+  }
+}
+```
+
+示例中的 `3` 应替换为目标工作表返回的 `sheetId`。
+
 ---
 
 ### 表格工具概述
@@ -15,11 +36,12 @@
 
 ### 新建并写入
 
-新建表格并写入 → `create_file_with_content`：`name` 后缀 `.xlsx` 或 `.ksheet`，传 `rangeData`（单表、≤500 项；参数与失败补写见 `drive/create_file_with_content`）。
+新建表格并写入 → `create_file_with_content`：`name` 只写文档名，传 `file_extension: "xlsx"` 或 `"ksheet"` 与 `rangeData`（单表、≤500 项；参数与失败补写见 `drive/create_file_with_content`）。
 
 ```json
 {
-  "name": "销售数据表.xlsx",
+  "name": "销售数据表",
+  "file_extension": "xlsx",
   "rangeData": [
     {
       "row_from": 0,
@@ -42,7 +64,7 @@
 | 插入图片 | 不支持 | 支持 | 涉及图片写入时优先使用 `sheet.range_data_batch_update` |
 | 参数风格 | camelCase（如 `rangeData`） | 下划线参数（如 `range_data`） | 与上下游参数风格保持一致 |
 
-> 提示：除图片写入外，两者在选区更新能力上基本一致；只要任务包含图片插入，应优先选择 `sheet.range_data_batch_update`。
+> 提示：`sheet.range_data_batch_update` 为唯一优先入口；`sheet.update_range_data` 仅作兜底（batch 写入失败时使用）。
 
 ---
 
@@ -88,6 +110,7 @@
 - 需要做财务报表 → 选 **Excel**
 
 > **注意**：`ksheet` 文件创建完成后，和 Excel 一样继续使用 `sheet.*` 接口做工作表管理与数据操作。
+> **ksheet vs dbsheet 区分**：ksheet（`.ksheet`）走 `sheet.*` API，适合单表数据+视图切换；如需多数据表、关联记录、Webhook、丰富字段类型（附件/关联/人员等）→ 用 `.dbt`（`dbsheet.*` API，见 `references/dbsheet.md`）。
 
 ### 表格增强能力
 
@@ -123,11 +146,11 @@
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`sheet.get_range_data`](sheet/data.md) | 获取选区数据 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
-| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `rangeData` |
+| [`sheet.range_data_batch_update`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range_data` |
 | [`sheet.delete_range_data`](sheet/data.md) | 删除行或列 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range_data` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `url`\|`link_id`\|`file_id`, `worksheet_id` |
 | [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range`, `filter` |
-| [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`file`, `Content-Type` |
+| [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`content_base64`, `Content-Type` |
 | [`sheet.add_chart`](sheet/data.md) | 在工作表中新增图表 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `chartType`, `sourceAddress`, `rectAddress`, `title` |
 | [`sheet.range_auto_fill`](sheet/data.md) | 用源区域自动填充目标区域 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `sourceAddress`, `targetAddress` |
 | [`sheet.get_chart_information`](sheet/data.md) | 获取工作表图表信息 | `url`\|`link_id`\|`file_id`, `worksheet_id` |
@@ -141,7 +164,7 @@
 | [`sheet.get_pivot_tables`](sheet/data.md) | 获取数据透视表信息（支持透视表/字段/数据项三级下钻） | `url`\|`link_id`\|`file_id`, `worksheet_id` |
 | [`sheet.auto_fit`](sheet/data.md) | 自适应列宽或行高 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
 | [`sheet.get_typed_value`](sheet/data.md) | 读取区域数据并保留单元格类型 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
-| [`sheet.range_data_batch_update`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range_data` |
+| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `rangeData` |
 | [`sheet.insert_rows_cols`](sheet/data.md) | 插入行或列 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `type` |
 | [`sheet.set_range_width_height`](sheet/data.md) | 调整行高列宽 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
 
@@ -223,7 +246,8 @@
 | 新建表格并写入初稿 | 见 SKILL「创建/写入」 |
 | 表格概览/首读 | `read_file`（可选 `sheet_name`、`sheet_range`） |
 | 读表格（矩形区域，精读/校验） | `sheet.get_sheets_info` → `sheet.get_range_data` |
-| 写表格（批量改单元格） | `sheet.get_range_data`（可选对照）→ `sheet.update_range_data` → `sheet.get_range_data` 验证 |
+| 跨表按主键/列名回填字段 | 见 `references/workflows/sheet-cross-fill.md` |
+| 写表格（批量改单元格） | `sheet.get_range_data`（可选对照）→ `sheet.range_data_batch_update` → `sheet.get_range_data` 验证 |
 | 给某列配置下拉选项 | `sheet.get_data_validations`（可选）→ `sheet.create_data_validations` / `sheet.update_data_validations` |
 | 管理条件格式高亮 | `sheet.get_conditional_format_rules` → `sheet.create_conditional_format_rules` / `sheet.update_conditional_format_rules` / `sheet.delete_conditional_format_rules` |
 | 管理区域权限 | `sheet.list_protection_ranges` → `sheet.create_protection_ranges` / `sheet.update_protection_ranges` / `sheet.delete_protection_ranges` |

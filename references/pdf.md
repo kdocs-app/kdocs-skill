@@ -29,19 +29,16 @@
 
 ### 创建或写入 PDF 内容
 
-通过 `upload_new_file` 上传新 PDF；覆盖已有 PDF 用 `upload_replace_file`（传入 `file_id`）：
+通过 `upload_new_file` 上传新 PDF：
 
 ```json
 {
-  "drive_id": "string",
-  "parent_id": "string",
-  "file_id": "string",
-  "size": 1024,
-  "hashes": [
-    { "sum": "string", "type": "sha256" }
-  ]
+  "name": "report.pdf",
+  "content_base64": "<完整 PDF 文件二进制的 Base64，调用前替换为实际编码>"
 }
 ```
+
+覆盖已有 PDF 使用 `upload_replace_file`；完整参数见 `references/drive/create_and_upload.md`。
 
 ### 适用场景
 

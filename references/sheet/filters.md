@@ -6,8 +6,7 @@
 
 获取工作表当前的筛选配置。工作表必须已开启筛选（表中存在筛选）；未开启时请先调用 `sheet.open_filters`。适用于在更新筛选条件前先读取现有范围和筛选列规则。
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：工作表必须已开启筛选（表中存在筛选）；未开启时请先调用 `sheet.open_filters`。
 - **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
@@ -26,7 +25,6 @@
   "worksheet_id": 7
 }
 ```
-
 
 #### 参数说明
 
@@ -71,8 +69,7 @@
 
 为指定工作表开启筛选功能，并设置筛选范围。适用于把某块数据区域转成可按列筛选的表格区域；行列索引均为 0-based。
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
 - **前置检查**：数据表不能为空；创建或指定筛选范围时，列范围只能覆盖到最后一个有数据的列（`col_to` 不得超过最后一列有数据的列索引）。
@@ -116,7 +113,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -132,10 +128,10 @@
   - `row_from` (integer, 必填): 行起始索引位置（0-based）
   - `row_to` (integer, 必填): 行最后索引位置
 
-**请求地址：** `https://openapi.wps.cn/v7/airsheet/{file_id}/worksheets/{worksheet_id}/filters`  
-**HTTP 方法：** POST  
-**请求体格式：** application/json  
-**签名方式：** KSO-1  
+**请求地址：** `https://openapi.wps.cn/v7/airsheet/{file_id}/worksheets/{worksheet_id}/filters`
+**HTTP 方法：** POST
+**请求体格式：** application/json
+**签名方式：** KSO-1
 **权限：** 管理智能表格（应用授权）或查询和管理智能表格（用户授权）`kso.airsheet.readwrite`
 
 **路径参数**
@@ -161,7 +157,6 @@
 | `row_from` | integer | 是 | 行起始索引位置 |
 | `row_to` | integer | 是 | 行最后索引位置 |
 
-
 #### 返回值说明
 
 ```json
@@ -180,9 +175,7 @@
 `col` 为要筛选的列索引（0-based）。`condition` 内通过 `param1`、`param2` 配置一至两组自定义筛选；若二者均未传入，则清空该列筛选。
 适用于按枚举值、文本或其他条件动态收窄当前筛选结果。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：工作表必须已开启筛选；未开启时先调用 `sheet.open_filters`
 - **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
@@ -231,7 +224,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -246,8 +238,8 @@
   - `param1` (object, 可选): 第一个筛选条件参数
   - `param2` (object, 可选): 第二个筛选条件参数（可选）
 
-**HTTP 方法：** POST  
-**请求体格式：** application/json  
+**HTTP 方法：** POST
+**请求体格式：** application/json
 
 **路径参数**
 
@@ -291,7 +283,6 @@
 - `filter_custom_type_contains`
 - `filter_custom_type_not_contains`
 
-
 #### 返回值说明
 
 ```json
@@ -308,8 +299,7 @@
 
 删除工作表当前的筛选配置。工作表必须已开启筛选（表中存在筛选）；若无筛选可删则无需调用本接口。删除后将移除整个筛选状态和筛选范围。
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：`sheet.get_filters` 确认当前工作表已启用筛选及拟删条件
 - **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
@@ -328,7 +318,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -342,7 +331,3 @@
 {}
 
 ```
-
-
----
-

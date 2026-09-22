@@ -6,8 +6,7 @@
 
 打开分享视图
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：逐项核对 file_id、sheet_id、view_id、body.permission、body.share_to、body.view_type 均已齐备；缺任一须停止并向用户列出缺少的参数名
 - **前置检查**：view_id 必须来自 dbsheet.get_schema 或 dbsheet.views_list 的返回值，禁止猜测。若本会话未调用过上述任一工具，须先调用后再取 view_id。
@@ -36,7 +35,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -56,7 +54,6 @@
 | `permission` | string | 是 | `edit`（可编辑）、`read`（可查看） |
 | `share_to` | string | 是 | `anyone`（所有人）、`company`（企业内成员）、`assigned`（指定人） |
 | `view_type` | string | 是 | `G0`（表格）、`F0`（表单）、`D0`（仪表盘） |
-
 
 #### 返回值说明
 
@@ -82,8 +79,7 @@
 
 查询视图是否已开启分享
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 - **前置检查**：调用该工具前需要确认是否有读取该视图分享状态的权限。
@@ -101,7 +97,6 @@
   "view_id": "B"
 }
 ```
-
 
 #### 参数说明
 
@@ -135,8 +130,7 @@
 
 查询分享链接信息
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：分享已开启且 `share_id` 有效（可由 view_status / open_view 返回）；使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 - **前置检查**：调用前需确认分享已开启且 `share_id` 有效（可由 view_status / open_view 返回）。。
@@ -155,7 +149,6 @@
   "share_id": "share_xxx"
 }
 ```
-
 
 #### 参数说明
 
@@ -190,8 +183,7 @@
 
 关闭分享视图
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：share_view_status 确认当前分享状态
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
@@ -213,7 +205,6 @@
   "body": {}
 }
 ```
-
 
 #### 参数说明
 
@@ -249,8 +240,7 @@
 
 查询表单是否可重复提交
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 - **前置检查**：调用前需确认`view_id` 为**表单（Form）**视图且已生成分享链接；非表单视图勿调用。。
@@ -269,7 +259,6 @@
   "share_id": "share_xxx"
 }
 ```
-
 
 #### 参数说明
 
@@ -304,14 +293,14 @@
 
 设置表单是否可重复提交
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 - **前置检查**：需要表单视图 + 有效 `share_id`；与 get_repeatable 相同。。
-- **提示**：与官方 set-repeatable 文档保持一致
 
 **幂等性**：是
+
+> 与官方 set-repeatable 文档保持一致
 
 #### 调用示例
 
@@ -329,7 +318,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -345,7 +333,6 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `repeatable` | boolean | 是否允许访客重复提交表单 |
-
 
 #### 返回值说明
 
@@ -371,8 +358,7 @@
 
 修改分享权限
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：使用该工具前必须先调用get_schema和dbsheet.views_list确认要操作的数据表id和视图id，不得自行捏造数据表id和视图id。
 - **前置检查**：调用该工具前需要确认分享已开启且具备修改该链接权限的能力。
@@ -397,7 +383,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -415,7 +400,6 @@
 | `permission` | string | 是 | 分享权限。可选值：`edit`（可编辑）、`read`（可查看） |
 | `share_to` | string | 是 | 分享范围。可选值：`anyone`（所有人）、`company`（企业内成员）、`assigned`（指定人） |
 
-
 #### 返回值说明
 
 ```json
@@ -430,7 +414,3 @@
 |------|------|------|
 | `result` | string | ok 表示成功 |
 | `detail` | object | 接口返回详情 |
-
-
----
-

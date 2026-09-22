@@ -12,14 +12,13 @@
 - 转换完成结果需通过 `pdf.convert_query` 查询
 - 页码参数为 1-based（第一页为 1）
 
-
-
 **幂等性**：否 — 若返回会员不足错误（VipLevelNotEnough），可将 is_free_convert 设为 true 重试一次
 
 > 默认 `is_free_convert=false`（付费额度），若返回 `code=400100` 或错误含 `VipLevelNotEnough` 等会员不足提示，使用相同 `file_id`、`to_format`、页码范围等参数，仅将 `is_free_convert` 设为 `true` 重试一次（免费额度最多处理前 5 页）
 > 转换完成后，结果文件存入金山文档云盘 `我的云文档/应用/PDF转换`，文件名为 `原文件名.docx/xlsx/pptx`
 > 若 `pdf.convert_query` 不可用（返回 404），可通过 `drive.search_files` 搜索转换后的文件名找到结果
 > 获取转换文件后，用 `drive.share_file` 创建公开分享链接，再用 `drive.download_file` 获取下载信息
+> 注意：result_files 的 wps_yun_fileid 为标准可用的 file_id / fileid；若缺省则可以通过 drive.search_files 获取再进行后续操作
 
 #### 调用示例
 
@@ -34,7 +33,6 @@
   "is_free_convert": false
 }
 ```
-
 
 #### 参数说明
 
@@ -121,8 +119,6 @@
 - 常见轮询间隔建议 1-2 秒
 - 当 `progress=100` 时可读取结果文件信息
 
-
-
 > `progress < 100` 时继续轮询
 > `progress = 100` 时从 `result_files` 读取目标文件 URL 与类型
 
@@ -137,7 +133,6 @@
   "fname": "contract.pdf"
 }
 ```
-
 
 #### 参数说明
 
@@ -179,7 +174,3 @@
 |------|------|------|
 | `data.progress` | integer | 转换进度，100 表示完成 |
 | `data.result_files` | array | 转换结果文件列表（完成后返回） |
-
-
----
-

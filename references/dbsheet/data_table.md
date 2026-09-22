@@ -6,8 +6,6 @@
 
 获取多维表格文档的 Schema 信息，包括所有数据表、字段和视图的结构。可指定单个数据表 ID，不填则返回全部。
 
-
-
 #### 调用示例
 
 获取全部数据表结构：
@@ -26,7 +24,6 @@
   "sheet_id": 1
 }
 ```
-
 
 #### 参数说明
 
@@ -120,19 +117,18 @@
 
 #### 功能说明
 
-⚠️ **`views` 和 `fields` 必须为非空数组，至少传一个元素。** `file_id`、`name`、`fields`、`views` 四个顶层参数全部必填。只传 `name` 不传 `fields` 会报 `Required parameter missing`，不传 `views` 会报 `Views are empty`。
+⚠️ **`views` 为必填参数，必须为非空数组（至少一个视图），否则上游返回 `Views are empty` 错误。** 最简场景传 `[{name: "表格视图", type: "grid"}]` 即可。`fields` 同样必须为非空数组，不传会报 `Required parameter missing`。
 
 在多维表格文档中创建新的数据表，支持同时指定初始视图和字段。传入 `fields` 时，`fields[]` 中每个字段必须包含 `name`、`type`，字段专属参数直接平铺在字段对象根级（无 `data` 包装层）；
+传入 `views` 时，每项必须包含 `name`（视图名称）和 `type`（视图类型），视图专属参数直接平铺在视图对象根级。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **后置验证**：get_schema 确认数据表已创建
 
 **幂等性**：否 — 重复调用会创建多个数据表，先确认是否已成功
 
-> 传入 `views` 时每项必须包含 `name` 和 `type`；传入 `fields` 时每项必须包含 `name` 和 `type`，两者均为必填，视图专属参数直接平铺在视图对象根级。
+> 传入 `views` 时每项必须包含 `name` 和 `type`；传入 `fields` 时每项必须包含 `name` 和 `type`；视图专属参数直接平铺在视图对象根级。
 > 此接口的 `fields[]` 配置不使用 `data` 包装层，所有字段属性（如 `items`、`numberFormat`）直接写在字段对象根级
 > `dbsheet.create_sheet` 与 `dbsheet.create_fields` 在字段参数结构上保持一致：字段专属参数均直接平铺在字段对象根级
 > 视图类型（`views[].type`）请求传入小写（如 `grid`），响应返回首字母大写（如 `Grid`）
@@ -174,7 +170,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -202,8 +197,8 @@
 | `sync_type` | string | 否 | 同步类型，默认 `None` |
 | `after_sheet_id` | integer | 否 | 在指定数据表后创建 |
 | `before_sheet_id` | integer | 否 | 在指定数据表前创建 |
-| `views` | array[object] | 否 | 初始视图列表 |
-| `fields` | array[object] | 否 | 初始字段列表，字段参数直接平铺，无 `data` |
+| `views` | array[object] | 是 | 初始视图列表，至少一个视图（最简 `[{name:"表格视图",type:"grid"}]`） |
+| `fields` | array[object] | 是 | 初始字段列表，至少一个字段，字段参数直接平铺，无 `data` |
 
 **`fields[]` 通用参数**
 
@@ -330,13 +325,12 @@
 | `MultipleSelect` | string[]（选项 value 数组） | `["选项1","选项2"]` |
 | `Rating` / `Complete` | int | `3` / `80` |
 | `Contact` | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` |
-| `Attachment` | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"Cloud","type":"image/png"}]`；`linkUrl`、`imgSize` 选填 |
+| `Attachment` | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | 格式见 `dbsheet.create_fields` Attachment 节 |
 | `Link` | string[] | `["record_id_1","record_id_2"]` |
 | `Address` | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` |
 | `Cascade` | object | `{"districts":["一级","二级"]}` |
 | `Note` | object | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 10:00:00"}` |
 | `AutoNumber`、`CreatedBy`、`CreatedTime`、`LastModifiedBy`、`LastModifiedTime`、`Formula`、`Lookup` | — | **自动字段，无需填写** |
-
 
 #### 返回值说明
 
@@ -395,8 +389,7 @@
 
 修改数据表名称
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：get_schema 确认目标数据表存在
 - **前置检查**：使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
@@ -414,7 +407,6 @@
   "name": "新名称"
 }
 ```
-
 
 #### 参数说明
 
@@ -459,8 +451,7 @@
 
 删除多维表格中的指定数据表。
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：get_schema 核对拟删数据表的名称和内容；使用该工具前必须先调用get_schema确认要操作的数据表id，不得自行捏造数据表id。
 - **用户确认**：删除数据表不可恢复，必须向用户确认数据表名称和 ID
@@ -477,7 +468,6 @@
   "sheet_id": 6
 }
 ```
-
 
 #### 参数说明
 
@@ -512,8 +502,7 @@
 
 批量创建工作表
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：有创建数据表权限；单次批量条数与字段结构以文档上限为准。
 - **后置验证**：建议 dbsheet.get_schema 核对
@@ -533,7 +522,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -546,7 +534,6 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `sheets` | array | 每个元素描述一个待建数据表（名称、字段、视图等），子字段以接口约定为准（batch-create-sheet） |
-
 
 #### 返回值说明
 
@@ -572,8 +559,7 @@
 
 批量删除工作表
 
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：get_schema 确认待删数据表名称和内容
 - **前置检查**：确认目标 `sheet_ids` 内数据均可删除；不可逆。
@@ -597,7 +583,6 @@
 }
 ```
 
-
 #### 参数说明
 
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
@@ -610,7 +595,6 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `sheet_ids` | array[integer] | 待删除数据表 ID 列表 |
-
 
 #### 返回值说明
 
@@ -630,3 +614,71 @@
 
 ---
 
+## 7. dbsheet.get_schema_detail
+
+#### 功能说明
+
+获取多维表格完整 Schema，包括所有数据表、字段、视图，以及侧边栏智能文档（FlexPaper sheet）和富文本字段的 content_id。
+与 `get_schema` 不同，本工具走 REST API，返回所有 sheet 类型（含 `sheet_type: xlEtFlexPaperSheet` 的智能文档及其 `content_id`），
+`content_id` 可直接用于 `innerdoc_block_*` 工具链读写智能文档或富文本字段内容。
+
+**幂等性**：是
+
+> 如需获取智能文档或富文本字段的 content_id 以供 innerdoc_block_* 工具使用，应使用本工具而非 get_schema
+> get_schema 走 core/execute 通道，不返回智能文档 sheet；本工具走 REST API，返回完整信息
+
+#### 调用示例
+
+获取完整 Schema（含智能文档 content_id）：
+
+```json
+{
+  "file_id": "100264623255"
+}
+```
+
+#### 参数说明
+
+- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
+- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
+- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 多维表格文件 ID
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "msg": "",
+  "data": {
+    "sheets": [
+      {
+        "id": 1,
+        "name": "数据表",
+        "sheet_type": "xlEtDataBaseSheet",
+        "fields": [
+          { "name": "文本", "field_type": "MultiLineText", "id": "B" },
+          { "name": "描述", "field_type": "Note", "id": "H" }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "智能文档",
+        "sheet_type": "xlEtFlexPaperSheet",
+        "content_id": "HSXKHUJIABQDI"
+      }
+    ]
+  }
+}
+
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | integer | 0 表示成功 |
+| `data.sheets[].id` | integer | sheet ID |
+| `data.sheets[].name` | string | sheet 名称 |
+| `data.sheets[].sheet_type` | string | sheet 类型（xlEtDataBaseSheet 数据表 / xlEtFlexPaperSheet 智能文档） |
+| `data.sheets[].content_id` | string | 智能文档的 content_id（仅 FlexPaper sheet 返回，供 innerdoc_block_* 使用） |
+| `data.sheets[].fields[].id` | string | 字段 ID |
+| `data.sheets[].fields[].name` | string | 字段名称 |
+| `data.sheets[].fields[].field_type` | string | 字段类型 |

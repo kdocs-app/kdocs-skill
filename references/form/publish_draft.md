@@ -6,9 +6,7 @@
 
 将智能表单草稿发布为正式表单。当前接口不读取业务字段，请求体建议传空对象。
 
-
-
-#### 操作约束
+#### 调用约束
 
 - **前置检查**：form.lite.get_form_info 确认目标表单仍为 Draft
 - **后置验证**：form.lite.get_form_info 确认 type 为 Release 且 sid 非空
@@ -27,7 +25,6 @@
   "form_id": "f_xxxxx"
 }
 ```
-
 
 #### 参数说明
 
@@ -91,7 +88,3 @@
   "result": "NotDraft"
 }
 ```
-
-
----
-

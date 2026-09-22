@@ -8,8 +8,6 @@
 
 展示名称优先取 `drive.name`，为空时回退 `group.name`。
 
-
-
 > next_page_token 为空时表示已到末页；items 为空数组表示当前用户无可见文档库
 > 从 items[].drive.id 取 drive_id，传给 list_files 可浏览库内目录
 
@@ -41,7 +39,6 @@
   "page_token": "NEXT_PAGE_TOKEN"
 }
 ```
-
 
 #### 参数说明
 
@@ -105,9 +102,11 @@
 #### 功能说明
 
 根据 `drive_id` 获取单个团队文档库的完整元信息，包含云盘信息、关联群组、当前用户角色等。
-已知 `drive_id` 时优先用本接口；需枚举全部库时使用 `list_doclibs`。
 
+#### 工具选择
 
+- **适用**：已知 drive_id 时获取单个团队文档库详情
+- **勿用**（改用 `list_doclibs`）：需枚举全部有权访问的文档库
 
 > 无效或无权访问的 drive_id 将返回业务错误；可先调 list_doclibs 确认有效 ID
 > 取到 drive.id 后，传给 list_files 可浏览库内目录
@@ -121,7 +120,6 @@
   "drive_id": "d_abc123"
 }
 ```
-
 
 #### 参数说明
 
@@ -167,7 +165,3 @@
 | `data.group.type` | string | 群组类型 |
 | `data.user_role` | string | 当前用户角色：owner / admin / normal |
 | `data.pinned` | boolean | 是否置顶 |
-
-
----
-
