@@ -4,6 +4,7 @@
 
 | 工具 | 功能 |
 |------|------|
+| [`wps.headings.heading_table`](headings.heading_table.md) | 按标题章节插入表格 |
 | [`wps.headings.heading_delete`](headings.heading_delete.md) | 按标题删除整节 |
 | [`wps.headings.heading_meta`](headings.heading_meta.md) | 按标题定位章节 |
 | [`wps.headings.heading_text`](headings.heading_text.md) | 按标题章节插入文本 |

@@ -17,8 +17,6 @@
 ```json
 {
   "file_id": "<FILE_ID>",
-  "scope": "ranges",
-  "verb": "insert",
   "begin": 184,
   "cols": 3,
   "end": 258

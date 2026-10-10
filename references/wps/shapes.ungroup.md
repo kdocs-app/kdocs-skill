@@ -8,6 +8,8 @@
 
 **幂等性**：是 — safe
 
+> 用 list 的 **source_index**（顶层组序号）拆组；拆后得顶层 shape_names 再 `group`。见 `references/workflows/wps-shapes-draw-compose.md`（场景 4）。
+
 #### 调用示例
 
 文档设置：

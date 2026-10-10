@@ -97,7 +97,7 @@
 | `detail.sheets[].record_ids` | array | 所有记录 ID（需开启 `include_all_record_ids`） |
 | `detail.sheets[].fields[].id` | string | 字段 ID |
 | `detail.sheets[].fields[].name` | string | 字段名称 |
-| `detail.sheets[].fields[].type` | string | 字段类型（MultiLineText / Number / Date / SingleSelect / MultipleSelect 等） |
+| `detail.sheets[].fields[].type` | string | 字段类型（MultiLineText / Number / Date / SingleSelect / MultipleSelect 等）。`Lookup` 字段另带 `lookupType`（历史值 `1` 引用 / `2` 统计字段 / `3` 查找引用）用于区分形态；回写统一用 `type: "Lookup"`（`SearchLookup` 不是可写类型，传入会报 `400100 Unknown enum`） |
 | `detail.sheets[].fields[].description` | string | 字段备注（可选） |
 | `detail.sheets[].fields[].items` | array | 选项列表（仅选择类字段返回，如 SingleSelect / MultiSelect） |
 | `detail.sheets[].fields[].items[].id` | string | 选项 ID |
@@ -245,9 +245,9 @@
 | `LastModifiedBy` | 最后修改者 | **是** |
 | `LastModifiedTime` | 最后修改时间 | **是** |
 | `Formula` | 公式 | **是** |
-| `Lookup` | 引用 | **是** |
+| `Lookup` | 查找引用 | **是** |
 | `BarCode` | 条码字段 | **是** |
-| `SearchLookup` | 查找引用 | **是** |
+| `SearchLookup`（勿作为写入 `type`） | 查找引用 | **是** |
 | `Button` | 按钮 | **是** |
 | `OneWayLink` | 单向关联 | **是** |
 
@@ -288,7 +288,7 @@
 | `Formula` | `formula`、`numberFormat` |
 | `Lookup` | `lookupType`、`lookupSheetId`、`linkField`、`lookupField`、`aggregation`、`filter` |
 | `BarCode` | 无专属参数 |
-| `SearchLookup` | 无专属参数（配置沿用 `Lookup` 相关能力） |
+| `SearchLookup`（勿作为写入 `type`） | 无专属参数（配置沿用 `Lookup` 相关能力） |
 | `Button` | 无专属参数 |
 | `OneWayLink` | `isAuto`、`multipleLinks`、`linkSheet`、`filter` |
 
@@ -325,7 +325,7 @@
 | `MultipleSelect` | string[]（选项 value 数组） | `["选项1","选项2"]` |
 | `Rating` / `Complete` | int | `3` / `80` |
 | `Contact` | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` |
-| `Attachment` | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | 格式见 `dbsheet.create_fields` Attachment 节 |
+| `Attachment` | object[] | `[{"uploadId":"…","fileName":"a.doc","size":1024,"source":"upload_ks3","type":"doc"}]` | `type` 文档传小写扩展名（如 `doc`/`docx`/`pdf`），图片传 `image/xxx`，**禁止 MIME**；格式见 `dbsheet.create_fields` Attachment 节 |
 | `Link` | string[] | `["record_id_1","record_id_2"]` |
 | `Address` | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` |
 | `Cascade` | object | `{"districts":["一级","二级"]}` |

@@ -7,8 +7,6 @@
 **幂等性**：是 — safe
 
 > 写操作报 500002 且读操作正常时，先排查文档保护态（wps.protection.disable 后重试），再排查参数；不要盲目重试。
-> 四边需逐边调用（border_type=-1/-2/-3/-4 各一次）；建议先对每边设 LineStyle 再设 LineWidth。
-> LineWidth 口径（WdLineWidth 枚举）：2=0.25磅 / 4=0.5磅 / 6=0.75磅 / 8=1磅 / 12=1.5磅 / 18=2.25磅 / 24=3磅 / 36=4.5磅 / 48=6磅；query 读回 lineWidth 同口径。
 
 #### 调用示例
 
@@ -65,8 +63,8 @@
 {
   "file_id": "<FILE_ID>",
   "verb": "update",
-  "border_type": -1,
-  "key": "LineStyle",
+  "border_type": 1,
+  "key": "Bold",
   "paragraph_index": 1,
   "value": "true"
 }

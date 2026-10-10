@@ -8,6 +8,8 @@
 
 **幂等性**：是 — safe
 
+> 筛「首页/某页全部图片」时：用 `paragraph_index` + `wps.texts.page_number` 过滤，**勿**逐图 `images.locate_paragraph`。
+
 #### 调用示例
 
 文档查询：

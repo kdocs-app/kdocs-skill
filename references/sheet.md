@@ -149,7 +149,7 @@
 | [`sheet.range_data_batch_update`](sheet/data.md) | 批量更新区域数据（下划线参数版本） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range_data` |
 | [`sheet.delete_range_data`](sheet/data.md) | 删除行或列 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range_data` |
 | [`sheet.add_row`](sheet/data.md) | 追加一行数据 | `url`\|`link_id`\|`file_id`, `worksheet_id` |
-| [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range`, `filter` |
+| [`sheet.find_range_data`](sheet/data.md) | 遍历筛选记录（支持分页与条件） | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
 | [`sheet.get_attachment_url`](sheet/data.md) | 上传附件到文件 | `file_id`, `filename`, `url`\|`content_base64`, `Content-Type` |
 | [`sheet.add_chart`](sheet/data.md) | 在工作表中新增图表 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `chartType`, `sourceAddress`, `rectAddress`, `title` |
 | [`sheet.range_auto_fill`](sheet/data.md) | 用源区域自动填充目标区域 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `sourceAddress`, `targetAddress` |
@@ -164,7 +164,7 @@
 | [`sheet.get_pivot_tables`](sheet/data.md) | 获取数据透视表信息（支持透视表/字段/数据项三级下钻） | `url`\|`link_id`\|`file_id`, `worksheet_id` |
 | [`sheet.auto_fit`](sheet/data.md) | 自适应列宽或行高 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
 | [`sheet.get_typed_value`](sheet/data.md) | 读取区域数据并保留单元格类型 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
-| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `rangeData` |
+| [`sheet.update_range_data`](sheet/data.md) | 批量更新选区数据 | `url`\|`link_id`\|`file_id`, `rangeData` |
 | [`sheet.insert_rows_cols`](sheet/data.md) | 插入行或列 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `type` |
 | [`sheet.set_range_width_height`](sheet/data.md) | 调整行高列宽 | `url`\|`link_id`\|`file_id`, `worksheet_id`, `range` |
 

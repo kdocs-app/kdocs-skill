@@ -10,6 +10,7 @@
 
 > 插入响应 info.shape_item 即新形状标识（数字串 index），可直接用于 wps.shapes.info / 各 shapes update 工具定位，无需插后 wps.shapes.list。
 > 插入时传入的 left/top 坐标会被引擎锚定回流归一化，回读值可能与写入值不同（如写入 left=72 回读 -18，TC_086）；核验形状位置应以 wps.shapes.list 读回值为准，不要用插入入参断言。
+> **两步间插入**：须 **同时** 传 `begin` 与 `end`（如第一步 search 的 end + 第二步 search 的 begin）；仅 begin 常 500002。`shape_type=36` = 下箭头。
 
 #### 调用示例
 

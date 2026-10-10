@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> 形状置顶场景见 `references/workflows/wps-shapes-draw-compose.md`。
+
 #### 支持功能
 
 | 功能简述 | 详情 |

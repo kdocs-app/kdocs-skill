@@ -8,6 +8,8 @@
 
 **幂等性**：是 — safe
 
+> 页码右对齐：一次调用设 `alignment=right`（如 `wdAlignParagraphRight` / 数值 2），空页脚可直接插入；写后用 `footer_content` 回读。详见 `references/workflows/wps-header-footer-pagination.md`（场景 2 路径 D）。勿先 query `footer_alignment`。
+
 #### 调用示例
 
 文档设置：

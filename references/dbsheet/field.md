@@ -308,8 +308,14 @@
 |------|------|
 | `uploadId` | 附件对象 ID；本地上传时取 `upload_attachment` 返回的 `object_id` |
 | `source` | `upload_ks3`（本地上传）或 `Cloud`（云文档引用，须同时传 `linkUrl`）；本地上传误标 `Cloud` 时 API 可成功但前端不渲染 |
-| `type` | MIME 类型；图片建议用 `upload_attachment` 返回的 `new_content_type` |
+| `type` | 文件类型标识：**文档传小写扩展名**（`doc`/`docx`/`xls`/`xlsx`/`ppt`/`pptx`/`pdf`/`txt`/`otl`/`dbt`…）；**图片**传 `image/xxx`（如 `image/png`，可取 `upload_attachment` 返回的 `new_content_type`）；**禁止传 `application/...` 等 MIME** |
 | `imgSize` | 选填；图片可传 `{"width":1920,"height":1080}`（取自 `extra_info`） |
+
+> **`type` 必须传小写扩展名（区分大小写；图片为 `image/xxx`），不能传 MIME 类型。** 多维表前端按该值判断附件能否在线预览：
+> 传 `application/octet-stream`、`application/msword`、`application/zip` 等 MIME 会写入成功，但用户点击附件时
+> 提示「此文件类型不支持打开，可下载后查看」。`upload_attachment` 返回的 `new_content_type` **不代表**附件字段该填的值
+> （`.doc` 返回 `application/octet-stream`、`.docx` 返回 `application/zip`），**只有图片可直接复用**；
+> 文档类附件必须按扩展名写，例如 `.doc` → `doc`、`.docx` → `docx`、`.pdf` → `pdf`。
 
 ---
 
@@ -421,11 +427,11 @@
 
 ---
 
-**28. `Lookup` 引用**
+**28. `Lookup` 查找引用 / 统计**
 
 | 属性 | 类型 | 说明 |
 |------|------|------|
-| `lookupType` | integer | 1 引用字段、2 统计字段、3 查找字段 |
+| `lookupType` | integer | `2` 统计字段、`3` 查找引用（原 `1` 引用字段已废弃，合并至 `3`）|
 | `lookupSheetId` | integer | 引用数据表 id |
 | `linkField` | string | 对应关联字段 id |
 | `lookupField` | string | 引用字段 id |
@@ -442,7 +448,9 @@
 
 ---
 
-**30. `SearchLookup` 查找引用**
+**30. `SearchLookup` 查找引用（不是本接口的可写类型）**
+
+写入查找引用请传 `type: "Lookup"` + `lookupType: 3`。传 `type: "SearchLookup"` 会报 `400100 Unknown enum`。
 
 无专属创建属性（配置沿用 Lookup 相关能力）。
 
@@ -842,11 +850,11 @@
 
 ---
 
-**28. `Lookup` 引用**
+**28. `Lookup` 查找引用 / 统计**
 
 | 属性 | 类型 | 说明 |
 |------|------|------|
-| `lookupType` | integer | `1` 引用字段；`2` 统计字段；`3` 查找字段。类型为 `1` 时无需传 `lookupSheetId` 和 `filter` |
+| `lookupType` | integer | `2` 统计字段；`3` 查找引用（原 `1` 引用字段已废弃，合并至 `3`）|
 | `lookupSheetId` | integer | 引用的表 id；与 `linkField` 互斥 |
 | `linkField` | string | 对应的关联字段 id |
 | `lookupField` | string | 被引用表中的字段 id |
@@ -861,7 +869,9 @@
 
 ---
 
-**30. `SearchLookup` 查找引用**
+**30. `SearchLookup` 查找引用（不是本接口的可写类型）**
+
+更新（回写）查找引用请传 `type: "Lookup"` + `lookupType: 3`。传 `type: "SearchLookup"` 会报 `400100 Unknown enum`。
 
 无专属更新属性（配置沿用 Lookup 相关能力）。
 

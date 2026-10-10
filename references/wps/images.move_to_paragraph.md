@@ -9,6 +9,7 @@
 **幂等性**：是 — safe
 
 > index 为 1-based，可由 wps.images.list 获取；目标段落 paragraph_index 为 1-based，可由 wps.texts.range 或 wps.texts.search 定位后换算。
+> 浮动 Picture（`images.count=0`）须先 `wps.shapes.wrap_type` 嵌入（wrap=7），再 move；`references/workflows/wps-image-on-page.md`（场景 4 路径 B）。
 
 #### 调用示例
 

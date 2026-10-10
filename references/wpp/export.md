@@ -1,178 +1,112 @@
-# 下载与导出
+# 导出
 
-## 1. wpp.export_image
+> facet: export
 
-#### 功能说明
-
-将幻灯片导出为 **PNG** 或 **JPEG** 图片（同步接口，直接返回下载地址或 key）。
-
-**适用于**：缩略图、逐页图片导出。
-
-**幂等性**：否 — 导出为异步任务，用 task_id 轮询结果而非重复提交
-
-#### 调用示例
-
-逐页、96 dpi、PNG、含水印：
-
-```json
-{
-  "link_id": "string",
-  "format": "png",
-  "dpi": 96,
-  "water_mark": true,
-  "from_page": 1,
-  "to_page": 100,
-  "combine_long_pic": false,
-  "use_xva": true,
-  "client_id": "",
-  "password": "",
-  "store_type": ""
-}
-```
-
-#### 参数说明
-
-- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
-- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享 id；与 url、file_id 三选一
-- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 id；与 url、link_id 三选一
-- `format` (string, 必填): 导出图片格式。可选值：`png` / `jpeg`
-- `dpi` (integer, 可选): 图片 DPI。可选值：`96` / `150` / `300`；默认值：`96`
-- `water_mark` (boolean, 可选): 是否含水印；默认值：`true`
-- `from_page` (integer, 可选): 起始页，从 0 开始；默认值：`1`
-- `to_page` (integer, 可选): 结束页；默认值：`9999`
-- `combine_long_pic` (boolean, 可选): 是否合并为长图；`false` 表示逐页
-- `use_xva` (boolean, 可选): 是否使用 XVA 渲染引擎
-- `client_id` (string, 可选): 客户端标识
-- `password` (string, 可选): 文档打开密码（若加密）
-- `store_type` (string, 可选): 存储类型，如 `ks3`、`cloud`
-
-#### 返回值说明
-
-```json
-{
-  "result": "ok",
-  "url": "string",
-  "key": "string",
-  "file_id": "string",
-  "without_attachment": false,
-  "size": 0
-}
-
-```
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `result` | string | 成功为 `ok` |
-| `url` | string | 图片下载地址（有时效） |
-| `key` | string | 导出文件标识 |
-| `file_id` | string | 关联文件 ID |
-| `size` | integer | 仅当请求要求返回大小时可能存在 |
-
-失败时可能返回 `result` 为 `error` 且带 `data.code` / `data.message`，以实际响应为准。
-
+| 工具 | 功能 | 必填参数 |
+|------|------|----------|
+| `wpp.export.export.image` | 导出在线演示文稿为图片（v3 同步导出，返回云存储 url/key） |  |
+| `wpp.export.export.pdf` | 导出在线演示文稿为 PDF（v3 异步导出；创建任务或按 task_id 轮询） |  |
 
 ---
 
-## 2. wpp.export_pdf
+## 1. wpp.export.export.image
 
 #### 功能说明
 
-异步导出 PDF **步骤一**：**创建导出任务**（`POST .../async-export`），返回 `task_id`。本工具传入 `task_id` 时会调用查询接口进行轮询。
+导出在线演示文稿为图片（v3 同步导出，返回云存储 url/key）。
 
-**适用于**：需要可打印、可分享的 PDF 文件。
-
-**步骤二**：传入 `task_id` 查询导出进度，`status` 为 `running` 时需等待后重试，`finished` 时返回下载链接。
-
-**幂等性**：否 — 导出为异步任务，用 task_id 轮询结果而非重复提交
+**幂等性**：是 — safe
 
 #### 调用示例
 
-步骤一：创建导出任务：
+导出演示文稿为图片：
 
 ```json
 {
-  "file_id": "string",
-  "format": "pdf",
-  "multipage": 1,
-  "opt_frame": true,
-  "from_page": 1,
-  "to_page": 9999,
-  "client_id": "",
-  "store_type": "ks3",
-  "password": "",
-  "export_open_password": "",
-  "export_modify_password": ""
-}
-```
-
-步骤二：查询导出进度：
-
-```json
-{
-  "task_id": "string",
-  "task_type": "normal_export"
+  "link_id": "<LINK_ID>",
+  "image_type": "PNG",
+  "from_slide": 1,
+  "to_slide": 1
 }
 ```
 
 #### 参数说明
 
-- `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
-- `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享 id；与 url、file_id 三选一
-- `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 id；与 url、link_id 三选一
-- `format` (string, 必填): 固定 `pdf`
-- `task_id` (string, 可选): 任务 ID，步骤一返回，轮询时必填
-- `task_type` (string, 可选): 任务类型，固定 `normal_export`（轮询时必填）
-- `multipage` (integer, 可选): 是否多页合一类导出；`1` 表示是
-- `opt_frame` (boolean, 可选): 是否优化帧；默认值：`true`
-- `from_page` (integer, 可选): 起始页，从 0 开始；默认值：`1`
-- `to_page` (integer, 可选): 结束页；默认值：`9999`
+- `file_id` (string, 可选): 文件 id；与 url、link_id 三选一
+- `from_slide` (number, 可选): 起始页，默认 1
+- `image_type` (string, 可选): 图片类型：PNG / JPG，默认 PNG
+- `link_id` (string, 可选): 分享 id；与 url、file_id 三选一（推荐）
+- `to_slide` (number, 可选): 结束页，默认 9999
+- `url` (string, 可选): 文档 URL；与 link_id、file_id 三选一
+- `dpi` (number, 可选): 如 96、150、300，默认 96
+- `combine_long_pic` (boolean, 可选): 是否合并为长图
+- `water_mark` (boolean, 可选): 是否含水印，默认 true
 - `client_id` (string, 可选): 客户端标识
-- `store_type` (string, 可选): 存储类型，如 `ks3`、`cloud`
-- `password` (string, 可选): 源文件密码
-- `export_open_password` (string, 可选): 导出 PDF 打开密码
-- `export_modify_password` (string, 可选): 导出 PDF 修改密码
+- `password` (string, 可选): 文档打开密码
+- `store_type` (string, 可选): 如 ks3、cloud
+- `use_xva` (boolean, 可选): 是否使用 XVA 渲染
 
 #### 返回值说明
 
 ```json
-步骤一返回：
-
-```json
 {
-  "task_id": "string",
-  "task_type": "normal_export"
-}
-```
-
-步骤二返回（进行中）：
-
-```json
-{
-  "status": "running",
-  "data": null
-}
-```
-
-步骤二返回（已完成）：
-
-```json
-{
-  "status": "finished",
+  "code": 0,
+  "message": "成功",
   "data": {
-    "file_id": "string",
-    "key": "string",
-    "result": "ok",
-    "url": "string",
-    "without_attachment": false
+    "key": "export/xxx.png",
+    "url": "https://example.com/out.png"
   }
 }
 ```
 
+
+---
+
+## 2. wpp.export.export.pdf
+
+#### 功能说明
+
+导出在线演示文稿为 PDF（v3 异步导出；创建任务或按 task_id 轮询）。
+
+**幂等性**：是 — safe
+
+#### 调用示例
+
+导出演示文稿为 PDF：
+
+```json
+{
+  "file_id": "<FILE_ID>",
+  "from_slide": 1,
+  "to_slide": 1
+}
 ```
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `task_id` | string | 异步任务 ID，后续查询必填 |
-| `task_type` | string | 固定为 `normal_export`（导出 PDF 场景） |
-| `status` | string | `running` / `finished` |
-| `data.url` | string | PDF 下载地址（`finished` 时，有时效） |
+#### 参数说明
+
+- `file_id` (string, 可选): 文件 id；与 url、link_id 三选一（创建任务）
+- `from_slide` (number, 可选): 起始页，默认 1
+- `link_id` (string, 可选): 分享 id；与 url、file_id 三选一（创建任务）
+- `to_slide` (number, 可选): 结束页，默认 9999
+- `url` (string, 可选): 文档 URL；与 link_id、file_id 三选一（创建任务）
+- `task_id` (string, 可选): 轮询时必填
+- `task_type` (string, 可选): 轮询时填 normal_export
+- `client_id` (string, 可选): 客户端标识
+- `export_modify_password` (string, 可选): 导出 PDF 修改密码
+- `export_open_password` (string, 可选): 导出 PDF 打开密码
+- `multipage` (number, 可选): 默认 1
+- `opt_frame` (boolean, 可选): 是否优化帧，默认 true
+- `password` (string, 可选): 源文件密码
+- `store_type` (string, 可选): 如 ks3
+
+#### 返回值说明
+
+```json
+{
+  "code": 0,
+  "message": "成功",
+  "data": {
+    "task_id": "abc123"
+  }
+}
+```

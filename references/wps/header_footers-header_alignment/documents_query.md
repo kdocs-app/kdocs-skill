@@ -8,6 +8,7 @@
 
 > 返回 header_alignment（JSAPI 枚举名）与 alignment（数值）；枚举：0=wdAlignParagraphLeft、1=wdAlignParagraphCenter、2=wdAlignParagraphRight、3=wdAlignParagraphJustify、4=wdAlignParagraphDistribute。
 > header_footer_type：1=主（默认）、2=首页、3=偶数页；section_index 从 1 开始。
+> **禁止**写后 query 读回对齐；对齐以 update 返回 code=0 为准。
 
 #### 调用示例
 

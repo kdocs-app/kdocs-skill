@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> 节标题下正文两端对齐：`search` 定位标题 → `range` 映射段落 → 标题后连续 outline_level=10 为正文段，`alignment=justify` 批量写入；详见 `references/workflows/wps-section-body-format.md`（场景 2）。勿 range/format 扫全文。
+
 #### 支持功能
 
 | 功能简述 | 详情 |

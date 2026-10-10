@@ -119,7 +119,7 @@
 #### 参数说明
 
 - `drive_id` (string, 可选): 目标文件夹所在云盘 ID。parent_id 非 "0" 时可省略
-- `parent_id` (string, 必填): 文件夹 ID。两种情况：浏览某文件夹时传该文件夹 ID；浏览个人云文档根不要传 "0"，改用 list_my_files
+- `parent_id` (string, 必填): 文件夹 ID。两种情况：浏览某文件夹时传该文件夹 ID；浏览个人云文档根请改用 list_my_files（传 "0" 时须同时传该盘 drive_id）
 - `page_size` (integer, 可选): 每页条数；建议 50；范围 1–500；未传时默认 50；默认值：`50`
 - `page_token` (string, 可选): 分页 token，首次请求不传
 - `order` (string, 可选): 排序方式。可选值：`desc` / `asc`
@@ -274,12 +274,23 @@ file_id：
 
 查询文档附件的下载信息。根据文件 ID 与附件 ID 获取附件下载链接、名称与大小；链接为有效期内可直接下载的 URL。
 
-**下载已有附件**：从 `read_file`、`otl.block_query` 等接口的实际返回中获取目标附件的资源 ID，填入 `download_attachment.attachment_id`；已有 ID 时直接复用，`file_id` 使用附件所属文档 ID。
+**下载已有附件**：从 `read_file` / `otl.block_query` 等接口的实际返回中取目标附件的资源 ID，填入 `attachment_id`，`file_id` 使用附件所属文档 ID。
 
-返回中已有目标附件的 `sourceKey` 时直接使用；OTL 节点中，文件附件（`type="WPSDocument"` 且 `attrs.viewType=4`）取 `attrs.wpsDocumentId`，图片（`type="picture"`）取 `attrs.sourceKey`。其他接口以实际返回的附件资源 ID 为准，不使用节点的块 ID。
+OTL 节点 → `attachment_id` 取值（节点属性细节见 `references/otl/node.md`）：
+
+| 节点 / 位置 | 条件 | attachment_id |
+| --- | --- | --- |
+| `doc` 封面 | `cover.sourceKey` 非空 | `cover.sourceKey` |
+| `picture` | — | `attrs.sourceKey` |
+| `processon` | — | `attrs.sourceKey`（预览图） |
+| `linkView` | — | `attrs.sourceKey`（链接图标） |
+| `WPSDocument` | `attrs.viewType=4` | `attrs.wpsDocumentId` |
+
+以上均取**资源 ID**（sourceKey / wpsDocumentId / `upload_attachment` 的 object_id），**禁止**使用节点的块 ID。其他接口以实际返回的附件资源 ID 为准。
 
 > 返回的 download_url 有时效限制，应在获取后尽快使用
 > 已上传附件也可使用 `upload_attachment` 返回的 `object_id`，文档标识须与上传时一致
+> 在线 Markdown 导出：`read_file` 正文中的 `kdocsmd://{id}` → 本工具 `attachment_id={id}` → 用 **download_url** 替换协议串（勿与 `download_file.data.url` 混淆）
 
 #### 调用示例
 
@@ -297,7 +308,7 @@ file_id：
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 附件所属文档的文件 ID
-- `attachment_id` (string, 必填): 目标附件的资源 ID（如 sourceKey）；上传附件使用返回的 object_id
+- `attachment_id` (string, 必填): 目标附件的资源 ID（如 sourceKey / wpsDocumentId）；上传附件使用 upload_attachment 返回的 object_id
 
 #### 返回值说明
 
@@ -346,7 +357,7 @@ file_id：
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件（夹）ID
-- `with_permission` (boolean, 可选): 是否返回文件操作权限
+- `with_permission` (boolean, 可选): 是否返回文件操作权限。默认 false（响应不含 permission 字段）；需要判断可否重命名/分享等操作权限时显式传 true
 - `with_ext_attrs` (boolean, 可选): 是否返回文件扩展属性
 - `with_drive` (boolean, 可选): 是否返回文件所在 drive 信息
 
@@ -454,12 +465,13 @@ file_id：
 #### 工具选择
 
 - **适用**：读取云文档正文内容（Markdown/纯文本/结构化摘要）时
+- **适用**：在线 Markdown 读源码不传 `format`；otl/docx/pdf 等内容转 Markdown 文本时传 `format=markdown`
 - **勿用**：整表精细读取或海量表格/多维表/智能文档块级数据 — 表格用 sheet.*，多维表用 dbsheet.*，智能文档块级读取用 otl.*，不要用本工具代替
 - **勿用**（改用 `pdf.split`）：PDF 拆页、合并、转格式等页级操作 — 页级操作用 pdf.*（如 split/merge/convert），不要用本工具代替
 - **勿用**：WPS 文字文档导出为其他格式（如导出 PDF/图片） — 导出用 wps.*，本工具仅读取正文内容
-- **勿用**（改用 `wpp.write_slide`）：增删/移动/复制幻灯片 — 幻灯片页级操作用 wpp.write_slide / wpp.read_slide，不要用本工具代替
+- **勿用**（改用 `wpp.slide.items.insert`）：增删/移动/复制幻灯片 — 幻灯片页级操作用 wpp.slide.items.* 等 v7 工具，不要用本工具代替
 - **勿用**（改用 `wpp.set_font_presentation`）：改演示文稿主题字体或配色 — 主题用 wpp.set_font_* / wpp.set_color_*（页级或整稿），不要用本工具代替
-- **勿用**（改用 `wpp.export_pdf`）：演示文稿导出 PDF 或图片 — 导出用 wpp.export_pdf / wpp.export_image，不要用本工具代替
+- **勿用**（改用 `wpp.export.export.pdf`）：演示文稿导出 PDF 或图片 — 导出用 wpp.export.export.*，不要用本工具代替
 
 #### 调用约束
 
@@ -472,7 +484,9 @@ file_id：
 > 表格/多维表：未指定 sheet 时使用默认工作表；未传 sheet_range 时读默认首屏区域；单次返回数据有限
 > PDF 复杂排版可能有精度损失，提取结果为近似文本
 > 必须检查返回的 warnings 字段：内容可能未读全（如仅返回首屏、默认工作表等），warnings 会提示实际读取范围和建议
-> 智能文档（.otl）：默认 Markdown 不含图片链接（![image]() 占位）；读取内嵌图片须 enable_upload_medias=true，或 otl.block_query → download_attachment
+> 智能文档（.otl）默认返回图片临时可下载 URL；需下载原图/封面/附件时，用 otl.block_query 取资源 ID 后调 download_attachment
+> `.md`：默认 markdown（正文即源码）；`.txt`：默认 plain；与 otl/docx/pdf 的 format=markdown（格式转换）不同
+> 在线 Markdown：`enable_upload_medias=true` **不会**将正文内 `kdocsmd://` 转为 https；若要导出到本地文件，须用 download_attachment 取 download_url 后替换协议串（步骤见 references/workflows/download-cloud-md.md）
 
 #### 调用示例
 
@@ -541,7 +555,7 @@ pptx 异步轮询（首次请求返回 `status=pending`；携带其 `task_id` �
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `task_id` (string, 可选): 任务 ID；返回 `status=pending` 时提供，下次请求须携带该 `task_id` 和原读取参数。
 - `format` (string, 可选): 文档内容目标格式。可选值：`markdown` / `plain`（纯文本）/ `kdc`（结构化表示）。txt 默认 plain、可选 markdown/plain；md 默认 markdown、可选 markdown/plain/kdc；csv 默认 markdown、可选 markdown/kdc，不支持 plain；docx/doc/pdf/wps/otl（markdown|plain|kdc）；ppt/pptx（markdown|kdc）；xlsx/xls/et 传选区走 sheet_range，dbt 传选表走 dbsheet_records
-- `enable_upload_medias` (boolean, 必填): 【文档类 docx/pdf/wps/doc/ppt/pptx/otl】是否将正文内图片等附件转为可下载 URL，默认为true；为true时抽取结果中附件会返回有效期内可下载的 URL。markdown / kdc 抽取路径生效
+- `enable_upload_medias` (boolean, 可选): 【文档类 docx/pdf/wps/doc/ppt/pptx/otl】是否将正文内图片等附件转为可下载 URL，默认为true；为true时抽取结果中附件会返回有效期内可下载的 URL。markdown / kdc 抽取路径生效
 - `sheet_name` (string, 可选): 【表格类 xlsx/ksheet 等、多维表 dbt】工作表或数据表名称
 - `sheet_id` (number, 可选): 【表格类、多维表】工作表或数据表 ID；与 sheet_name 同传时优先使用
 - `sheet_range` (object, 可选): 【表格类】读取区域，0-based，起止均含；传入则走选区（默认首屏区域）；不传且 sheet_name/sheet_id 不传则 xlsx/xls/et 走 markdown

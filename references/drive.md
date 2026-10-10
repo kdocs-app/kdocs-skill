@@ -32,7 +32,7 @@
 | [`download_file`](drive/read_and_download.md) | 获取文件下载信息 | `url`\|`link_id`\|`file_id` |
 | [`download_attachment`](drive/read_and_download.md) | 获取文档附件的下载信息 | `url`\|`link_id`\|`file_id`, `attachment_id` |
 | [`get_file_info`](drive/read_and_download.md) | 获取文件（夹）详细信息 | `url`\|`link_id`\|`file_id` |
-| [`read_file`](drive/read_and_download.md) | 读取文档内容为 Markdown/纯文本/结构化数据 | `url`\|`link_id`\|`file_id`, `enable_upload_medias` |
+| [`read_file`](drive/read_and_download.md) | 读取文档内容为 Markdown/纯文本/结构化数据 | `url`\|`link_id`\|`file_id` |
 
 ## 三、文件组织
 

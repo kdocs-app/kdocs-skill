@@ -8,6 +8,7 @@
 
 > 返回 format_info（段落当前实际生效的格式值）：paragraph_index(段落索引)、alignment(对齐枚举)、first_line_indent/left_indent/right_indent(首行/左/右缩进)、line_spacing/line_spacing_rule(行距及行距规则)、space_before/space_after(段前/段后间距)、outline_level(大纲级别)、keep_with_next/keep_together/page_break_before/widow_control(分页相关布尔)。
 > 查询返回的是段落当前实际值，可直接用于「统一格式」「格式对比」等场景；写入请用 verb=update（paragraphs 或 ranges）。
+> 定位「标题段」设色/对齐时：若 `wps.texts.structure` 不可用，**先只查 P1–P9 标题候选**；outline_level 1–9 即标题段，确认后**禁止**对 P10 以降全文逐段 query（见 `references/workflows/wps-heading-by-outline.md` 场景 1 / 场景 2）。
 
 #### 调用示例
 

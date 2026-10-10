@@ -78,7 +78,7 @@ type 指定搜索维度（file_name / content / all）；file_type 只筛选 fil
 file_name 仅搜文件名，content 仅搜文件内容，all 文件名+内容。
 筛选文件夹/文件类型请用 file_type，勿将 folder/file 填入 type。
 。可选值：`file_name` / `content` / `all`；默认值：`all`
-- `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0），传 0 表示按 50
+- `page_size` (integer, 必填): 每页条数；建议 100；范围 0–500（含 0），传 0 表示按 50；单次搜索最多只能取到前 500 条，分页时「已取条数 + page_size」不得超过 500；需要更多结果请收窄关键词或加过滤条件后分段搜索
 - `page_token` (string, 可选): 翻页 token
 - `file_type` (string, 可选): 资源类型筛选，不限制时省略；docx / xlsx 等文件格式使用 file_exts。可选值：`folder` / `file`
 - `file_exts` (array, 可选): 按文件后缀筛选，使用字符串数组，如 ["docx"] 或 ["xlsx", "xls"]；不要把扩展名填入 type 或 file_type。

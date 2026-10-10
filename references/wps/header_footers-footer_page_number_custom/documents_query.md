@@ -8,6 +8,7 @@
 
 > 复用 backend header_content/footer_content 兼容字段读回；PAGE 域结果文本包含在 text 内（无域级拆分读回）。
 > header_footer_type：1=主（默认）、2=首页、3=偶数页；section_index 从 1 开始。
+> 写后回读改用 `wps.header_footers.footer_content` query。
 
 #### 调用示例
 

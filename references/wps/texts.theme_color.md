@@ -10,6 +10,7 @@
 
 > 写操作报 500002 且读操作正常时，先排查文档保护态（wps.protection.disable 后重试），再排查参数；不要盲目重试。
 > theme_color_index 为 WdThemeColorIndex（JSAPI Font.TextColor.ObjectThemeColor）：0/2=深色主色1/2，1/3=浅色主色1/2，4~9=强调色1~6，10=超链接，11=已访问超链接，12/14=背景色1/2，13/15=文本色1/2，-1=无主题色。
+> 批量改「标题段」主题色：先用 `wps.texts.structure` 定位标题段，再对本工具设色；标题段流程见 `references/workflows/wps-heading-by-outline.md`（场景 2 路径 D）。勿用 `wps.texts.count` 或写前 `font` 探测代替 structure。
 
 #### 调用示例
 

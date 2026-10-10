@@ -10,6 +10,7 @@
 
 > 须先在同一节插入页码（header_page_number/footer_page_number）。
 > header_remove/footer_remove 会去掉页码，之后 style 会报 page number not found。
+> **罗马数字**：`value=1`（wdPageNumberStyleUppercaseRoman）；写后 `footer_content` query 回读（如 `I`）。
 
 #### 调用示例
 

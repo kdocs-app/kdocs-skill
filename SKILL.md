@@ -2,7 +2,7 @@
 name: kdocs
 description: "操作金山文档（WPS 云文档 / Kdocs / 365.kdocs.cn / www.kdocs.cn）云文档的官方 Skill。核心能力覆盖云端新建、读取、编辑、搜索、分享、整理在线文档（智能文档、Word、Excel、PDF、PPT、演示文稿、智能表格、多维表格）及个人知识库。当用户的任务涉及云文档操作时使用，包括但不限于：写周报/日报/工作汇报、处理合同/发票、创建报名表/登记表、网页剪藏、接龙转表格、信息收集、文档总结与内容生成、改写仿写、翻译、AI PPT生成、PDF拆分导出、标签分类归档、收藏管理、碎片笔记整理、表格美化、回收站还原、知识库管理。"
 homepage: https://www.kdocs.cn/latest
-version: 2.6.17
+version: 2.7.1
 metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openclaw":{"category":"kdocs","tokenUrl":"https://www.kdocs.cn/latest","emoji":"📝","keywords":["金山文档","金山表格","金山收藏","WPS","WPS文档","云文档","在线文档","kdocs","WPS云文档","接龙转表格","接龙","群接龙","报名表","信息收集","收集表","登记表","网页剪藏","剪藏","保存网页","网页保存到文档","保存文章","收藏文章","总结","帮我总结","帮我整理","帮我写","帮我翻译","帮我做PPT","翻译文档 - 做PPT - 生成PPT - 培训课件 - 方案展示 - 项目展示","文档总结","内容生成","改写","仿写","翻译","文档翻译","PPT","演示文稿","幻灯片","PDF","拆分PDF","导出PDF","Word","Excel","表格","Markdown","碎片整理","笔记整理","表格优化","文档处理","文件处理","办公助手","文档助手","周报","日报","工作汇报","合同","发票"]},"file_types":["pdf","doc","docx","xlsx","xls","pptx","ppt","otl","ksheet","dbt","form","jpg","jpeg","png","bmp","gif","webp","url","md","txt","html"],"category":"productivity"}
 ---
 
@@ -25,6 +25,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 - 创建云文档文件并验证通过后，必须向用户展示可访问链接。若响应包含 `data.link_url` 则直接展示；若响应无链接时，调用 `get_file_link` 获取并展示。
 - 除 SKILL.md 已给出最小可用示例的主路径工具外，其他工具调用前必须先阅读对应的 `references/` 详细参考文档；参数细节（类型、可选值、约束）以工具参考文档为准
 - 满足「问题反馈」章节触发条件时，必须运行 feedback 命令并展示完整反馈链接，并遵守该章节的防重复规则；禁止仅口头告知联系客服或仅以「暂不支持」结束对话
+- 参考文档按本技能总览或索引中的文件路径读取，不猜文件名、不把目录当文件、不套用其他技能的路径。路径报错时先核对索引。
 
 ---
 
@@ -32,7 +33,7 @@ metadata: {"requires":{"bins":["kdocs-cli"],"cliHelp":"kdocs-cli --help"},"openc
 何时触发：**首次使用** Skill / **距上次自检 >24h** / **收到 `unknown action` 或 `unknown service` 错误**。
 
 1. **CLI 版本**：`kdocs-cli version` — 若命令不存在则按下方「工具安装与认证」安装；若低于本文件 frontmatter `version`，运行 `kdocs-cli upgrade -y`（自动备份旧版本，失败可 `kdocs-cli upgrade --rollback`）
-2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=2.6.17 skill_name=kdocs`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接，下载解压替换当前 Skill 目录
+2. **Skill 版本**：若本文件 `version` 低于 `kdocs-cli version`，运行 `kdocs-cli call check_skill_update version=2.7.1 skill_name=kdocs`，若返回 `update_available: true`，从 `instruction` 中提取 zip 下载链接，下载解压替换当前 Skill 目录
 
 若 upgrade 和 rollback 均失败，在本 Skill 目录下重新运行安装脚本（`bash setup.sh` / `powershell setup.ps1` / `node setup.cjs`，脚本位于 `scripts/`）可从 CDN 重新安装。若仍无法更新，以 `kdocs-cli --help` 实际支持的工具集为准。
 
@@ -127,13 +128,22 @@ kdocs-cli drive read-file file_id=file_xxx task_id=task_xxx
 
 必须检查返回里的 `data.warnings`：表格可能只读默认工作表或首屏区域，warnings 会提示实际读取范围。
 
-**智能文档（.otl）内嵌图片**：默认 `read_file` 仅返回 `![image]()` 空占位。完整步骤见 `references/otl.md`「常用工作流 → 读取智能文档内嵌图片」。
+**智能文档（.otl）内嵌图片**：`read_file` 默认返回图片临时可下载 URL（约 10 分钟有效）；显式传 `enable_upload_medias=false` 或图片本身为空/不可转时，图片为 `![image]()` 空占位，不含可下载资源，不要据此调 `download_attachment`。
 
-```bash
-kdocs-cli drive read-file link_id=xxx enable_upload_medias=true
-```
+**在线 Markdown**：`read_file` 默认返回 Markdown 源码（含 `kdocsmd://` 图片协议）；`enable_upload_medias` **不会**把 `kdocsmd://` 转为 https。用户给链接 / file_id 直接读，仅有文件名时先 `search_files`。仅读取正文、不保存本地文件 → 见 `references/workflows/read-cloud-md.md`。
 
-若 `content` 仍含空占位 `![image]()`，不得停止；改读 `references/otl.md`「常用工作流 → 读取智能文档内嵌图片」。
+**在线 Markdown 图片**：
+
+| 意图 | 怎么做 |
+|------|--------|
+| 本地文件上传为在线 Markdown，图片转为 `kdocsmd://` | `references/workflows/upload-md-raw.md` |
+| 覆盖已有在线 Markdown，并转存图片 | `references/workflows/replace-cloud-md.md` |
+| 对话/粘贴正文新建在线 Markdown，并转存图片 | `references/workflows/create-cloud-md.md` |
+| 导出到本地（默认 https 临时链，可选 assets） | `references/workflows/download-cloud-md.md` |
+
+规则详见 `references/markdown.md`。
+
+**otl/docx/pdf → Markdown 文本**：`read_file(format=markdown)` 做格式转换提取；在线 Markdown 读源码不传 format（默认 markdown）。
 
 ### 写：`create_file_with_content`
 
@@ -159,7 +169,7 @@ kdocs-cli drive create-file-with-content --file payload.json
 | `.xlsx` `.ksheet` | `name` + `file_extension` + `sheet_name` + `rangeData` |
 | `.dbt` | `name` + `file_extension` + `sheet_name` + `fields` + `records` |
 
-表格的 `rangeData` 根节点必须是数组，每项是对象，`formula` 必须是二维数组；不得混用 `sheet.update_range_data` 的 `{range, values}`：
+创建表格时，`rangeData` 为对象数组，`formula` 为二维数组。`sheet.update_range_data` 的 `rangeData` 每项需包含 `opType` 和四个 camelCase 坐标，写值或公式时 `formula` 为字符串；两种结构不要混用。
 
 `payload.json`：
 
@@ -178,6 +188,10 @@ kdocs-cli drive create-file-with-content --file payload.json
 }
 ```
 
+表格、多维表结构不确定时，先读 `create_file_with_content` reference。写入成功后优先展示返回里的 `data.link_url`。
+
+**本地 Markdown 上传**：用户仅说「上传 md」且未要求保留 `.md` 时，走 `create_file_with_content`（`name` 不带后缀，默认 `file_extension=otl`；步骤见 `references/workflows/md-upload-to-otl.md`）；明确要求保留 `.md` 时走「本地文件上传为在线 Markdown」（`references/workflows/upload-md-raw.md`，含图片转 `kdocsmd://`）。对话内正文新建在线 Markdown → `references/workflows/create-cloud-md.md`。总规则见 `references/markdown.md`。
+
 **参考文档（按需读取）**
 
 需要补充参数说明或排查调用错误时，可读取：
@@ -190,7 +204,7 @@ kdocs-cli drive create-file-with-content --file payload.json
 
 以下工具不可逆，调用前必须向用户确认（详细约束见各工具参考文档的「操作约束」区）：
 
-`otl.block_delete`、`dbsheet.delete_sheet`、`kwiki.close_knowledge_view`、`sheet.delete_sheets`、`sheet.delete_range_data`、`dbsheet.delete_view`、`dbsheet.delete_fields`、`cancel_share`、`kwiki.delete_item`、`sheet.delete_protection_ranges`、`dbsheet.delete_records`、`sheet.delete_data_validations`、`cancel_collaborator_permissions`、`sheet.delete_conditional_format_rules`、`sheet.delete_float_images`、`sheet.delete_filters`、`dbsheet.sheet_batch_delete`、`sheet.delete_pivot_table`、`dbsheet.permission_delete_roles_async`、`dbsheet.innerdoc_block_delete`、`dbsheet.innerdoc_block_batch_delete`
+`otl.block_delete`、`dbsheet.delete_sheet`、`kwiki.close_knowledge_view`、`sheet.delete_sheets`、`sheet.delete_range_data`、`dbsheet.delete_view`、`dbsheet.delete_fields`、`cancel_share`、`kwiki.delete_item`、`sheet.delete_protection_ranges`、`dbsheet.delete_records`、`sheet.delete_data_validations`、`cancel_collaborator_permissions`、`sheet.delete_conditional_format_rules`、`sheet.delete_float_images`、`sheet.delete_filters`、`dbsheet.sheet_batch_delete`、`dbsheet.dashboard_delete`、`sheet.delete_pivot_table`、`dbsheet.dashboard_clear`、`dbsheet.permission_delete_roles_async`、`dbsheet.innerdoc_block_delete`、`dbsheet.innerdoc_block_batch_delete`
 
 ---
 
@@ -218,6 +232,7 @@ Agent 首先判定用户请求的操作域：
 | 类型 | 别名 | 文件后缀 | 说明 | 详细参考 |
 |------|------|----------|------|----------|
 | **智能文档** 首选 | ap | .otl | 排版美观，支持丰富组件 | `references/otl.md` — 页面、文本、标题、待办等元素操作 |
+| 在线 Markdown | md | .md | 源码 Markdown，图片为 kdocsmd:// 协议 | `references/markdown.md` — 上传时图片转存、导出到本地（临时 https 或本地 assets） |
 | 表格 | et / Excel | .xlsx | 数据表格专用 | `references/sheet.md` — 工作表管理、范围数据获取、批量更新 |
 | PDF文档 | pdf | .pdf | PDF 文档专用 | `references/pdf.md` — PDF 创建与内容读取 |
 | 文字文档 | wps / Word | .docx | 传统格式 | `references/wps.md` — Word 文档创建与内容操作 |
@@ -259,8 +274,16 @@ Agent 首先判定用户请求的操作域：
 | 网页剪藏 | 抓取网页内容并自动保存为智能文档 | `references/workflows/web-scrape.md` |
 | 搜索-读取-汇报撰写 | 搜索多份文档、提取信息、汇总撰写新报告 | `references/workflows/search-read-report.md` |
 | 定期读取与播报 | 定期读取指定文档，提取关键信息生成摘要 | `references/workflows/periodic-read-summary.md` |
+| 文档内容转 Markdown | 将云文档内容提取为 Markdown 格式文本 | `references/workflows/read-to-markdown.md` |
 | 智能分类整理 | 列出目录，按内容或指定维度分类创建文件夹并归档 | `references/workflows/smart-classify.md` |
+| 读取在线 Markdown | 读取在线 Markdown 文件正文（Markdown 源码） | `references/workflows/read-cloud-md.md` |
 | 精准搜索与风险排查 | 在特定目录批量搜索文档，逐一读取分析，汇总到新文档 | `references/workflows/precise-search-analysis.md` |
+| 在线 Markdown 导出到本地 | 将在线 Markdown 导出为本地文件；图片默认内联 HTTPS 临时链，也可保存到本地 assets 目录 | `references/workflows/download-cloud-md.md` |
+| 本地 Markdown 上传为在线文档（保留 .md） | 将本地 .md 上传为在线 Markdown，并把图片转存为 kdocsmd://（不转为 otl/docx） | `references/workflows/upload-md-raw.md` |
+| 对话内正文新建在线 Markdown | 将对话中的 Markdown 正文新建为在线 Markdown，并把图片转存为 kdocsmd:// | `references/workflows/create-cloud-md.md` |
+| 本地 Markdown 上传为办公文档 | 本地 .md 转为云盘办公文档（默认 otl；亦可 docx/pdf） | `references/workflows/md-upload-to-otl.md` |
+| 本地 Markdown 覆盖在线 Markdown | 用本地 .md 全量覆盖已有在线 Markdown，并把图片转存为 kdocsmd:// | `references/workflows/replace-cloud-md.md` |
+| 在线 Markdown 总结与问答 | 读取在线 Markdown 正文后，总结要点或按用户问题作答 | `references/workflows/summarize-cloud-md.md` |
 | 云文档导入幻灯片 | 将外部 PPTX 文件中的指定幻灯片导入到已有演示文稿中 | `references/workflows/import-slides.md` |
 | 接龙转表格 | 识别接龙文本内容，自动提取并转为在线表格 | `references/workflows/jielong-to-table.md` |
 | 跨表字段回填（按主键匹配） | 两张表格按主键列（如订单号、企业ID、SKU）匹配，将源表指定列写入目标表对应列；须先读表头按列名定位，写后按列名回读验证 | `references/workflows/sheet-cross-fill.md` |

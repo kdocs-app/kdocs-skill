@@ -8,6 +8,8 @@
 
 **幂等性**：是 — safe
 
+> **锚定插入**：配合 `wps.texts.search` 的 begin/end 在指定文字旁插入；多命中取首处。**禁止**写前 `shapes.count`（见 `references/workflows/wps-shapes-textbox.md`）。
+
 #### 调用示例
 
 文档插入：

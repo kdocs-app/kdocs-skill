@@ -240,10 +240,11 @@
   "data": {
     "items": [
       {
-        "object_id": "string",
-        "object_type": "file",
-        "label_id": "string",
-        "ctime": 0
+        "id": "string",
+        "type": "file",
+        "ctime": 0,
+        "mtime": 0,
+        "rank": 0
       }
     ],
     "next_page_token": "string"
@@ -255,10 +256,11 @@
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `data.items` | array | 标签对象列表 |
-| `data.items[].object_id` | string | 对象 ID（如文件 ID） |
-| `data.items[].object_type` | string | 对象类型：`file` / `drive` 等 |
-| `data.items[].label_id` | string | 标签 ID |
+| `data.items[].id` | string | 对象 ID（如文件 ID） |
+| `data.items[].type` | string | 对象类型：`file` / `drive` 等 |
 | `data.items[].ctime` | integer | 打标时间（时间戳，秒） |
+| `data.items[].mtime` | integer | 对象修改时间（时间戳，秒） |
+| `data.items[].rank` | integer | 标签内排序值（服务端生成） |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
 
 

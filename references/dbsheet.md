@@ -107,12 +107,22 @@
 
 ## 九、仪表盘
 
-> 仪表盘的列表与复制
+> 仪表盘与图表组件的创建、管理、统计查询：新建/更新/删除/清空看板、组件增删改查、图表列表与统计数据回读
 
 | 工具 | 功能 | 必填参数 |
 |------|------|----------|
 | [`dbsheet.dashboard_copy`](dbsheet/dashboard.md) | 复制仪表盘 | `url`\|`link_id`\|`file_id`, `dashboard_id`, `body` |
 | [`dbsheet.dashboard_list`](dbsheet/dashboard.md) | 列出仪表盘 | `url`\|`link_id`\|`file_id` |
+| [`dbsheet.dashboard_create`](dbsheet/dashboard.md) | 创建仪表盘 | `url`\|`link_id`\|`file_id`, `name` |
+| [`dbsheet.dashboard_update`](dbsheet/dashboard.md) | 更新仪表盘 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_delete`](dbsheet/dashboard.md) | 删除仪表盘 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_clear`](dbsheet/dashboard.md) | 清空仪表盘图表 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_component_list`](dbsheet/dashboard.md) | 列出仪表盘部件 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_component_create`](dbsheet/dashboard.md) | 创建仪表盘组件 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_component_update`](dbsheet/dashboard.md) | 更新仪表盘组件 | `url`\|`link_id`\|`file_id`, `dashboard_id`, `web_extension_key` |
+| [`dbsheet.dashboard_component_delete`](dbsheet/dashboard.md) | 删除仪表盘组件 | `url`\|`link_id`\|`file_id`, `dashboard_id`, `web_extension_key` |
+| [`dbsheet.dashboard_chart_list`](dbsheet/dashboard.md) | 列出仪表盘图表 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
+| [`dbsheet.dashboard_chart_data`](dbsheet/dashboard.md) | 查询图表统计数据 | `url`\|`link_id`\|`file_id`, `dashboard_id` |
 
 ## 十、Webhook 与开放协作
 
@@ -149,8 +159,32 @@
 | 读多维表正文 | `read_file`（返回 content_format 为 dbsheet_records，含 schema、records） |
 | 多维表格读结构/数据 | `dbsheet.get_schema` → `dbsheet.list_records` / `dbsheet.get_record` |
 | 多维表格增删改记录 | 见「写入前字段映射」+「新增记录与全空记录复用」→ `dbsheet.update_records` / `dbsheet.create_records`；用户明确要求删除时 `dbsheet.delete_records` |
-| 本地图片/文件写入附件字段 | `upload_attachment`（`file_id` 为目标 `.dbt`）→ `dbsheet.update_records`（`uploadId`=返回的 `object_id`，`source`=`upload_ks3`；勿用 `Cloud`） |
+| 本地图片/文件写入附件字段 | `upload_attachment`（`file_id` 为目标 `.dbt`）→ `dbsheet.update_records`（`uploadId`=返回的 `object_id`，`source`=`upload_ks3`，`type` 见下节；勿用 `Cloud`） |
 | 智能文档/表格内容转新建 dbt | `read_file` 源文档 → `create_file_with_content`（`name` 只写文件名，`file_extension=dbt`，`fields`+`records`）；选项列见下节 |
+| 新建看板（仪表盘） | `dbsheet.dashboard_create` → 返回 `detail.sheet.id` 即 dashboard_id |
+| 复制已有看板 | `dbsheet.dashboard_list` → `dbsheet.dashboard_copy` |
+| 加图表组件 | `dbsheet.get_schema`（数据源 sheet_id/field_id）→ `dbsheet.dashboard_component_create`（`statistics_module_setting` + `chart_info`）逐个创建，layout 自行排布 |
+| 改组件配置 | `dbsheet.dashboard_component_list`（拿 webExtensionKey）→ `dbsheet.dashboard_component_update` |
+| 删组件 / 清空看板 | `dbsheet.dashboard_component_delete`（单个）/ `dbsheet.dashboard_clear`（全部，须确认） |
+| 回读验证 | `dbsheet.dashboard_chart_list` → `dbsheet.dashboard_chart_data`（核对统计数值） |
+| 改看板名称/图标 | `dbsheet.dashboard_update` |
+
+### 本地文件写入附件字段（`type` 取值）
+
+`upload_attachment` 只负责拿到 `object_id`；写入记录时附件字段的 `type` 必须按**小写扩展名**填，否则多维表前端点击附件会提示「此文件类型不支持打开，可下载后查看」（写入本身会成功，不报错）：
+
+- **文档**：传小写扩展名，如 `doc`/`docx`/`xls`/`xlsx`/`ppt`/`pptx`/`pdf`/`txt`/`otl`/`dbt`；
+- **图片**：传 `image/xxx`（如 `image/png`），可直接复用 `upload_attachment` 返回的 `new_content_type`；
+- **禁止**传 `application/...` 等 MIME 类型；
+- **必须小写**：`type` 区分大小写，前端按原值匹配白名单，`DOC`/`Doc` 同样无法打开；
+- `.zip`/`.md`/`.json` 等不在预览白名单内的扩展名本就不支持在线打开（提示同上），属预期行为，不要为此改写 `type`；
+- **存量数据修复**：此前误写 MIME 的附件**无需重新上传**，用 `dbsheet.update_records` 把该附件的 `type` 改为对应小写扩展名（`uploadId` 等其余字段保持不变）即可恢复打开。
+
+`new_content_type` **不代表**附件字段该填的值（`.doc` → `application/octet-stream`、`.docx` → `application/zip`），**只有图片能直接作为 `type`**；文档类必须按扩展名写。附件字段完整取值格式见 `references/dbsheet/field.md` 的 `dbsheet.create_fields` Attachment 节。
+
+```json
+{ "uploadId": "<object_id>", "fileName": "报告.doc", "size": 9216, "source": "upload_ks3", "type": "doc" }
+```
 
 ### 单选/多选建列（create_fields / create_file_with_content）
 
@@ -187,6 +221,48 @@
 
 ---
 
+## 仪表盘（看板）
+
+用户说「做个看板 / 经营大屏 / 数据大屏」时的完整交付链路：**建看板 → 加组件 → 回读验证 → 推送结果**。
+
+### 推荐工具组合
+
+| 用户需求 | 推荐工具组合 |
+|----------|-------------|
+| 新建看板 | `dbsheet.dashboard_create`（`name`）→ 返回 `detail.sheet.id` 即 dashboard_id |
+| 复制已有看板 | `dbsheet.dashboard_list` → `dbsheet.dashboard_copy` |
+| 加图表组件 | `dbsheet.get_schema` → `dbsheet.dashboard_component_create` 逐个创建 |
+| 改组件配置 | `dbsheet.dashboard_component_list` → `dbsheet.dashboard_component_update` |
+| 删组件 / 清空看板 | `dbsheet.dashboard_component_delete` / `dbsheet.dashboard_clear`（须确认） |
+| 回读验证 | `dbsheet.dashboard_chart_list` → `dbsheet.dashboard_chart_data` |
+| 改看板名称/图标 | `dbsheet.dashboard_update` |
+
+### 交付流程（销售看板示例）
+
+1. `dbsheet.get_schema` → 数据源 `sheet_id=1`，字段：日期 `E`、销售额 `B`、品类 `A`。
+2. `dbsheet.dashboard_create` `name="销售看板"` → `dashboard_id=6`。
+3. `dbsheet.dashboard_component_create` 逐个创建（12 列网格布局，典型 `w=4,h=3`，一行 3 个）：
+   - 指标卡：`statistics_module_setting={dataSourceSheetId:1, onlyCountDimension:true}` + `chart_info={type:"Value", name:"总销售额", layout:{x:0,y:0,w:4,h:3}}`；
+   - 柱状图：`dimensionFieldId:"A"` + `statisticSettingAddList:[{fieldId:"B",statisticOptions:"sum"}]` + `chart_info={type:"BasicBar",…}`；
+   - 折线图 / 饼图同理（`pieType:"ring"` 为环形）。
+4. `dbsheet.dashboard_chart_list` `dashboard_id=6` → 确认组件全部 `valid=true`。
+5. `dbsheet.dashboard_chart_data` `dashboard_id=6, chart_ids=[…]` → 核对统计数值。
+6. 回复用户：看板链接（`get_file_link`）+ 组件清单 + 关键数值。
+
+### 铁律
+
+1. **两类 ID 不可混用**：`dashboard_id` 是仪表盘自身的 sheet id（`sheetType=xlDbDashBoardSheet`）；组件统计配置里的 `dataSourceSheetId` 才是 `get_schema` 返回的数据表 ID。
+2. **fieldId 是字段 ID 不是字段名**：`dimensionFieldId`、`statisticSettingAddList[].fieldId` 等必须来自 `get_schema`（如 "B"、"E"），禁止凭字段名捏造。
+3. **创建后必须回读**：`dashboard_chart_data` 核对数值；`result.type` 非 `Normal`（Empty/Invalid/DataIsProtected）时如实告知（Empty=数据源无记录），禁止编造数值，禁止仅凭 `result: ok` 宣称成功。
+4. **不可恢复操作先确认**：`dashboard_delete`（删整个看板）、`dashboard_clear`（清空全部图表）执行前必须向用户确认。
+5. **组件定位参数**：组件增删改用 `dashboard_component_list` 的 `webExtensionKey`；取数用 `dashboard_chart_list` 的 `id`，两者不混用。
+
+### 图表类型与统计选项
+
+- 图表类型（`chart_info.type`）：`Value` 指标卡 · `BasicBar` 柱状 · `BasicLine` 折线 · `HorizBar` 条形 · `BasicPie` 饼图/环形 · `Area` 面积 · `BarLine` 柱线组合 · `Funnel` 漏斗 · `Progress` 进度 · `CountDown` 倒计时 · `MatrixBubble` 矩阵气泡。
+- 统计选项（`statisticOptions`）：`count` 计数 · `sum` 求和 · `avg` 平均 · `max`/`min` 最值 · `uniqueCount` 唯一计数 · `filledCount`/`unfilledCount` 填充/未填充计数 · `checkedCount`/`uncheckedCount` 选中/未选中计数 及对应百分比等。
+- ⚠ 雷达图、词云、桑基图、关系网络图、嵌入表视图、富文本属插件类组件，暂不支持，用户需要时如实说明。
+
 ## 获取记录工具使用指南
 
 | 场景 | 优先工具 | 备用工具 | 说明 |
@@ -208,6 +284,7 @@
 | `SingleSelect`/`MultipleSelect` 响应 `items: null` | 误用 `fields[].data.items` 包装 | 改为扁平 `fields[].items`；`get_schema` 验证选项非空 |
 | `conflict` / `lock` / 写入冲突 | 并发写入同一数据表的多条记录导致锁竞争 | 指数退避重试（2s → 4s → 8s，最多 3 次）；批量写入时改为串行逐条 `dbsheet.update_records` / `dbsheet.create_records` |
 | 新增记录落到表尾很后面 | 表内已有全空记录，直接 `create_records` 只会追加到末尾 | 先 `list_records` 复用全空记录 `update_records`，不足再 `create_records`；见「新增记录与全空记录复用」 |
+| 组件创建成功但图表 `Invalid` / 统计为空 | `statisticsModuleSetting` 的 `dataSourceSheetId`/`fieldId` 与实际 schema 不符，或数据源无记录 | 重新 `get_schema` 核对 ID；`dashboard_chart_data` 返回 `Empty` 表示数据源无记录，提示用户先补数据 |
 
 ---
 
@@ -242,7 +319,7 @@
 | `LastModifiedBy` | 最后修改者（自动填充） |
 | `LastModifiedTime` | 最后修改时间（自动填充） |
 | `Formula` | 公式（自动计算） |
-| `Lookup` | 引用（自动计算） |
+| `Lookup` | 查找引用（自动计算） |
 
 ### 视图类型
 

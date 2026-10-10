@@ -155,17 +155,17 @@ kdocs-cli call wps.texts.format '{"file_id":"...","scope":"ranges"}'
 
 属性与工具列表见 [页眉页脚操作](wps/header_footers.md)。
 
-## 十一、超链接操作
-
-> WPS 文字文档 hyperlinks 域相关操作。
-
-属性与工具列表见 [超链接操作](wps/hyperlinks.md)。
-
-## 十二、标题操作
+## 十一、标题操作
 
 > WPS 文字文档 headings 域相关操作。
 
 属性与工具列表见 [标题操作](wps/headings.md)。
+
+## 十二、超链接操作
+
+> WPS 文字文档 hyperlinks 域相关操作。
+
+属性与工具列表见 [超链接操作](wps/hyperlinks.md)。
 
 ## 十三、图片操作
 
@@ -259,12 +259,28 @@ kdocs-cli call wps.texts.format '{"file_id":"...","scope":"ranges"}'
 
 ## 典型用途
 
-| 场景 | 说明 |
-|------|------|
-| 空白文档创建 | 新建在线文字后再进入后续编辑流程 |
-| 文档导出 | 通过 `wps.export`、`wps.export_image`、`wps.query_export` 完成 |
-| AP 生成 | 通过 `wps.export(format=ap)` 与 `wps.query_export(format=ap)` 完成 |
-| 内容读写 | 通过 `wps.texts.content`、`wps.texts.range`、`wps.texts.count` 等文本工具完成 |
-| 查找替换 | 通过 `wps.texts.search` / `wps.texts.replace` 完成 |
-| 段落格式 | 通过 `wps.texts.alignment`、`wps.texts.indent`、`wps.texts.line_spacing` 等完成 |
-| 字符样式 | 通过 `wps.texts.font`、`wps.texts.highlight`、`wps.texts.format` 等完成 |
+| 场景 | 说明 | 工作流 |
+|------|------|--------|
+| 空白文档创建 | 新建在线文字后再进入后续编辑流程 | — |
+| 文档导出 | 通过 `wps.export`、`wps.export_image`、`wps.query_export` | — |
+| AP 生成 | 通过 `wps.export(format=ap)` 与 `wps.query_export(format=ap)` | — |
+| 内容读写 | 通过 `wps.texts.content`、`wps.texts.range`、`wps.texts.count` 等 | — |
+| 查找替换 | 通过 `wps.texts.search` / `wps.texts.replace` | — |
+| 段落格式 | 通过 `wps.texts.alignment`、`wps.texts.indent`、`wps.texts.line_spacing` 等 | — |
+| 字符样式（多目标） | 按关键词检索后批量改字体/高亮/下划线等 | `workflows/wps-multi-target-search-style.md` |
+| 标题段（大纲） | 按 outline_level 识别标题段后改色/对齐/字距 | `workflows/wps-heading-by-outline.md` |
+| 段落对齐缩进边框 | 对齐、缩进、行距、段边框与底纹 | `workflows/wps-paragraph-align-indent.md` |
+| 节下正文 | 锚定小节后批量字号/对齐/行距 | `workflows/wps-section-body-format.md` |
+| 列表编号 | 项目符号、数字编号、多级列表 | `workflows/wps-lists-and-indent.md` |
+| 清除与字体替换 | 清除格式、内置样式、字体替换 | `workflows/wps-clear-and-replace-font.md` |
+| 内置样式/ranges | 指定页套用样式、全文间距字号 | `workflows/wps-styles-apply-by-page.md` |
+| 页眉页脚页码 | 页眉文字、页脚页码、罗马页码 | `workflows/wps-header-footer-pagination.md` |
+| 分节版式 | 分页、分节、页边距、边框、水印 | `workflows/wps-section-break-layout.md` |
+| 附件节横向 | 目录与附件分节组合 | `workflows/wps-combo-section-attachment.md` |
+| 目录 | 插入/更新/生成目录 | `workflows/wps-toc-lifecycle.md` |
+| 题注域公式 | 图片/表格题注、日期域、公式 | `workflows/wps-captions-and-fields.md` |
+| 公文与书签 | 公文字体、书签增删 | `workflows/wps-official-and-bookmarks.md` |
+| 复制粘贴格式刷 | 纯文本/保留格式/格式刷 | `workflows/wps-copy-paste-format.md` |
+| 图片 | 插入、缩放、裁剪、环绕 | `workflows/wps-image-on-page.md` |
+| 文本框形状 | 文本框与简单形状文案 | `workflows/wps-shapes-textbox.md` |
+| 形状组合叠放 | 箭头、组合、置顶、删图 | `workflows/wps-shapes-draw-compose.md` |

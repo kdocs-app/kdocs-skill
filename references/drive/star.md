@@ -36,13 +36,18 @@
   "data": {
     "items": [
       {
-        "id": "string",
-        "name": "string",
-        "type": "file",
-        "drive_id": "string",
-        "parent_id": "string",
+        "file": {
+          "id": "string",
+          "name": "string",
+          "type": "file",
+          "drive_id": "string",
+          "parent_id": "string",
+          "ctime": 0,
+          "mtime": 0
+        },
         "ctime": 0,
-        "mtime": 0
+        "object_type": "file",
+        "file_src": 0
       }
     ],
     "next_page_token": "string"
@@ -53,8 +58,14 @@
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `data.items` | array[FileInfo] | 收藏文件列表，结构见附录 A |
+| `data.items` | array | 收藏条目列表（包装结构，文件信息在 items[].file 下） |
+| `data.items[].file` | object | 文件信息，通用文件信息结构（见附录 A） |
+| `data.items[].ctime` | integer | 收藏时间（时间戳，秒） |
+| `data.items[].object_type` | string | 对象类型：file 等 |
+| `data.items[].file_src` | integer | 收藏来源标记 |
 | `data.next_page_token` | string | 下一页 token，为空表示已是最后一页 |
+
+收藏条目为包装结构：文件信息在 `items[].file` 下（通用文件信息结构，见附录 A），不在 `items[]` 顶层；条目级另有 `ctime`（收藏时间）、`object_type`、`file_src` 字段。
 
 
 ---
@@ -63,7 +74,7 @@
 
 #### 功能说明
 
-批量添加收藏
+批量添加收藏。对已收藏对象重复添加不会改变收藏状态，属正常结果，无需重试，也无需改用其它工具。
 
 **幂等性**：是
 

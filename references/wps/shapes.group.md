@@ -9,6 +9,7 @@
 **幂等性**：是 — safe
 
 > group/align/distribute 需至少 2 个形状；shape_names 来自 wps.shapes.list。
+> `shape_names` 须为 **顶层** list 中的名称（≥2 个）。嵌套组名直接 group 常 500002 → 先 `ungroup`（source_index）再 group。**禁止** `shapes.info` 查子项（400100）。见 `references/workflows/wps-shapes-draw-compose.md`（场景 4）。
 
 #### 调用示例
 

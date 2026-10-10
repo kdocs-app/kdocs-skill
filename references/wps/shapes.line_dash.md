@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> update 须用 **source_index**（与 text_box 返回 shape_item 同值）。
+
 #### 支持功能
 
 | 功能简述 | 详情 |

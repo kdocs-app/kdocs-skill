@@ -26,6 +26,6 @@
 
 **步骤 3（仅当数据超 500 项时）**：通过 `sheet.update_range_data` 续写剩余数据
 
-**步骤 4（可选 - 汇总统计）**：若用户要求按品类/分类汇总数量，通过 `sheet.update_range_data(op_type=cell_operation_type_formula)` 在数据区域下方写入汇总公式（如 `=SUMIF(品类列, "苹果", 数量列)`）
+**步骤 4（可选 - 汇总统计）**：若用户要求按品类/分类汇总数量，在数据区域下方用 `sheet.update_range_data` 写入汇总公式。`rangeData` 为对象数组，每项包含 `opType: "formula"`、从 0 开始的整数坐标 `rowFrom`、`rowTo`、`colFrom`、`colTo`，以及字符串 `formula`（如 `=SUMIF(品类列, "苹果", 数量列)`）；不同单元格的公式拆成多个操作项。
 
 **步骤 5**：调用 `get_file_link` 获取新表格链接，回复"已将接龙转为表格"并输出表格统计信息和链接

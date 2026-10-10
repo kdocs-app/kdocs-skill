@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> **选区段落边框（样式变体）**：双线红色 `border_style.all: { line_style: 7, color: "FF0000" }`；单线 `line_style=1`。详见 `references/workflows/wps-paragraph-align-indent.md`（场景 7）及 `texts-border/paragraphs_update.md` 示例。
+
 #### 支持功能
 
 | 功能简述 | 详情 |

@@ -51,31 +51,34 @@ sheet.get_range_data(file_id, worksheet_id=sheetId, range={
 
 **步骤 4**：格式美化（`update_range_data`）
 
-**格式美化**（字体、颜色、对齐、边框）：
+`rangeData` 必须为对象数组，每项必填 `opType`、`rowFrom`、`rowTo`、`colFrom`、`colTo`，坐标为从 0 开始的整数，结束坐标包含在范围内。写值或公式时，`opType` 设为 `"formula"`，`formula` 统一传字符串（如 `"123"`）；不同内容拆成多个操作项。
+
+**格式美化**（将 A1:F1 加粗、居中并添加下边框）：
 ```
-sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
-  {op_type: "cell_operation_type_format", row_from, row_to, col_from, col_to, xf: {font: {...}, alc_h: 2, fill: {...}, dg_bottom: 1, ...}}
+sheet.update_range_data(file_id, worksheet_id=sheetId, rangeData=[
+  {opType: "format", rowFrom: 0, rowTo: 0, colFrom: 0, colTo: 5, xf: {font: {bls: true}, alcH: 2, dgBottom: 1}}
 ])
 ```
 
-**表头规范**（重写列名）：
+**表头规范**（重写 A1 列名）：
 ```
-sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
-  {op_type: "cell_operation_type_formula", row_from: 0, row_to: 0, col_from: 0, col_to: 0, formula: "新列名"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, rangeData=[
+  {opType: "formula", rowFrom: 0, rowTo: 0, colFrom: 0, colTo: 0, formula: "新列名"}
 ])
 ```
 
-**数据格式统一**（如统一手机号、日期格式）：
+**数据格式统一**（将 A2:A100 的日期显示格式统一为 yyyy-mm-dd）：
 ```
-sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
-  {op_type: "cell_operation_type_formula", row_from: r, row_to: r, col_from: c, col_to: c, formula: "规范化后的值"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, rangeData=[
+  {opType: "format", rowFrom: 1, rowTo: 99, colFrom: 0, colTo: 0, xf: {numfmt: "yyyy-mm-dd"}}
 ])
 ```
+仅修改日期或数字的显示格式时使用 `format`；确需改写内容时使用 `formula` 字符串。
 
-**合并单元格**：
+**合并单元格**（合并 A1:F1 并居中）：
 ```
-sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
-  {op_type: "cell_operation_type_merge", row_from, row_to, col_from, col_to, merge_type: "merge_type_center"}
+sheet.update_range_data(file_id, worksheet_id=sheetId, rangeData=[
+  {opType: "merge", rowFrom: 0, rowTo: 0, colFrom: 0, colTo: 5, type: "MergeCenter"}
 ])
 ```
 
@@ -83,8 +86,8 @@ sheet.update_range_data(file_id, worksheet_id=sheetId, range_data=[
 由于没有直接的删行 API，通过「读取 → 本地去重 → 全量覆盖 → 清空多余行」实现：
 1. `get_range_data` 读取包含可能重复数据的所有行（如 100 行）
 2. AI 在本地识别并剔除重复行，得到去重后的数据（如 80 行）
-3. `update_range_data` 将去重后的 80 行覆盖写入表格顶部（`row_from: 0` 到 `row_to: 79`）
-4. `update_range_data`（`op_type: "cell_operation_type_formula"`, `formula: ""`）将底部多余的 20 行（`row_from: 80` 到 `row_to: 99`）清空
+3. `update_range_data` 将去重后的 80 行覆盖写入表格顶部（`rowFrom: 0` 到 `rowTo: 79`），每个单元格用独立的 `opType: "formula"` 操作项和字符串 `formula` 写入
+4. `update_range_data` 用包含 `opType: "formula"`、`rowFrom: 80`、`rowTo: 99`、实际列范围 `colFrom`/`colTo` 和 `formula: ""` 的操作项清空底部多余的 20 行
 
 **步骤 5**：条件格式（高亮异常值）
 

@@ -9,6 +9,7 @@
 > key 仅接受 PageSetup 的 PascalCase 属性（PageWidth/PageHeight/Orientation/TopMargin/BottomMargin/LeftMargin/RightMargin/Gutter/HeaderDistance/FooterDistance/SectionStart/VerticalAlignment/LinesPage）；其它 key（如 Bold）不报错但不生效。
 > 先设 Orientation 再设宽高/边距：Orientation 会联动交换宽高与上下左右边距（0=纵向、1=横向）。
 > value 为数值（长度/边距单位磅）；query/update 响应中的 page_setup 字段为 snake_case，写侧 key 为 PascalCase，二者不同名。
+> 常规四边距：TopMargin/BottomMargin=72（2.54cm），LeftMargin/RightMargin=90（3.18cm）；每 key 单独 update 一次。
 
 #### 调用示例
 

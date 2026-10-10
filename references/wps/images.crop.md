@@ -9,6 +9,7 @@
 **幂等性**：是 — safe
 
 > index 是图片在文档中的当前序号（从 1 起），插入/删除图片后序号会变化；操作前先调 wps.images.list 获取最新 index，勿沿用旧序号。
+> **仅适用于内嵌图**（`wps.images.count`>0）。若 count=0，文档为浮动 Picture shape，须走 `wps.shapes.props` Crop*（`references/workflows/wps-image-on-page.md`（场景 3））。
 
 #### 调用示例
 

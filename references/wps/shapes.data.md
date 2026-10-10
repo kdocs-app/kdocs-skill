@@ -8,6 +8,8 @@
 
 **幂等性**：是 — safe
 
+> 批量删页图片：逆序 delete；写后 `shapes.list` 一次回读即可，**禁止**全量 anchor/page 重扫（见 `references/workflows/wps-shapes-draw-compose.md`（场景 3））。
+
 #### 调用示例
 
 文档删除：

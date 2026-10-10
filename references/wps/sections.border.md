@@ -8,6 +8,9 @@
 
 **幂等性**：是 — safe
 
+> **添加页面边框**：`break_type=1`（单实线）或 `7`（双线）写入节页面边框；返回 `data.deleted_section` 为 JSAPI **命名遗留**（表示边框操作已作用于该节），**非**删除节。**禁止**用 `wps.texts.border`（段落边框）。
+> 写后 `wps.sections.border_data` query；若 `data={}` 空对象但写侧 code=0，仍视为写成功。详见 `references/workflows/wps-section-break-layout.md`（场景 4）。
+
 #### 调用示例
 
 删除页面边框（恢复无边框）：

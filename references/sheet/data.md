@@ -464,8 +464,8 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 **工具选择提示**：
 - `sheet.find_range_data`：用于“先筛选再返回结果”，支持 `filter`、`search`、`duplicates`、分页和总数统计。
 - `sheet.get_range_data`：用于“直接读取固定矩形范围数据”，不做筛选、搜索、去重或分页。
-使用该工具时必须传递worksheet_id和filter参数，worksheet_id必须为数字，若要查询所有数据则filter传空数组但必须传这个参数。
-该工具仅适用于：Excel（.xlsx）和智能表格（.ksheet），在操作多维表格（.dbt）时使用"dbsheet"相关工具，不允许使用该工具操作多维表格。
+使用该工具时必须传递 `worksheet_id` 和对象 `range` 参数。其他参数详见下方说明。
+该工具仅适用于 `.xlsx`/`.ksheet`，`.dbt` 请使用 `dbsheet` 相关工具。
 
 #### 调用约束
 
@@ -477,52 +477,52 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 
 #### 调用示例
 
-按条件筛选并分页：
+不筛选，分页读取 A1:I200：
 
 ```json
 {
   "file_id": "string",
   "worksheet_id": 3,
   "range": {
-    "col_from": 0,
-    "col_to": 10,
     "row_from": 0,
-    "row_to": 50000
+    "row_to": 199,
+    "col_from": 0,
+    "col_to": 8
   },
   "page": {
     "page": 1,
     "page_size": 100
   },
+  "show_total": true
+}
+```
+
+搜索 B 列中的拍摄文本：
+
+```json
+{
+  "file_id": "string",
+  "worksheet_id": 3,
+  "range": {
+    "row_from": 0,
+    "row_to": 199,
+    "col_from": 0,
+    "col_to": 8
+  },
   "filter": {
-    "condition": [
-      {
-        "col": 0,
-        "info": [
-          {
-            "value": "string"
-          }
-        ],
-        "mode": "filter_mode_and"
-      }
-    ],
-    "duplicates": {
-      "col": [
-        0
-      ]
-    },
     "search": [
       {
-        "col": 0,
+        "col": 1,
         "value": [
-          "string"
+          "拍摄"
         ]
       }
     ]
   },
-  "ignore_hidden_cell": true,
-  "option_cols": [
-    0
-  ],
+  "page": {
+    "page": 1,
+    "page_size": 100
+  },
   "show_total": true
 }
 ```
@@ -533,9 +533,9 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
 - `worksheet_id` (integer, 必填): 工作表 ID
-- `range` (object, 必填): 筛选区域
+- `range` (object, 必填): 筛选区域对象。使用从 0 开始的整数坐标 `row_from`、`row_to`、`col_from`、`col_to`，不能传 `"B:B"`、`"B1:B200"` 等 A1 字符串。
 - `page` (object, 可选): 分页参数（可选）
-- `filter` (object, 必填): 筛选条件；`condition` 传空数组时不筛选，输出全部
+- `filter` (object, 可选): 筛选条件，可传 `condition`（条件筛选）、`search`（文本搜索）、`duplicates`（去重）；省略时不筛选。
 - `ignore_hidden_cell` (boolean, 可选): 是否忽略隐藏单元格；默认值：`false`
 - `option_cols` (array[integer], 可选): 需返回选项统计的列坐标（相对于 `range`）
 - `show_total` (boolean, 可选): 是否返回总数；默认值：`false`
@@ -604,7 +604,7 @@ range_data.op_type的枚举值只有cell_operation_type_formula，cell_operation
 | `msg` | string | 错误描述，code 非 0 时返回失败原因 |
 | `data.merge_range_data` | array[object] | 当前区域包含的合并单元格数据 |
 | `data.option_col` | array[object] | 选项结果 |
-| `data.range_data` | array[object] | 区域数据，格式与 `get_range_data` 一致；未设置筛选条件时返回全部数据 |
+| `data.range_data` | array[object] | 区域数据，格式与 `get_range_data` 一致；未设置筛选条件时仍按 `range` 和 `page` 返回结果 |
 | `data.result_type` | integer | 本次是否成功，`0` 失败，`1` 成功 |
 | `data.total` | integer | 结果总数 |
 
@@ -2040,6 +2040,8 @@ user_cover 上传并带 map_id：
 
 批量更新单元格选区数据，支持写值/公式、设置格式、合并单元格、写入图片。
 
+worksheet_id 可省略；未提供 worksheet_id 和兼容参数 sheetId 时，服务端先查询工作表列表，再更新列表中的第一张工作表。首表查询失败、列表为空或首表 ID 无效时返回错误，不执行写入。需操作指定工作表时显式传入其 ID；兼容参数 sheetId 与 worksheet_id 同传时优先使用 sheetId。
+
 #### 工具选择
 
 - **适用**：兜底：`sheet.range_data_batch_update` 不可用或写入失败时
@@ -2048,7 +2050,7 @@ user_cover 上传并带 map_id：
 #### 调用约束
 
 - **前置检查**：调用 sheet.get_range_data 读取目标区域现有数据，确认覆盖范围
-- **前置检查**：使用该工具前必须先调用get_sheets_info确认要操作的工作表id，不得自行捏造工作表id。
+- **前置检查**：需要指定工作表时使用已取得的工作表 ID；尚未取得时调用 sheet.get_sheets_info。仅当目标为第一张工作表时省略工作表 ID，不得自行捏造。
 
 **幂等性**：是
 
@@ -2062,6 +2064,24 @@ user_cover 上传并带 map_id：
 > **`formula` 值以 `+`/`-`/`=` 开头会被当作公式解析**：写字面文本（如 `+86 手机号`）会报 Internal error，须前置 `'` 强制文本（如 `'+86 138…`），存储时引号不会带入。
 
 #### 调用示例
+
+省略工作表 ID，写入第一张工作表：
+
+```json
+{
+  "file_id": "VsdfG0001234567",
+  "rangeData": [
+    {
+      "opType": "formula",
+      "rowFrom": 0,
+      "rowTo": 0,
+      "colFrom": 0,
+      "colTo": 0,
+      "formula": "Hello"
+    }
+  ]
+}
+```
 
 写入值/公式：
 
@@ -2174,7 +2194,7 @@ user_cover 上传并带 map_id：
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享链接 ID
 - `file_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 文件 ID
-- `worksheet_id` (integer, 必填): 工作表 ID
+- `worksheet_id` (integer, 可选): 工作表 ID；未提供 worksheet_id 和兼容参数 sheetId 时使用工作表列表中的第一张工作表
 - `rangeData` (array[object], 必填): ⚠️ 单元格操作数组（必填，不可传单个对象），每项必须包含 `opType` 和坐标字段，详见 param_detail
 
 **rangeData 每项字段：**
@@ -2186,10 +2206,10 @@ user_cover 上传并带 map_id：
 | `rowTo` | integer | 是 | 结束行 |
 | `colFrom` | integer | 是 | 起始列（0-based） |
 | `colTo` | integer | 是 | 结束列 |
-| `formula` | string | 否 | 单元格公式或内容（`opType=formula` 时使用） |
-| `xf` | object | 否 | 格式对象（`opType=format` 时使用，见下方 xf 说明） |
-| `type` | string | 否 | 合并类型（`opType=merge` 时使用） |
-| `cellPicInfo` | object | 否 | 图片信息（`opType=picture` 时使用） |
+| `formula` | string | `opType=formula` 时必填 | 单元格公式或内容 |
+| `xf` | object | `opType=format` 时必填 | 格式对象，见下方 xf 说明 |
+| `type` | string | `opType=merge` 时必填 | 合并类型 |
+| `cellPicInfo` | object | `opType=picture` 时必填 | 图片信息 |
 
 ---
 

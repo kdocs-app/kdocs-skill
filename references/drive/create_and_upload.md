@@ -115,7 +115,7 @@
 }
 ```
 
-**`rangeData` 根节点必须是数组，每项是对象，`formula` 必须是二维数组；不得混用 `sheet.update_range_data` 的 `{range, values}`。**
+**创建表格时，`rangeData` 为对象数组，`formula` 为二维数组。`sheet.update_range_data` 的 `rangeData` 每项需包含 `opType` 和四个 camelCase 坐标，写值或公式时 `formula` 为字符串；两种结构不要混用。**
 
 新建到个人根：盘和目录都不传。新建到某文件夹：只传 `parent_id`。规则见 `file-locating-guide`。
 
@@ -126,7 +126,7 @@
 - **适用**：有内容需写入（正文/表格数据/多维表记录）时一步新建并写入
 - **适用**：新建多维表（.dbt）且须自定义列（即便暂无业务数据）时
 - **适用**：对话中已有 Markdown 正文，需直接创建并保留为 .md 文件时
-- **适用**：本地 Markdown 需新建为 otl/docx/pdf 时
+- **适用**：用户附本地 Markdown 上传云盘且未明确要求保留在线 `.md` 时（默认智能文档 otl；`name` 不带后缀）
 - **勿用**（改用 `create_empty_file`）：仅需空白文档
 
 #### 调用约束
@@ -143,6 +143,16 @@
 > dbt：records 列名须在 fields 中声明
 
 #### 调用示例
+
+本地 Markdown 上传为智能文档（默认 otl）：
+
+```json
+{
+  "name": "release-notes",
+  "file_extension": "otl",
+  "content": "# Release Notes\n\n## 1.0\n\n- 首版发布"
+}
+```
 
 新建智能文档（Markdown 正文）：
 
@@ -591,14 +601,19 @@ Markdown 新建 Word：
 #### 工具选择
 
 - **适用**：本地已有文件需上传新建云文档时
+- **适用**：用户明确要求将本地 `.md` 上传为在线 Markdown / 保留 markdown / 云盘后缀仍为 `.md` 时
 - **勿用**（改用 `create_file_with_content`）：对话内直接撰写内容新建文档
 - **勿用**（改用 `create_file_with_content`）：本地 Markdown 需新建为 otl/docx/pdf
+- **勿用**（改用 `create_file_with_content`）：用户仅说「上传 md」未明确要求保留 md 格式
 
 #### 调用约束
 
+- **前置检查**：新建前用 search_files 按文件名查重；本工具不支持 on_name_conflict。若目标是「本地 .md 上传为在线 Markdown」（见 references/workflows/upload-md-raw.md），须先查重并复用可复用的占位文件，禁止未查重就反复创建占位（否则默认 rename 产生 (1)(2) 空文件）
 - **后置验证**：写入后通过返回 size 或小文件 read_file 确认结果；zip/png/jpg/gif/json/dps/et/wps 等 read_file 不支持时用 get_file_info 校验
 
-**幂等性**：是
+**幂等性**：否 — 重试前 search_files 查重；已有同名占位或已得 file_id 时用 upload_replace_file 续写，禁止重复 upload_new_file
+
+> 「本地 .md 上传为在线 Markdown」或「对话内正文新建在线 Markdown」：占位成功后若图片转存或 upload_replace_file 写入最终正文失败，禁止再次 upload_new_file；须复用已得 file_id 继续完成（见 references/markdown.md、references/workflows/upload-md-raw.md、references/workflows/create-cloud-md.md）
 
 #### 调用示例
 
@@ -631,7 +646,7 @@ Markdown 新建 Word：
 }
 ```
 
-原样上传 Markdown 文件：
+上传 Markdown 文件（保留 .md）：
 
 ```json
 {
@@ -640,7 +655,7 @@ Markdown 新建 Word：
 }
 ```
 
-Markdown 新建文件：
+Markdown 新建为 Word 文件：
 
 ```json
 {
@@ -655,7 +670,7 @@ Markdown 新建文件：
 - `drive_id` (string, 可选): 目标云盘 ID。规则见 `references/file-locating-guide.md`。
 - `parent_id` (string, 可选): 父文件夹 ID，根目录为 "0"。"0" 是某个盘的根，不是个人盘根；不传则使用个人云盘根
 - `name` (string, 必填): 必填。文件名**必须带以下后缀之一**：`.doc` / `.docx` / `.xls` / `.xlsx` / `.ppt` / `.pptx` / `.pdf` / `.md` / `.txt` / `.html` / `.zip` / `.png` / `.jpg` / `.jpeg` / `.csv` / `.json` / `.dps` / `.et` / `.wps` / `.gif`
-- `content_base64` (string, 必填): **必填**。源文件内容的 Base64 编码。必须先读取文件二进制内容再做 Base64 编码；原样上传 .md/.txt 时为 UTF-8 文本的 Base64
+- `content_base64` (string, 必填): **必填**。源文件内容的 Base64 编码。必须先读取文件二进制内容再做 Base64 编码；上传 .md/.txt 时为 UTF-8 文本的 Base64
 - `content_format` (string, 可选): 源内容格式。目标后缀须与源一致；传 `markdown` 且目标为 docx/pdf 时服务端会转换后再上传。可选值：`doc` / `docx` / `xls` / `xlsx` / `ppt` / `pptx` / `pdf` / `md` / `txt` / `html` / `zip` / `png` / `jpg` / `jpeg` / `csv` / `json` / `dps` / `et` / `wps` / `gif` / `markdown`
 - `file_sum` (string, 可选): 文件哈希值，不传则服务端按内容计算
 - `file_type` (string, 可选): 哈希类型。可选值：`sha256` / `md5` / `sha1`
@@ -697,6 +712,7 @@ Markdown 新建文件：
 #### 工具选择
 
 - **适用**：以本地整文件覆盖已有云文档（非 .otl）时
+- **适用**：用本地 `.md` 全量覆盖已有在线 Markdown 时
 - **勿用**（改用 `otl.insert_content`）：覆盖 .otl 智能文档 — 智能文档新建用 create_file_with_content，已有文档追加用 otl.insert_content
 
 #### 调用约束
@@ -739,6 +755,15 @@ Markdown 覆盖（转为 docx/pdf）：
   "file_id": "k9TRnWXPLsMQJY7G3Bdf2yZVNK6hcxeqw",
   "content_base64": "<Markdown 内容的 Base64>",
   "content_format": "markdown"
+}
+```
+
+本地 Markdown 覆盖在线 Markdown：
+
+```json
+{
+  "file_id": "k9TRnWXPLsMQJY7G3Bdf2yZVNK6hcxeqw",
+  "content_base64": "<本地 .md UTF-8 正文的 Base64>"
 }
 ```
 
@@ -785,6 +810,9 @@ Markdown 覆盖（转为 docx/pdf）：
 - 远程 URL：传 `url`
 - 本地二进制：传 `content_base64`
 
+写入多维表格（`.dbt`）附件字段时，本工具返回的 `object_id` 作 `uploadId`，
+但 `new_content_type` **不能**直接作为附件 `type`（仅图片可用）；`type` 取值规则见 `dbsheet.create_fields` Attachment 节。
+
 **幂等性**：否 — 重复调用会上传多个副本，先确认是否已成功
 
 > url 与 content_base64 必须二选一
@@ -820,7 +848,7 @@ Markdown 覆盖（转为 docx/pdf）：
 - `filename` (string, 必填): 附件名
 - `url` (string, 二选一必填: `url` / `content_base64`): 远程附件 URL，条件必填。与 content_base64 二选一
 - `content_base64` (string, 二选一必填: `url` / `content_base64`): 本地附件内容的 Base64 编码，条件必填。与 url 二选一
-- `content_type` (string, 可选): 附件 MIME 类型，可选；content_base64 模式下不传则默认 application/octet-stream
+- `content_type` (string, 可选): 附件 MIME 类型，可选；content_base64 模式下不传则默认 application/octet-stream。**不保证生效，请勿用它纠正多维表附件字段的 type**（如 .doc 仍返回 application/octet-stream）
 - `source_type` (string, 可选): 上传内容类型，可选
 - `source` (string, 可选): 来源标记，可选；如 processon
 
@@ -847,4 +875,4 @@ Markdown 覆盖（转为 docx/pdf）：
 | `extra_info.width` | integer | 图片宽度（像素，仅图片类型返回） |
 | `extra_info.height` | integer | 图片高度（像素，仅图片类型返回） |
 | `old_content_type` | string | 原始内容类型 |
-| `new_content_type` | string | 转换后内容类型 |
+| `new_content_type` | string | 内容类型；仅图片可直接作为多维表附件字段的 type（如 image/png），文档类请用文件扩展名（见 dbsheet.create_fields Attachment 节） |

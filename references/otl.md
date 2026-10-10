@@ -50,7 +50,7 @@ PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`�
 
 > ⚠️ `read_file` 对智能文档存在**内容遗漏风险**——部分组件类型（如嵌入表格、附件、特殊块）可能在转换过程中丢失。**仅在需要将文档导出为 Markdown 格式时使用**，日常读取和编辑前的内容确认应优先使用 `otl.block_query`。
 
-**图片导出**：默认导出的 Markdown 不含图片链接，仅显示占位符。需要图片时传 `enable_upload_medias: true`（仅 `format=markdown` 或 `kdc` 时生效），图片 URL **有效期约 10 分钟**——导出完成后须立即告知用户链接有时效限制，并询问是否需要下载。
+**图片导出**：`read_file` 默认返回图片临时可下载 URL（有效期约 10 分钟，须立即告知用户时效并询问是否下载）；显式传 `enable_upload_medias=false` 或图片本身为空/不可转时图片为 `![image]()` 空占位。
 
 ### 写入/更新已有智能文档
 
@@ -82,22 +82,17 @@ PowerShell 下复杂 JSON（含中文、数组、大对象）优先用 `--file`�
 
 #### 读取智能文档内嵌图片
 
-> 🎯 **读取智能文档内嵌图片时，禁止仅用默认 `read_file`（会得到 `![image]()` 空占位）。**
+**触发识别**：用户要求读取/查看/下载 **智能文档（.otl）内的图片、封面或附件** 时走此流程（含表格单元格内 picture、文档封面等）。
 
-**触发识别**：用户要求读取/查看/下载 **智能文档（.otl）内的图片** 时走此流程（含表格单元格内 picture、文档封面等）。
-
-**路径 A（首选，Markdown 中带图）**：
+**路径 A（展示/引用图片，最简）**：直接 `read_file` —— 默认即在 Markdown 中返回**带临时下载链接的图片语法**（**约 10 分钟有效**），无需传 `enable_upload_medias`。须告知用户 URL 时效并询问是否下载。
 
 ```bash
-kdocs-cli drive read-file url="https://www.kdocs.cn/l/xxx" enable_upload_medias=true
+kdocs-cli drive read-file url="https://www.kdocs.cn/l/xxx"
 ```
 
-- 成功：`content` 中 `![image](https://...)` 含临时 URL（**约 10 分钟有效**），须告知用户时效并询问是否下载。
-- 若仍为 `![image]()`：检查是否遗漏 `enable_upload_medias=true`，或改走路径 B。
+**路径 B（按块下载原图）**：`otl.block_query`（`params: { blockIds: ["doc"] }`）→ 找目标 type: "picture" 节点的 `attrs.sourceKey` → `download_attachment`（`attachment_id` 填该值，文档标识沿用块查询时的值）
 
-**路径 B（按块下载原图）**：`otl.block_query`（`params: { blockIds: ["doc"] }`）→ 找目标 `type: "picture"` 节点的 `attrs.sourceKey` → `download_attachment`（`attachment_id` 填该值，文档标识沿用块查询时的值）。
-
-**禁止**：仅调用默认 `read_file` 后告知「无法读取图片」；收到 warnings 建议 `otl.block_query` 时必须继续尝试路径 A 或 B。
+**注意**：若 `read_file` 返回**空图片占位**（显式 `enable_upload_medias=false` 或图片本身为空/不可转），该占位不含可下载资源，改走路径 B，**不要凭空占位调 `download_attachment`**。
 
 ## 工具组合速查
 
@@ -108,7 +103,7 @@ kdocs-cli drive read-file url="https://www.kdocs.cn/l/xxx" enable_upload_medias=
 | 向已有文档追加/插入表格 | 末尾追加 → `otl.insert_content`（`format=markdown` + 管道表，**禁止 html**）；指定块位置 → `otl.block_query` → `otl.convert`（markdown）→ `otl.block_insert`（约束见 `otl/insert_content.md`、`otl/convert.md`） |
 | 读取现有文档内容 | `otl.block_query`（`params: { blockIds: ["doc"] }` 获取全文） |
 | **读取/下载文档内图片** | 见本文「常用工作流 → 读取智能文档内嵌图片」 |
-| 导出文档为 Markdown | `read_file`（可能遗漏部分组件内容；需要图片时传 `enable_upload_medias: true`，URL 有效期约 10 分钟） |
+| 导出文档为 Markdown | `read_file`（可能遗漏部分组件内容；默认返回图片临时 URL，有效期约 10 分钟） |
 | 精确修改文档块 | `otl.block_query` → `otl.block_delete` / `otl.block_insert` |
 | 修改文档标题 | `otl.block_query`（`params: { blockIds: ["doc"] }`）获取 title 块 ID → `otl.block_update`（`update_content`，`content` 传 text 节点） |
 | 向文档插入图片 | `upload_attachment`（获取 `object_id`）→ `otl.block_insert`（`type: "picture"`，`sourceKey` 设为 `object_id`，其余属性见 otl/node.md） |

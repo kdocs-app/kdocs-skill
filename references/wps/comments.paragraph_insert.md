@@ -26,6 +26,7 @@
 - `link_id` (string, 三选一必填: `url` / `link_id` / `file_id`): 分享 id；与 url、file_id 三选一
 - `paragraph_index` (number, 必填): 段落索引，从 1 开始
 - `text` (string, 必填): 批注文本
+- `author` (string, 可选): 批注作者；省略时由服务端从当前用户元数据解析
 - `url` (string, 三选一必填: `url` / `link_id` / `file_id`): 文档 URL；与 link_id、file_id 三选一
 
 #### 返回值说明

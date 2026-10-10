@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> **段落浅灰底纹**：`search` 定位目标字面 → `count`+`range`（长文档二分）→ 本工具 `BackgroundPatternColorIndex=16`（wdGray25）；**禁止** `wps.texts.highlight`。写后 query 回读。详见 `references/workflows/wps-paragraph-align-indent.md`（场景 8）。
+
 #### 支持功能
 
 | 功能简述 | 详情 |

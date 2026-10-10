@@ -141,12 +141,12 @@
 | 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
 | 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；格式见 `dbsheet.create_fields` Attachment 节 |
+| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.doc","size":1024,"source":"upload_ks3","type":"doc"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；`type` 文档传小写扩展名（如 `doc`/`docx`/`pdf`），图片传 `image/xxx`（如 `image/png`），**禁止传 `application/...` 等 MIME（会写入成功但前端打不开）**；格式见 `dbsheet.create_fields` Attachment 节 |
 | 关联（Link） | string[] | `["record_id_1","record_id_2"]` | 关联记录 id 数组 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | — |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
 | 级联（Cascade） | object | `{"districts":["一级选项","二级选项"]}` | 各级选中值数组 |
-| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 查找引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及 `data` 配置可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 
@@ -192,7 +192,7 @@
 | `等级` | Rating | 不超过字段 `max` /`max_value` 的整数 |
 | `进度条` | Complete | `0.5` | 进度值 0.0–1.0 |
 | `联系人` | Contact | `[{"id":"uid","nickname":"昵称","avatar_url":"…"}]` |
-| `附件` | Attachment | `[{"uploadId":"…","fileName":"…","size":0,"source":"upload_ks3","type":"image/png"}]` |
+| `附件` | Attachment | 文档：`[{"uploadId":"…","fileName":"a.doc","size":0,"source":"upload_ks3","type":"doc"}]`；图片：`[{"uploadId":"…","fileName":"a.png","size":0,"source":"upload_ks3","type":"image/png"}]` |
 | `关联` | Link | `["record_id_1","record_id_2"]` |
 | `富文本` | Note | `{"fileId":"…","summary":"摘要","modifyDate":"2025/12/31 12:00:00"}` |
 | `地址` | Address | `{"districts":["广东省","珠海市","香洲区"],"detail":"…"}` |
@@ -356,12 +356,12 @@
 | 等级（Rating） | int | `3` | 不超过字段 `max` /`max_value` 上限 |
 | 进度条（Complete） | float | `0.5` | 进度值 0.0–1.0 |
 | 联系人（Contact） | object[] | `[{"id":"uid","nickname":"张三","avatar_url":"https://…"}]` | `id` 为用户 uid |
-| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.png","size":1024,"source":"upload_ks3","type":"image/png"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；格式见 `dbsheet.create_fields` Attachment 节 |
+| 附件（Attachment） | object[] | `[{"uploadId":"…","fileName":"a.doc","size":1024,"source":"upload_ks3","type":"doc"}]` | `source` 取 `upload_ks3` 或 `Cloud`（须 `linkUrl`）；本地上传勿标 `Cloud`；`type` 文档传小写扩展名（如 `doc`/`docx`/`pdf`），图片传 `image/xxx`（如 `image/png`），**禁止传 `application/...` 等 MIME（会写入成功但前端打不开）**；格式见 `dbsheet.create_fields` Attachment 节 |
 | 关联（Link） | string[] | `["I","G"]` | 关联记录 id 数组 |
 | 富文本（Note） | object | `{"fileId":"…","summary":"摘要","modifyDate":"2024/12/09 12:00:00"}` | 仅可更新 summary 等元数据；**正文内容须用 `get_schema_detail` 获取 content_id 后通过 `innerdoc_block_*` 工具链读写，不可通过 update_records 写入正文内容** |
 | 地址（Address） | object | `{"districts":["广东省","珠海市","香洲区"],"detail":"详细地址"}` | `districts` 层级与字段 `addressLevel` 一致 |
 | 级联（Cascade） | object | `{"districts":["一级选项","二级选项"]}` | 各级选中值数组 |
-| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
+| 公式 / 编号 / 创建时间 / 创建者 / 最后修改者 / 查找引用 | — | **不可填写** | 自动字段，传入会被忽略或报错 |
 
 字段类型定义及值格式完整说明可参考 `dbsheet.create_fields`（`param_detail` 各类型节）。
 

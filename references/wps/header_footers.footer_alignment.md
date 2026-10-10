@@ -6,6 +6,8 @@
 
 **幂等性**：是 — safe
 
+> 须设页脚段落对齐时仅用 **update**；写后用 `footer_content` 回读，勿 query alignment。
+
 #### 支持功能
 
 | 功能简述 | 详情 |
